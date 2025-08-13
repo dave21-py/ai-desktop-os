@@ -4,65 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Warmwind OS</title>
-    <!-- Import Fonts: A friendly script for the heading and a clean sans-serif for the UI -->
+    <!-- Import Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
-    
-    <!-- Links to our stylesheets -->
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/themes.css">
 </head>
 <body>
 
-    <!-- This is the main application window -->
+    <!-- Main Application Window -->
     <div class="app-window">
 
-        <!-- This pill is positioned absolutely at the top -->
         <div class="top-pill">VibeOS</div>
 
-        <!-- This is the central welcome content area -->
+        <!-- Central Welcome Content -->
         <main class="welcome-content">
             <h1 class="welcome-heading">Welcome</h1>
             <p class="welcome-subheading">to the new AI operating system!</p>
             <button class="browse-apps-btn">Browse apps</button>
         </main>
 
-        <!-- === ...AND PASTE THE NEW CODE RIGHT AFTER IT === -->
-
-        <!-- The Desktop area where app windows will live -->
+        <!-- Desktop area for app windows -->
         <div id="desktop"></div>
 
-        <!-- A template for creating new app windows -->
+        <!-- Template for new app windows -->
         <template id="window-template">
             <div class="app-instance-window">
                 <div class="window-title-bar">
                     <img class="window-icon" src="" alt="App Icon">
                     <span class="window-title"></span>
                     <div class="window-controls">
-                        <!-- NEW: Minimize and Maximize buttons -->
-                        <button class="window-minimize-btn" title="Minimize">
-                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
-                        </button>
-                        <button class="window-maximize-btn" title="Maximize">
-                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg>
-                        </button>
-                        <button class="window-close-btn" title="Close">
-                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg>
-                        </button>
+                        <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
+                        <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
+                        <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
                     </div>
                 </div>
                 <div class="window-content">
-                    <!-- NEW: Loading overlay -->
-                    <div class="loading-overlay">
-                        <div class="spinner"></div>
-                    </div>
+                    <div class="loading-overlay"><div class="spinner"></div></div>
                     <iframe></iframe>
                 </div>
             </div>
         </template>
-
-        <!-- The Modal Overlay (contains the App Drawer) -->
+        
+        <!-- Modal Overlay for the App Drawer -->
         <div class="modal-overlay hidden">
             <div class="app-drawer">
                 <div class="app-drawer-header">
@@ -71,63 +57,32 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <input type="text" placeholder="Search...">
                     </div>
-                    <!-- Close button for the modal -->
                     <button class="close-modal-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-
                 <div class="app-grid">
-                    <!-- App items will be dynamically generated or hardcoded here -->
-                    <div class="app-item" data-appid="outlook" data-appname="Outlook" data-url="https://outlook.live.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook Icon">
-                        <span>Outlook</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
-                    <div class="app-item" data-appid="canva" data-appname="Canva" data-url="https://canva.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/en/e/e8/Canva_icon_2021.svg" alt="Canva Icon">
-                        <span>Canva</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
-                    <div class="app-item" data-appid="chatgpt" data-appname="ChatGPT" data-url="https://chat.openai.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT Icon">
-                        <span>ChatGPT</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
-                    <div class="app-item" data-appid="chrome" data-appname="Chrome" data-url="https://google.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome Icon">
-                        <span>Chrome</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
-                    <div class="app-item" data-appid="googledocs" data-appname="Google Docs" data-url="https://docs.google.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/0/01/Google_Docs_logo_%282014-2020%29.svg" alt="Google Docs Icon">
-                        <span>Google Docs</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
-                    <div class="app-item" data-appid="googledrive" data-appname="Google Drive" data-url="https://drive.google.com">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" alt="Google Drive Icon">
-                        <span>Google Drive</span>
-                        <button class="download-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg>
-                        </button>
-                    </div>
+                    <!-- Your App List -->
+                    <div class="app-item" data-appid="vscode" data-appname="Code Editor" data-url="https://vscode.dev"><img src="https://vscode.dev/static/stable/favicon.ico" alt="VS Code Icon"><span>Code Editor</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="tldraw" data-appname="Whiteboard" data-url="https://tldraw.com"><img src="https://tldraw.com/favicon.svg" alt="tldraw Icon"><span>Whiteboard</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="wikipedia" data-appname="Wikipedia" data-url="https://www.wikipedia.org"><img src="https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg" alt="Wikipedia Icon"><span>Wikipedia</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="2048" data-appname="2048 Game" data-url="https://play2048.co/"><img src="https://play2048.co/favicon.ico" alt="2048 Icon"><span>2048 Game</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="gmail" data-appname="Gmail" data-url="https://mail.google.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon"><span>Gmail</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="youtube" data-appname="YouTube" data-url="https://youtube.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg" alt="YouTube Icon"><span>YouTube</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="facebook" data-appname="Facebook" data-url="https://facebook.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/en/0/04/Facebook_f_logo_%282021%29.svg" alt="Facebook Icon"><span>Facebook</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="twitter" data-appname="Twitter / X" data-url="https://twitter.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ce/X_logo_2023.svg" alt="Twitter/X Icon"><span>Twitter / X</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="linkedin" data-appname="LinkedIn" data-url="https://linkedin.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn Icon"><span>LinkedIn</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="canva" data-appname="Canva" data-url="https://canva.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/en/e/e8/Canva_icon_2021.svg" alt="Canva Icon"><span>Canva</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="figma" data-appname="Figma" data-url="https://figma.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma Icon"><span>Figma</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="notion" data-appname="Notion" data-url="https://notion.so" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Notion-logo.svg" alt="Notion Icon"><span>Notion</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="amazon" data-appname="Amazon" data-url="https://amazon.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon Icon"><span>Amazon</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
+                    <div class="app-item" data-appid="netflix" data-appname="Netflix" data-url="https://netflix.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix Icon"><span>Netflix</span><button class="download-btn"><svg><path d="M12 17V3m0 14l-4-4m4 4l4-4M3 21h18"/></svg></button></div>
                 </div>
             </div>
         </div>
 
-        <!-- The main bottom bar -->
+        <!-- The Main Bottom Bar -->
         <footer class="bottom-bar">
-            <!-- Left Section: Avatar Stack -->
             <div class="bar-section left">
                 <div class="avatar-stack">
                     <img src="https://i.pravatar.cc/150?img=1" alt="User avatar" class="avatar">
@@ -135,25 +90,19 @@
                     <img src="https://i.pravatar.cc/150?img=3" alt="User avatar" class="avatar">
                 </div>
             </div>
-
-            <!-- CORRECTED Center Section -->
             <div class="bar-section center">
                 <img src="https://i.pravatar.cc/150?img=32" alt="Main user avatar" class="avatar central-ask-avatar">
                 <span class="ask-text">Ask something</span>
                 <button class="add-btn">+</button>
             </div>
-
-            <!-- Right Section: Single Avatar -->
             <div class="bar-section right">
                 <img src="https://i.pravatar.cc/150?img=4" alt="User avatar" class="avatar">
             </div>
         </footer>
 
-    </div>
+    </div> <!-- End of .app-window -->
 
-    <!-- Core OS logic script -->
     <script src="js/os-core.js" defer></script>
-    <!-- Main interaction script -->
     <script src="js/main.js" defer></script>
 
 </body>

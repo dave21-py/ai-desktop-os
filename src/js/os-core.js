@@ -19,24 +19,40 @@ class WarmwindOS {
         this.ui.dock = document.querySelector('.bar-section.center');
     }
 
+    /**
+     * UPDATED: This is now the main router for launching anything.
+     * @param {HTMLElement} appElement - The app icon element that was clicked.
+     */
     launchApp(appElement) {
+        // Handle opening the App Drawer itself
         if (appElement.dataset.appid === 'app-drawer') {
             this._showAppDrawer();
             return;
         }
         
-        const appData = {
-            id: appElement.dataset.appid,
-            name: appElement.dataset.appname,
-            url: appElement.dataset.url,
-            icon: appElement.querySelector('img').src,
-        };
+        // NEW: Check the launch mode. Default to 'iframe' if not specified.
+        const launchMode = appElement.dataset.launchMode || 'iframe';
+        const url = appElement.dataset.url;
 
-        const existingWindow = this.state.openWindows.find(win => win.dataset.appid === appData.id);
-        if (existingWindow) {
-            this._focusWindow(existingWindow);
+        if (launchMode === 'new-tab') {
+            // Logic for opening in a new browser tab
+            console.log(`Core: Launching ${url} in a new tab.`);
+            window.open(url, '_blank');
         } else {
-            this._createWindow(appData);
+            // Existing logic for opening an internal iframe window
+            const appData = {
+                id: appElement.dataset.appid,
+                name: appElement.dataset.appname,
+                url: url,
+                icon: appElement.querySelector('img').src,
+            };
+
+            const existingWindow = this.state.openWindows.find(win => win.dataset.appid === appData.id);
+            if (existingWindow) {
+                this._focusWindow(existingWindow);
+            } else {
+                this._createWindow(appData);
+            }
         }
     }
     
