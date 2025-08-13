@@ -1,0 +1,81 @@
+/* --- Light Theme Color Palette --- */
+
+/* 
+  We define all our theme colors as variables inside the :root selector.
+  This makes them globally available and easy to change later.
+  By default, our OS will use this light theme.
+*/
+:root {
+    /* Text Colors */
+    --text-primary: #ffffff;      /* For main welcome text */
+    --text-secondary: #555555;    /* For dark text on light backgrounds (e.g., top pill) */
+    --text-placeholder: #a0a8b3; /* For the search input placeholder */
+    --text-input: #333333;        /* For text typed into the search bar */
+
+    /* Background Colors */
+    --bg-bottom-bar: #fdfdfd;      /* The clean white of the bottom bar */
+    --bg-search-bar: #eef1f5;      /* The slightly darker grey for the search input area */
+    --bg-top-pill: rgba(255, 255, 255, 0.9); /* Translucent white for the top pill */
+
+    /* Button & Accent Colors */
+    --btn-glass-bg: rgba(255, 255, 255, 0.2);     /* Frosted glass effect for the 'Browse apps' button */
+    --btn-glass-bg-hover: rgba(255, 255, 255, 0.3);
+    --btn-add-bg: #c3e2dd;                        /* The minty green for the '+' button */
+    --btn-add-text: #5d8e87;                      /* Text color for the '+' button */
+
+    /* Border Colors */
+    --border-glass: rgba(255, 255, 255, 0.4);     /* Border for the 'Browse apps' button */
+    --border-notch: var(--bg-bottom-bar);        /* CRITICAL: The avatar border must match the bar bg */
+}
+
+
+/* --- Applying Theme Colors to Components --- */
+
+.top-pill {
+    background-color: var(--bg-top-pill);
+    color: var(--text-secondary);
+}
+
+.welcome-content {
+    color: var(--text-primary);
+}
+
+.welcome-subheading {
+    opacity: 0.85; /* We control opacity here, not with a color variable */
+}
+
+.browse-apps-btn {
+    color: var(--text-primary);
+    background-color: var(--btn-glass-bg);
+    border-color: var(--border-glass);
+}
+
+.browse-apps-btn:hover {
+    background-color: var(--btn-glass-bg-hover);
+}
+
+.central-avatar {
+    /* The 6px border creates the "notch" effect by covering the bar behind it */
+    border: 6px solid var(--border-notch); 
+}
+
+.bottom-bar {
+    background-color: var(--bg-bottom-bar);
+}
+
+.search-form {
+    background-color: var(--bg-search-bar);
+}
+
+.search-input {
+    color: var(--text-input);
+}
+
+.search-input::placeholder {
+    color: var(--text-placeholder);
+}
+
+.add-btn {
+    background-color: var(--btn-add-bg);
+    color: var(--btn-add-text);
+}
