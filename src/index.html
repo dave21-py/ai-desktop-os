@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warmwind OS</title>
+    <!-- Import Fonts: A friendly script for the heading and a clean sans-serif for the UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- Link to our stylesheet -->
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+    <!-- This is the main application window -->
+    <div class="app-window">
+
+        <!-- This pill is positioned absolutely at the top -->
+        <div class="top-pill">VibeOS</div>
+
+        <!-- This is the central welcome content area -->
+        <main class="welcome-content">
+            <h1 class="welcome-heading">Welcome</h1>
+            <p class="welcome-subheading">to the new AI Operating System!</p>
+            <button class="browse-apps-btn">Browse apps</button>
+        </main>
+
+        <!-- This container holds the bottom bar and the central notched avatar -->
+        <footer class="bottom-bar-container">
+            <!-- The central avatar that creates the notch effect -->
+            <img src="https://i.pravatar.cc/150?img=32" alt="Main user avatar" class="central-avatar">
+            
+            <!-- The main bottom bar -->
+            <div class="bottom-bar">
+                <!-- Left Section: Avatar Stack -->
+                <div class="bar-section left">
+                    <div class="avatar-stack">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="User avatar" class="avatar">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="User avatar" class="avatar">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="User avatar" class="avatar">
+                    </div>
+                </div>
+
+                <!-- Center Section: Search Bar -->
+                <div class="bar-section center">
+                    <form class="search-form">
+                        <input type="text" class="search-input" placeholder="Ask something">
+                        <button type="submit" class="add-btn">+</button>
+                    </form>
+                </div>
+
+                <!-- Right Section: Single Avatar -->
+                <div class="bar-section right">
+                    <img src="https://i.pravatar.cc/150?img=4" alt="User avatar" class="avatar">
+                </div>
+            </div>
+        </footer>
+
+    </div>
+
+</body>
+</html>
