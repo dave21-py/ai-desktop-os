@@ -2,32 +2,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const os = new WarmwindOS();
     os.boot();
 
+    // --- Global UI Listeners ---
     const browseAppsBtn = document.querySelector('.browse-apps-btn');
     const closeModalBtn = document.querySelector('.close-modal-btn');
     const appGrid = document.querySelector('.app-grid');
     const desktop = document.querySelector('#desktop');
     const dock = document.querySelector('.bar-section.center');
 
-    browseAppsBtn?.addEventListener('click', () => os.launchApp({ dataset: { appid: 'app-drawer' } }));
-    closeModalBtn?.addEventListener('click', () => os._closeAppDrawer());
+    // NEW: AI Assistant Elements
+    const aiAskElements = document.querySelectorAll('.central-ask-avatar, .ask-text');
+    const aiCloseBtn = document.querySelector('.ai-close-btn');
 
+    // Debug logging
+    console.log('Browse Apps Button found:', browseAppsBtn);
+    console.log('Modal overlay found:', document.querySelector('.modal-overlay'));
+
+    // App Drawer Button - FIXED: Call _showAppDrawer directly
+    browseAppsBtn?.addEventListener('click', (e) => {
+        console.log('Browse apps button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        os._showAppDrawer();
+    });
+
+    closeModalBtn?.addEventListener('click', (e) => {
+        console.log('Close modal button clicked!');
+        e.preventDefault();
+        e.stopPropagation();
+        os._closeAppDrawer();
+    });
+
+    // App Grid Launching
     appGrid?.addEventListener('click', (e) => {
         const appItem = e.target.closest('.app-item');
         if (appItem) {
+            console.log('App item clicked:', appItem.dataset.appname);
             os.launchApp(appItem);
             os._closeAppDrawer();
         }
     });
 
-    dock?.addEventListener('click', (e) => {
-        const dockIcon = e.target.closest('.dock-item');
-        if (dockIcon) {
-            const windowId = dockIcon.dataset.windowId;
-            const windowEl = desktop.querySelector(`.app-instance-window[data-window-id="${windowId}"]`);
-            if (windowEl) os._focusWindow(windowEl);
-        }
-    });
-
+    // Window Interactions (Dragging, Focusing, Closing)
     let activeWindow = null;
     let offsetX, offsetY;
 
@@ -67,4 +82,60 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', () => {
         activeWindow = null;
     });
+
+    // Dock Interactions - FIXED: Handle minimized windows
+    dock?.addEventListener('click', (e) => {
+        const dockIcon = e.target.closest('.dock-item');
+        if (dockIcon) {
+            const windowId = dockIcon.dataset.windowId;
+            const windowEl = desktop.querySelector(`.app-instance-window[data-window-id="${windowId}"]`);
+            if (windowEl) {
+                // Check if window is minimized and restore it, otherwise just focus
+                if (windowEl.classList.contains('minimized')) {
+                    console.log('Restoring minimized window:', windowId);
+                    os._restoreWindow(windowEl);
+                } else {
+                    console.log('Focusing window:', windowId);
+                    os._focusWindow(windowEl);
+                }
+            }
+        }
+    });
+
+    // --- AI Assistant Interactions ---
+
+    // Open AI Panel when 'Ask something' is clicked
+    aiAskElements.forEach(el => {
+        el.addEventListener('click', () => {
+            console.log('AI panel opened');
+            os.showAIPanel();
+        });
+    });
+
+    // Close AI Panel
+    aiCloseBtn?.addEventListener('click', () => {
+        console.log('AI panel closed');
+        os.closeAIPanel();
+    });
+
+    // Handle AI Input form submission (The 'send' button)
+    const aiInputForm = os.ui.aiInputForm;
+    if (aiInputForm) {
+        aiInputForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = os.ui.aiInput.value.trim();
+            if (query) {
+                os.ui.aiInput.value = ''; // Clear input immediately
+                os.ui.aiSendBtn.disabled = true;
+                await os.askAI(query); // Call the main AI function and wait for it to finish
+                os.ui.aiSendBtn.disabled = false; // Re-enable button after AI response
+            }
+        });
+
+        // Simple input validation for the send button (UX detail)
+        os.ui.aiInput.addEventListener('input', () => {
+            os.ui.aiSendBtn.disabled = os.ui.aiInput.value.trim() === '';
+        });
+        os.ui.aiSendBtn.disabled = true; // Disable on load
+    }
 });
