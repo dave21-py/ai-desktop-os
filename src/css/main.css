@@ -335,3 +335,206 @@ body {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 3px;
 }
+/* --- Desktop & Windowing System --- */
+
+/* The desktop is a container layer for all app windows */
+/* --- Desktop & Windowing System --- */
+
+#desktop {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    pointer-events: none; /* FIX: Allows clicks to pass through to elements underneath */
+}
+
+.modal-overlay {
+    /* Make sure the modal is on top of the desktop */
+    z-index: 100;
+}
+
+/* --- UPDATE THIS RULE --- */
+.app-instance-window {
+    position: absolute;
+    width: 960px; /* INCREASED from 800px */
+    height: 640px; /* INCREASED from 500px */
+    /* ... rest of the styles are the same ... */
+    background-color: #fcfcfc;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    resize: both;
+    min-width: 300px;
+    min-height: 200px;
+    pointer-events: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease; /* For smooth minimize */
+}
+
+/* A class to bring the focused window to the front */
+.app-instance-window.active-window {
+    z-index: 20;
+}
+
+/* The top bar of the window */
+.window-title-bar {
+    display: flex;
+    align-items: center;
+    padding: 0 8px 0 12px;
+    height: 36px;
+    background-color: #f1f1f1;
+    flex-shrink: 0; /* Prevents it from shrinking */
+    cursor: grab; /* Indicates the window can be dragged */
+    user-select: none; /* Prevents text selection while dragging */
+}
+.window-title-bar:active {
+    cursor: grabbing;
+}
+
+.window-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+}
+
+.window-title {
+    flex-grow: 1;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.window-controls {
+    display: flex;
+    align-items: center;
+}
+
+.window-close-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.window-close-btn:hover {
+    background-color: #e81123;
+    color: white;
+}
+
+/* The main content area of the window */
+.window-content {
+    flex-grow: 1;
+    background-color: #fff;
+}
+
+/* The iframe that will load the web app */
+.window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: #fff; /* Show a white background while the site loads */
+}
+
+/* --- NEW: Window State Classes --- */
+.app-instance-window.minimized {
+    transform: translateY(100px) scale(0.9);
+    opacity: 0;
+    pointer-events: none; /* Ignore clicks when minimized */
+}
+.app-instance-window.maximized {
+    width: 100% !important;
+    height: 100% !important;
+    top: 0 !important;
+    left: 0 !important;
+    border-radius: 0;
+    resize: none; /* Disable resizing when maximized */
+    transition: none;
+}
+
+/* --- NEW: Updated Window Control Styles --- */
+.window-controls {
+    gap: 4px; /* Space between control buttons */
+}
+.window-minimize-btn, .window-maximize-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    color: #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.window-minimize-btn:hover {
+    background-color: #ddd;
+}
+.window-maximize-btn:hover {
+    background-color: #ddd;
+}
+
+/* --- NEW: Loading Spinner Styles --- */
+.loading-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2; /* Sits on top of the iframe */
+    transition: opacity 0.3s ease;
+}
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0,0,0,0.1);
+    border-left-color: #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- NEW: Dock Styles --- */
+.dock-item {
+    width: 40px;
+    height: 40px;
+    padding: 4px;
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.dock-item:hover {
+    transform: translateY(-4px);
+    background-color: rgba(255,255,255,0.4);
+}
+.dock-item.active-dock-icon::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: var(--btn-add-bg);
+    border-radius: 50%;
+}

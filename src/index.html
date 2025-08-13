@@ -28,6 +28,40 @@
             <button class="browse-apps-btn">Browse apps</button>
         </main>
 
+        <!-- === ...AND PASTE THE NEW CODE RIGHT AFTER IT === -->
+
+        <!-- The Desktop area where app windows will live -->
+        <div id="desktop"></div>
+
+        <!-- A template for creating new app windows -->
+        <template id="window-template">
+            <div class="app-instance-window">
+                <div class="window-title-bar">
+                    <img class="window-icon" src="" alt="App Icon">
+                    <span class="window-title"></span>
+                    <div class="window-controls">
+                        <!-- NEW: Minimize and Maximize buttons -->
+                        <button class="window-minimize-btn" title="Minimize">
+                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg>
+                        </button>
+                        <button class="window-maximize-btn" title="Maximize">
+                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg>
+                        </button>
+                        <button class="window-close-btn" title="Close">
+                            <svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <!-- NEW: Loading overlay -->
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                    <iframe></iframe>
+                </div>
+            </div>
+        </template>
+
         <!-- The Modal Overlay (contains the App Drawer) -->
         <div class="modal-overlay hidden">
             <div class="app-drawer">
