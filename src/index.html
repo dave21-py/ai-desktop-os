@@ -26,7 +26,7 @@
             <button class="browse-apps-btn">Browse apps</button>
         </main>
 
-        <!-- Desktop area for app windows -->
+        <!-- Desktop area for app windows and desktop items -->
         <div id="desktop"></div>
 
         <!-- Template for new app windows -->
@@ -104,20 +104,32 @@
             </div>
         </footer>
 
-        <!-- === ...AND PASTE THE NEW CODE RIGHT AFTER IT, BEFORE THE </div.app-window> === -->
-
-        <!-- AI Assistant Panel (hidden by default) -->
+        <!-- AI Assistant Panel with Enhanced Desktop Commands -->
         <div class="ai-assistant-panel hidden">
             <div class="ai-panel-header">
-                <h3>AI Assistant</h3>
+                <h3>🤖 AI Desktop Assistant</h3>
                 <button class="ai-close-btn">
                     <svg width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg>
                 </button>
             </div>
             <div class="ai-message-list">
-                <!-- Chat messages will be added here by JavaScript -->
+                <!-- Enhanced AI welcome message with desktop commands -->
                 <div class="ai-message from-ai">
-                    <div class="message-bubble">Hello! How can I help you today? You can ask me a question or tell me to open an app.</div>
+                    <div class="message-bubble">
+                        Hello! I'm your desktop assistant! 🤖 I can help you manage your desktop and launch apps.<br><br>
+                        <strong>🗂️ Desktop Commands:</strong><br>
+                        • "Create a new folder"<br>
+                        • "Make a folder called Documents"<br>
+                        • "Delete selected folder"<br>
+                        • "Rename to Work Files"<br>
+                        • "Show all folders"<br>
+                        • "Empty recycle bin"<br><br>
+                        <strong>🚀 App Commands:</strong><br>
+                        • "Open Wikipedia"<br>
+                        • "Launch Gmail"<br>
+                        • "Start Google Gemini"<br><br>
+                        <em>💡 Try double-clicking the desktop to create folders manually, or just ask me anything!</em>
+                    </div>
                 </div>
             </div>
             <div class="ai-typing-indicator hidden">
@@ -129,7 +141,7 @@
             </div>
             <div class="ai-panel-footer">
                 <form class="ai-input-form">
-                    <input type="text" placeholder="Ask something..." autocomplete="off" required>
+                    <input type="text" placeholder="Ask me to create folders, launch apps, or anything else..." autocomplete="off" required>
                     <button type="submit" title="Send">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"/></svg>
                     </button>
@@ -139,12 +151,14 @@
 
     </div> <!-- End of .app-window -->
 
-    <!-- === UPDATE THE SCRIPT SECTION AT THE BOTTOM OF YOUR HTML === -->
-
-    <!-- NEW: Load the secret config file first -->
+    <!-- Scripts -->
+    <!-- Load the config file first (if you have one) -->
     <script src="js/config.js" defer></script>
-
+    
+    <!-- Load the enhanced OS core with desktop management -->
     <script src="js/os-core.js" defer></script>
+    
+    <!-- Load the main event handlers -->
     <script src="js/main.js" defer></script>
 
 </body>

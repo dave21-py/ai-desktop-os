@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const desktop = document.querySelector('#desktop');
     const dock = document.querySelector('.bar-section.center');
 
-    // NEW: AI Assistant Elements
+    // AI Assistant Elements
     const aiAskElements = document.querySelectorAll('.central-ask-avatar, .ask-text');
     const aiCloseBtn = document.querySelector('.ai-close-btn');
 
@@ -42,11 +42,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- CONSOLIDATED Window Interactions ---
+    // --- Window Interactions ---
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
+    let dragTarget = null;
 
     desktop.addEventListener('mousedown', (e) => {
+        // Handle desktop items first (they have higher priority)
+        if (e.target.closest('.desktop-item')) {
+            return; // Let the desktop system handle this
+        }
+
+        // Handle windows
         const windowEl = e.target.closest('.app-instance-window');
         if (!windowEl) return;
 
@@ -75,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle dragging (only if clicking on title bar and window is not maximized)
         if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
             isDragging = true;
+            dragTarget = windowEl;
             
             const rect = windowEl.getBoundingClientRect();
             dragOffset.x = e.clientX - rect.left;
@@ -88,12 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mouse move handler for dragging
+    // Mouse move handler for dragging windows
     document.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
+        if (!isDragging || !dragTarget) return;
         
-        const activeWindow = document.querySelector('.app-instance-window.active-window');
-        if (!activeWindow || activeWindow.classList.contains('maximized')) return;
+        if (dragTarget.classList.contains('maximized')) return;
 
         const newX = e.clientX - dragOffset.x;
         const newY = e.clientY - dragOffset.y;
@@ -101,25 +108,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Keep window within bounds
         const minX = 0;
         const minY = 0;
-        const maxX = window.innerWidth - 200; // Leave some space
+        const maxX = window.innerWidth - 200;
         const maxY = window.innerHeight - 100;
         
         const constrainedX = Math.max(minX, Math.min(maxX, newX));
         const constrainedY = Math.max(minY, Math.min(maxY, newY));
         
-        activeWindow.style.left = `${constrainedX}px`;
-        activeWindow.style.top = `${constrainedY}px`;
+        dragTarget.style.left = `${constrainedX}px`;
+        dragTarget.style.top = `${constrainedY}px`;
     });
 
     // Mouse up handler to stop dragging
     document.addEventListener('mouseup', () => {
-        if (isDragging) {
+        if (isDragging && dragTarget) {
             isDragging = false;
             
-            const activeWindow = document.querySelector('.app-instance-window.active-window');
-            if (activeWindow) {
-                activeWindow.style.cursor = '';
-            }
+            dragTarget.style.cursor = '';
+            dragTarget = null;
             document.body.style.userSelect = '';
             
             console.log('Stopped dragging window');
@@ -179,5 +184,29 @@ document.addEventListener('DOMContentLoaded', () => {
             os.ui.aiSendBtn.disabled = os.ui.aiInput.value.trim() === '';
         });
         os.ui.aiSendBtn.disabled = true;
+    }
+
+    // --- Desktop Instructions Overlay (Optional) ---
+    // Show instructions on first load
+    if (!localStorage.getItem('desktopInstructionsShown')) {
+        setTimeout(() => {
+            const instructions = `
+🎉 Welcome to your enhanced desktop!
+
+New Features:
+• Double-click empty space to create folders
+• Right-click for context menus
+• Drag folders around the desktop
+• Drag folders to recycle bin to delete
+• Double-click recycle bin to view deleted items
+• Use Ctrl+C to copy, Del to delete, F2 to rename
+• Right-click folders for more options
+
+Enjoy your new desktop experience!
+            `.trim();
+            
+            alert(instructions);
+            localStorage.setItem('desktopInstructionsShown', 'true');
+        }, 1000);
     }
 });
