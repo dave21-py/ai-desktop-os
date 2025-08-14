@@ -50,39 +50,53 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Desktop and Window Event Handling ---
     desktop.addEventListener('mousedown', (e) => {
-        // Check if we're clicking on a desktop item first
+        // Always check for a desktop item first
         const desktopItem = e.target.closest('.desktop-item');
         if (desktopItem) {
-            // Desktop item handling - higher priority
-            return; // Let the desktop item handlers take care of this
+            const itemId = parseInt(desktopItem.dataset.itemId);
+            const itemData = os.state.desktopItems.find(i => i.id === itemId);
+            if (!itemData) return;
+    
+            isDraggingDesktopItem = true;
+            // The target for styling is the DOM element itself
+            dragTarget = desktopItem;
+            
+            // Use getBoundingClientRect for accurate position relative to viewport
+            const rect = dragTarget.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+    
+            // Add visual feedback for dragging
+            dragTarget.classList.add('being-dragged');
+            document.body.style.userSelect = 'none';
+    
+            console.log('Started dragging desktop item:', itemData.name);
+            return; // Stop here to not trigger window logic
         }
-
+    
+        // --- The existing window logic follows ---
+    
         // Check if we're clicking on a window
         const windowEl = e.target.closest('.app-instance-window');
         if (!windowEl) return;
-
+    
         // Always focus the window first
         os._focusWindow(windowEl);
-
+    
         // Handle button clicks
         if (e.target.closest('.window-close-btn')) {
-            console.log('Close button clicked');
             os._closeWindow(windowEl);
             return;
         }
-        
         if (e.target.closest('.window-minimize-btn')) {
-            console.log('Minimize button clicked');
             os._minimizeWindow(windowEl);
             return;
         }
-        
         if (e.target.closest('.window-maximize-btn')) {
-            console.log('Maximize button clicked');
             os._maximizeWindow(windowEl);
             return;
         }
-
+    
         // Handle window dragging (only if clicking on title bar and window is not maximized)
         if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
             isDraggingWindow = true;
@@ -101,39 +115,87 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Mouse move handler for dragging
-    document.addEventListener('mousemove', (e) => {
-        // Handle window dragging
-        if (isDraggingWindow && dragTarget) {
-            if (dragTarget.classList.contains('maximized')) return;
+    // In main.js - REPLACE the 'mousemove' listener
 
-            const newX = e.clientX - dragOffset.x;
-            const newY = e.clientY - dragOffset.y;
-            
-            // Keep window within bounds
-            const minX = 0;
-            const minY = 0;
-            const maxX = window.innerWidth - 200;
-            const maxY = window.innerHeight - 100;
-            
-            const constrainedX = Math.max(minX, Math.min(maxX, newX));
-            const constrainedY = Math.max(minY, Math.min(maxY, newY));
-            
-            dragTarget.style.left = `${constrainedX}px`;
-            dragTarget.style.top = `${constrainedY}px`;
+document.addEventListener('mousemove', (e) => {
+    // Handle window dragging
+    if (isDraggingWindow && dragTarget) {
+        if (dragTarget.classList.contains('maximized')) return;
+
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        
+        dragTarget.style.left = `${newX}px`;
+        dragTarget.style.top = `${newY}px`;
+    } 
+    // NEW: Handle desktop item dragging
+    else if (isDraggingDesktopItem && dragTarget) {
+        const desktopRect = desktop.getBoundingClientRect();
+
+        // Calculate position relative to the desktop, not the viewport
+        const newX = e.clientX - desktopRect.left - dragOffset.x;
+        const newY = e.clientY - desktopRect.top - dragOffset.y;
+
+        // Keep item within desktop bounds
+        const maxX = desktop.clientWidth - dragTarget.offsetWidth;
+        const maxY = desktop.clientHeight - dragTarget.offsetHeight;
+        const constrainedX = Math.max(0, Math.min(maxX, newX));
+        const constrainedY = Math.max(0, Math.min(maxY, newY));
+
+        dragTarget.style.left = `${constrainedX}px`;
+        dragTarget.style.top = `${constrainedY}px`;
+
+        // Check for dropping on recycle bin
+        const recycleBin = os.ui.recycleBin;
+        if (recycleBin) {
+            const binRect = recycleBin.getBoundingClientRect();
+            const isOverBin = e.clientX >= binRect.left && e.clientX <= binRect.right &&
+                              e.clientY >= binRect.top && e.clientY <= binRect.bottom;
+            recycleBin.classList.toggle('drag-over', isOverBin);
         }
-    });
+    }
+});
 
     // Mouse up handler to stop dragging
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', (e) => {
+        // Reset window dragging state
         if (isDraggingWindow && dragTarget) {
             isDraggingWindow = false;
-            
             dragTarget.style.cursor = '';
             dragTarget = null;
-            document.body.style.userSelect = '';
-            
             console.log('Stopped dragging window');
+        } 
+        // NEW: Reset desktop item dragging state
+        else if (isDraggingDesktopItem && dragTarget) {
+            const recycleBin = os.ui.recycleBin;
+            // Check if the item was dropped on the recycle bin
+            if (recycleBin && recycleBin.classList.contains('drag-over')) {
+                const itemId = parseInt(dragTarget.dataset.itemId);
+                os._deleteItem(itemId);
+                console.log('Dropped item on trash');
+            } else {
+                // Update the item's final position in the OS state
+                const itemId = parseInt(dragTarget.dataset.itemId);
+                const itemData = os.state.desktopItems.find(i => i.id === itemId);
+                if (itemData) {
+                    itemData.x = parseInt(dragTarget.style.left);
+                    itemData.y = parseInt(dragTarget.style.top);
+                    console.log('Updated item position:', itemData.name);
+                }
+            }
+            
+            // Clean up styles and state
+            isDraggingDesktopItem = false;
+            dragTarget.classList.remove('being-dragged');
+            dragTarget = null;
+            if (recycleBin) {
+                recycleBin.classList.remove('drag-over');
+            }
+            console.log('Stopped dragging desktop item');
         }
+    
+        // Always clean up this style
+        document.body.style.userSelect = '';
     });
 
     // Dock Interactions

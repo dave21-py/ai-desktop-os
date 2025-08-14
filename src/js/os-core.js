@@ -416,100 +416,9 @@ class WarmwindOS {
             this._openItem(e, item.id);
         });
         
-        element.addEventListener('mousedown', (e) => {
-            if (e.target.closest('.desktop-item-name.editing')) return;
-            e.stopPropagation();
-            this._startDesktopItemDrag(e, element, item);
-        });
+        // **FIXED:** The problematic mousedown listener that was blocking dragging has been removed.
         
         this.ui.desktop.appendChild(element);
-    }
-
-    _startDesktopItemDrag(e, element, item) {
-        const startX = e.clientX;
-        const startY = e.clientY;
-        const startLeft = parseInt(element.style.left);
-        const startTop = parseInt(element.style.top);
-        
-        let isDragging = false;
-        let dragThreshold = 5;
-        
-        const handleMouseMove = (moveEvent) => {
-            const deltaX = moveEvent.clientX - startX;
-            const deltaY = moveEvent.clientY - startY;
-            
-            if (!isDragging && (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)) {
-                isDragging = true;
-                element.classList.add('being-dragged');
-                document.body.style.userSelect = 'none';
-                element.style.pointerEvents = 'none';
-                element.style.zIndex = '1000';
-            }
-            
-            if (isDragging) {
-                const newLeft = startLeft + deltaX;
-                const newTop = startTop + deltaY;
-                
-                const maxLeft = this.ui.desktop.clientWidth - 80;
-                const maxTop = this.ui.desktop.clientHeight - 80;
-                
-                const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
-                const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
-                
-                element.style.left = `${constrainedLeft}px`;
-                element.style.top = `${constrainedTop}px`;
-                
-                item.x = constrainedLeft;
-                item.y = constrainedTop;
-                
-                // Check if hovering over recycle bin
-                const recycleBin = this.ui.recycleBin;
-                if (recycleBin) {
-                    const recycleBinRect = recycleBin.getBoundingClientRect();
-                    const mouseX = moveEvent.clientX;
-                    const mouseY = moveEvent.clientY;
-                    
-                    const isOverRecycleBin = mouseX >= recycleBinRect.left && 
-                                           mouseX <= recycleBinRect.right && 
-                                           mouseY >= recycleBinRect.top && 
-                                           mouseY <= recycleBinRect.bottom;
-                    
-                    if (isOverRecycleBin) {
-                        recycleBin.classList.add('drag-over');
-                    } else {
-                        recycleBin.classList.remove('drag-over');
-                    }
-                }
-            }
-        };
-        
-        const handleMouseUp = () => {
-            if (isDragging) {
-                element.classList.remove('being-dragged');
-                element.style.pointerEvents = '';
-                element.style.zIndex = '';
-                document.body.style.userSelect = '';
-                
-                const recycleBin = this.ui.recycleBin;
-                if (recycleBin && recycleBin.classList.contains('drag-over')) {
-                    recycleBin.classList.remove('drag-over');
-                    this._deleteItem(item.id);
-                    console.log(`Deleted ${item.name} by dropping on trash`);
-                } else {
-                    console.log(`Moved ${item.name} to (${item.x}, ${item.y})`);
-                }
-                
-                if (recycleBin) {
-                    recycleBin.classList.remove('drag-over');
-                }
-            }
-            
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-        };
-        
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
     }
 
     _selectItem(e, itemId) {
@@ -520,7 +429,9 @@ class WarmwindOS {
         }
         
         const element = document.querySelector(`[data-item-id="${itemId}"]`);
-        element.classList.add('selected');
+        if (element) {
+            element.classList.add('selected');
+        }
         
         if (!this.state.selectedItems.includes(itemId)) {
             this.state.selectedItems.push(itemId);
@@ -656,6 +567,7 @@ class WarmwindOS {
 
     _startRenaming(itemId) {
         const element = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (!element) return;
         const nameElement = element.querySelector('.desktop-item-name');
         const currentName = nameElement.textContent;
         
@@ -1111,6 +1023,32 @@ class WarmwindOS {
         return null;
     }
 
+    // **FIXED:** New helper function for smart placement
+    _findNextAvailableDesktopPosition() {
+        const gridSpacing = { x: 90, y: 90 }; // Width/height of items + margin
+        const desktopWidth = this.ui.desktop.clientWidth;
+        const desktopHeight = this.ui.desktop.clientHeight;
+    
+        const occupiedSlots = new Set(
+            this.state.desktopItems.map(item => {
+                const gridX = Math.floor(item.x / gridSpacing.x);
+                const gridY = Math.floor(item.y / gridSpacing.y);
+                return `${gridX},${gridY}`;
+            })
+        );
+    
+        for (let y = 0; y * gridSpacing.y < desktopHeight - gridSpacing.y; y++) {
+            for (let x = 0; x * gridSpacing.x < desktopWidth - gridSpacing.x; x++) {
+                if (!occupiedSlots.has(`${x},${y}`)) {
+                    return { x: x * gridSpacing.x + 10, y: y * gridSpacing.y + 10 };
+                }
+            }
+        }
+    
+        return { x: 10, y: 10 }; // Default if desktop is full
+    }
+
+    // **FIXED:** Updated to use the smart placement function
     _handleCreateFolderCommand(query) {
         let folderName = 'New Folder';
         
@@ -1140,16 +1078,14 @@ class WarmwindOS {
         return {
             message: `Creating folder "${finalName}"...`,
             action: () => {
-                const desktopRect = this.ui.desktop.getBoundingClientRect();
-                const x = (desktopRect.width / 2) - 40;
-                const y = (desktopRect.height / 2) - 40;
+                const position = this._findNextAvailableDesktopPosition();
                 
                 const folder = {
                     id: this.state.nextItemId++,
                     type: 'folder',
                     name: finalName,
-                    x: Math.max(10, Math.min(x, this.ui.desktop.clientWidth - 90)),
-                    y: Math.max(10, Math.min(y, this.ui.desktop.clientHeight - 90)),
+                    x: position.x,
+                    y: position.y,
                     created: new Date()
                 };
                 
