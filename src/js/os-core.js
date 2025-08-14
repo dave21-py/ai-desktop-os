@@ -14,6 +14,7 @@ class WarmwindOS {
     boot() {
         this._initUI();
         this._loadAppIntents();
+        this._injectWindowCSS(); // Add required CSS for maximize functionality
     }
 
     _initUI() {
@@ -27,6 +28,40 @@ class WarmwindOS {
         this.ui.aiInput = document.querySelector('.ai-input-form input');
         this.ui.aiSendBtn = document.querySelector('.ai-input-form button[type="submit"]');
         this.ui.aiTypingIndicator = document.querySelector('.ai-typing-indicator');
+    }
+
+    /**
+     * Inject CSS for window maximize functionality
+     */
+    _injectWindowCSS() {
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Override the existing maximized class to work within the app-window container */
+            .app-instance-window.maximized {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 0 !important;
+                resize: none !important;
+                transition: none !important;
+                z-index: 9999 !important;
+            }
+            
+            .window-title-bar {
+                cursor: grab;
+            }
+            
+            .window-title-bar:active {
+                cursor: grabbing;
+            }
+            
+            .app-instance-window.maximized .window-title-bar {
+                cursor: default !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
     
     /**
@@ -89,7 +124,15 @@ class WarmwindOS {
         windowEl.dataset.appId = appData.id;
         windowEl.style.left = `${Math.max(20, centerX + offset)}px`;
         windowEl.style.top = `${Math.max(60, centerY + offset)}px`; // 60px to avoid top pill
+        windowEl.style.width = `${windowWidth}px`;
+        windowEl.style.height = `${windowHeight}px`;
         windowEl.style.zIndex = this.state.nextZIndex++;
+
+        // Store original dimensions for maximize/restore
+        windowEl.dataset.originalLeft = windowEl.style.left;
+        windowEl.dataset.originalTop = windowEl.style.top;
+        windowEl.dataset.originalWidth = windowEl.style.width;
+        windowEl.dataset.originalHeight = windowEl.style.height;
 
         // Set window content
         const titleBar = windowEl.querySelector('.window-title-bar');
@@ -232,9 +275,40 @@ class WarmwindOS {
     }
 
     _maximizeWindow(windowElement) {
+        console.log('Maximize window called');
+        
         if (windowElement.classList.contains('maximized')) {
+            // Restore to original size
+            console.log('Restoring window to original size');
             windowElement.classList.remove('maximized');
+            
+            // Restore original dimensions and positioning
+            windowElement.style.left = windowElement.dataset.originalLeft;
+            windowElement.style.top = windowElement.dataset.originalTop;
+            windowElement.style.width = windowElement.dataset.originalWidth;
+            windowElement.style.height = windowElement.dataset.originalHeight;
+            windowElement.style.position = 'absolute';
         } else {
+            // Maximize window
+            console.log('Maximizing window');
+            
+            // Store current dimensions before maximizing
+            windowElement.dataset.originalLeft = windowElement.style.left;
+            windowElement.dataset.originalTop = windowElement.style.top;
+            windowElement.dataset.originalWidth = windowElement.style.width;
+            windowElement.dataset.originalHeight = windowElement.style.height;
+            
+            // Get the app-window container dimensions (the parent container)
+            const appWindow = document.querySelector('.app-window');
+            const appWindowRect = appWindow.getBoundingClientRect();
+            
+            // Maximize within the app-window container, not the entire viewport
+            windowElement.style.position = 'absolute';
+            windowElement.style.left = '0px';
+            windowElement.style.top = '0px';
+            windowElement.style.width = `${appWindow.clientWidth}px`;
+            windowElement.style.height = `${appWindow.clientHeight}px`;
+            
             windowElement.classList.add('maximized');
         }
     }

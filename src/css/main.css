@@ -827,3 +827,8 @@ body {
         display: none;
     }
 }
+
+/* Add this class to the body during a drag to prevent text selection */
+.no-select {
+    user-select: none;
+}

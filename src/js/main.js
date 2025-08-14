@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Browse Apps Button found:', browseAppsBtn);
     console.log('Modal overlay found:', document.querySelector('.modal-overlay'));
 
-    // App Drawer Button - FIXED: Call _showAppDrawer directly
+    // App Drawer Button
     browseAppsBtn?.addEventListener('click', (e) => {
         console.log('Browse apps button clicked!');
         e.preventDefault();
@@ -42,55 +42,97 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Window Interactions (Dragging, Focusing, Closing)
-    let activeWindow = null;
-    let offsetX, offsetY;
+    // --- CONSOLIDATED Window Interactions ---
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
 
     desktop.addEventListener('mousedown', (e) => {
         const windowEl = e.target.closest('.app-instance-window');
         if (!windowEl) return;
 
+        // Always focus the window first
         os._focusWindow(windowEl);
 
+        // Handle button clicks
         if (e.target.closest('.window-close-btn')) {
+            console.log('Close button clicked');
             os._closeWindow(windowEl);
             return;
         }
+        
         if (e.target.closest('.window-minimize-btn')) {
+            console.log('Minimize button clicked');
             os._minimizeWindow(windowEl);
             return;
         }
+        
         if (e.target.closest('.window-maximize-btn')) {
+            console.log('Maximize button clicked');
             os._maximizeWindow(windowEl);
             return;
         }
-        
+
+        // Handle dragging (only if clicking on title bar and window is not maximized)
         if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
-            activeWindow = windowEl;
-            offsetX = e.clientX - activeWindow.getBoundingClientRect().left;
-            offsetY = e.clientY - activeWindow.getBoundingClientRect().top;
+            isDragging = true;
+            
+            const rect = windowEl.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            // Add visual feedback
+            windowEl.style.cursor = 'grabbing';
+            document.body.style.userSelect = 'none';
+            
+            console.log('Started dragging window');
         }
     });
 
-    desktop.addEventListener('mousemove', (e) => {
-        if (!activeWindow) return;
-        e.preventDefault();
-        activeWindow.style.left = `${e.clientX - offsetX}px`;
-        activeWindow.style.top = `${e.clientY - offsetY}px`;
+    // Mouse move handler for dragging
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        
+        const activeWindow = document.querySelector('.app-instance-window.active-window');
+        if (!activeWindow || activeWindow.classList.contains('maximized')) return;
+
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        
+        // Keep window within bounds
+        const minX = 0;
+        const minY = 0;
+        const maxX = window.innerWidth - 200; // Leave some space
+        const maxY = window.innerHeight - 100;
+        
+        const constrainedX = Math.max(minX, Math.min(maxX, newX));
+        const constrainedY = Math.max(minY, Math.min(maxY, newY));
+        
+        activeWindow.style.left = `${constrainedX}px`;
+        activeWindow.style.top = `${constrainedY}px`;
     });
 
-    window.addEventListener('mouseup', () => {
-        activeWindow = null;
+    // Mouse up handler to stop dragging
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            
+            const activeWindow = document.querySelector('.app-instance-window.active-window');
+            if (activeWindow) {
+                activeWindow.style.cursor = '';
+            }
+            document.body.style.userSelect = '';
+            
+            console.log('Stopped dragging window');
+        }
     });
 
-    // Dock Interactions - FIXED: Handle minimized windows
+    // Dock Interactions
     dock?.addEventListener('click', (e) => {
         const dockIcon = e.target.closest('.dock-item');
         if (dockIcon) {
             const windowId = dockIcon.dataset.windowId;
             const windowEl = desktop.querySelector(`.app-instance-window[data-window-id="${windowId}"]`);
             if (windowEl) {
-                // Check if window is minimized and restore it, otherwise just focus
                 if (windowEl.classList.contains('minimized')) {
                     console.log('Restoring minimized window:', windowId);
                     os._restoreWindow(windowEl);
@@ -118,24 +160,24 @@ document.addEventListener('DOMContentLoaded', () => {
         os.closeAIPanel();
     });
 
-    // Handle AI Input form submission (The 'send' button)
+    // Handle AI Input form submission
     const aiInputForm = os.ui.aiInputForm;
     if (aiInputForm) {
         aiInputForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const query = os.ui.aiInput.value.trim();
             if (query) {
-                os.ui.aiInput.value = ''; // Clear input immediately
+                os.ui.aiInput.value = '';
                 os.ui.aiSendBtn.disabled = true;
-                await os.askAI(query); // Call the main AI function and wait for it to finish
-                os.ui.aiSendBtn.disabled = false; // Re-enable button after AI response
+                await os.askAI(query);
+                os.ui.aiSendBtn.disabled = false;
             }
         });
 
-        // Simple input validation for the send button (UX detail)
+        // Input validation for send button
         os.ui.aiInput.addEventListener('input', () => {
             os.ui.aiSendBtn.disabled = os.ui.aiInput.value.trim() === '';
         });
-        os.ui.aiSendBtn.disabled = true; // Disable on load
+        os.ui.aiSendBtn.disabled = true;
     }
 });
