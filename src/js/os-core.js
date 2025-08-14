@@ -946,15 +946,51 @@ class WarmwindOS {
 
     _processCommand(query) {
         const lowerQuery = query.toLowerCase();
-        
-        // Desktop Management Commands
-        if (this._isDesktopCommand(lowerQuery)) {
-            return this._handleDesktopCommand(lowerQuery);
+
+        // --- 1. Window Management Commands ---
+        const windowCommands = ['close', 'minimize', 'maximize', 'restore'];
+        for (const command of windowCommands) {
+            if (lowerQuery.startsWith(command)) {
+                // Find the app name mentioned after the command (e.g., "close vscode")
+                const appNameToFind = lowerQuery.replace(command, '').trim();
+
+                // Find the open window that matches the name
+                const openWindow = this.state.openWindows.find(w => 
+                    w.appData.name.toLowerCase().includes(appNameToFind)
+                );
+
+                if (openWindow) {
+                    // We found the window! Execute the command.
+                    let action;
+                    let message = '';
+                    switch (command) {
+                        case 'close':
+                            message = `Closing ${openWindow.appData.name}.`;
+                            action = () => this._closeWindow(openWindow.element);
+                            break;
+                        case 'minimize':
+                            message = `Minimizing ${openWindow.appData.name}.`;
+                            action = () => this._minimizeWindow(openWindow.element);
+                            break;
+                        case 'maximize':
+                            message = `Maximizing ${openWindow.appData.name}.`;
+                            action = () => this._maximizeWindow(openWindow.element);
+                            break;
+                        case 'restore':
+                            message = `Restoring ${openWindow.appData.name}.`;
+                            action = () => this._restoreWindow(openWindow.element);
+                            break;
+                    }
+                    return { message, action };
+                } else {
+                    return { message: `I couldn't find an open app named "${appNameToFind}".` };
+                }
+            }
         }
         
-        // App Launch Commands
-        const commandWords = ['open', 'launch', 'start', 'run'];
-        if (commandWords.some(word => lowerQuery.includes(word))) {
+        // --- 2. App Launch Commands ---
+        const launchCommands = ['open', 'launch', 'start', 'run'];
+        if (launchCommands.some(word => lowerQuery.includes(word))) {
             for (const app of this.state.availableApps) {
                 if (lowerQuery.includes(app.name)) {
                     return {
@@ -964,7 +1000,32 @@ class WarmwindOS {
                 }
             }
         }
-        return null;
+        
+        // --- 3. Quick Calculator ---
+        // Looks for queries like "what is 5*5" or "calculate 10+2"
+        if (lowerQuery.startsWith('what is') || lowerQuery.startsWith('calculate')) {
+            const mathExpression = lowerQuery.replace('what is', '').replace('calculate', '').trim();
+            try {
+                // Use a safe way to evaluate the expression
+                const result = new Function(`return ${mathExpression}`)();
+                return { message: `${mathExpression} = ${result}` };
+            } catch (error) {
+                // This will fall through to the Gemini AI if the math is too complex or invalid
+                console.log('Math evaluation failed, passing to AI.');
+            }
+        }
+
+        // --- 4. System Commands (e.g., Themes) - A placeholder for now ---
+        // We'll implement the JS for this next if you like the idea!
+        if (lowerQuery.includes('dark mode') || lowerQuery.includes('dark theme')) {
+            return { message: "Switching to dark mode is a great idea! We can build that next." };
+        }
+        if (lowerQuery.includes('light mode') || lowerQuery.includes('light theme')) {
+            return { message: "Light mode it is! Let's build that feature together." };
+        }
+
+        // --- Fallback ---
+        return null; // No command found, will proceed to Gemini AI
     }
 
     _isDesktopCommand(query) {
