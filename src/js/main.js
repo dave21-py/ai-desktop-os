@@ -42,18 +42,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Window Interactions ---
-    let isDragging = false;
-    let dragOffset = { x: 0, y: 0 };
+    // --- Drag and Drop State Management ---
+    let isDraggingWindow = false;
+    let isDraggingDesktopItem = false;
     let dragTarget = null;
+    let dragOffset = { x: 0, y: 0 };
 
+    // --- Desktop and Window Event Handling ---
     desktop.addEventListener('mousedown', (e) => {
-        // Handle desktop items first (they have higher priority)
-        if (e.target.closest('.desktop-item')) {
-            return; // Let the desktop system handle this
+        // Check if we're clicking on a desktop item first
+        const desktopItem = e.target.closest('.desktop-item');
+        if (desktopItem) {
+            // Desktop item handling - higher priority
+            return; // Let the desktop item handlers take care of this
         }
 
-        // Handle windows
+        // Check if we're clicking on a window
         const windowEl = e.target.closest('.app-instance-window');
         if (!windowEl) return;
 
@@ -79,9 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Handle dragging (only if clicking on title bar and window is not maximized)
+        // Handle window dragging (only if clicking on title bar and window is not maximized)
         if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
-            isDragging = true;
+            isDraggingWindow = true;
             dragTarget = windowEl;
             
             const rect = windowEl.getBoundingClientRect();
@@ -96,32 +100,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mouse move handler for dragging windows
+    // Mouse move handler for dragging
     document.addEventListener('mousemove', (e) => {
-        if (!isDragging || !dragTarget) return;
-        
-        if (dragTarget.classList.contains('maximized')) return;
+        // Handle window dragging
+        if (isDraggingWindow && dragTarget) {
+            if (dragTarget.classList.contains('maximized')) return;
 
-        const newX = e.clientX - dragOffset.x;
-        const newY = e.clientY - dragOffset.y;
-        
-        // Keep window within bounds
-        const minX = 0;
-        const minY = 0;
-        const maxX = window.innerWidth - 200;
-        const maxY = window.innerHeight - 100;
-        
-        const constrainedX = Math.max(minX, Math.min(maxX, newX));
-        const constrainedY = Math.max(minY, Math.min(maxY, newY));
-        
-        dragTarget.style.left = `${constrainedX}px`;
-        dragTarget.style.top = `${constrainedY}px`;
+            const newX = e.clientX - dragOffset.x;
+            const newY = e.clientY - dragOffset.y;
+            
+            // Keep window within bounds
+            const minX = 0;
+            const minY = 0;
+            const maxX = window.innerWidth - 200;
+            const maxY = window.innerHeight - 100;
+            
+            const constrainedX = Math.max(minX, Math.min(maxX, newX));
+            const constrainedY = Math.max(minY, Math.min(maxY, newY));
+            
+            dragTarget.style.left = `${constrainedX}px`;
+            dragTarget.style.top = `${constrainedY}px`;
+        }
     });
 
     // Mouse up handler to stop dragging
     document.addEventListener('mouseup', () => {
-        if (isDragging && dragTarget) {
-            isDragging = false;
+        if (isDraggingWindow && dragTarget) {
+            isDraggingWindow = false;
             
             dragTarget.style.cursor = '';
             dragTarget = null;
@@ -191,18 +196,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!localStorage.getItem('desktopInstructionsShown')) {
         setTimeout(() => {
             const instructions = `
-🎉 Welcome to your enhanced desktop!
+🎉 Welcome to your AI-powered desktop!
 
 New Features:
-• Double-click empty space to create folders
+• Talk to AI: "Create a folder called Documents"
+• Double-click empty space to create folders manually
 • Right-click for context menus
 • Drag folders around the desktop
 • Drag folders to recycle bin to delete
-• Double-click recycle bin to view deleted items
-• Use Ctrl+C to copy, Del to delete, F2 to rename
-• Right-click folders for more options
+• Use voice commands or manual controls
 
-Enjoy your new desktop experience!
+Try saying: "Make a folder called My Files"
             `.trim();
             
             alert(instructions);

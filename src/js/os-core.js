@@ -1,4 +1,4 @@
-// Enhanced WarmwindOS with Desktop Management
+// Enhanced WarmwindOS with Desktop Management and AI Commands
 class WarmwindOS {
     constructor() {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
@@ -7,10 +7,11 @@ class WarmwindOS {
             nextZIndex: 21,
             nextWindowID: 0,
             availableApps: [],
-            desktopItems: [], // New: Desktop folders and files
-            recycleBin: [], // New: Deleted items
-            selectedItems: [], // New: Currently selected desktop items
-            nextItemId: 1
+            desktopItems: [], // Desktop folders and files
+            recycleBin: [], // Deleted items
+            selectedItems: [], // Currently selected desktop items
+            nextItemId: 1,
+            clipboard: null // For copy/paste operations
         };
         this.ui = {};
     }
@@ -19,9 +20,9 @@ class WarmwindOS {
         this._initUI();
         this._loadAppIntents();
         this._injectWindowCSS();
-        this._injectDesktopCSS(); // New: Desktop styles
-        this._initDesktopSystem(); // New: Desktop functionality
-        this._createRecycleBin(); // New: Create recycle bin
+        this._injectDesktopCSS();
+        this._initDesktopSystem();
+        this._createRecycleBin();
     }
 
     _initUI() {
@@ -35,6 +36,36 @@ class WarmwindOS {
         this.ui.aiInput = document.querySelector('.ai-input-form input');
         this.ui.aiSendBtn = document.querySelector('.ai-input-form button[type="submit"]');
         this.ui.aiTypingIndicator = document.querySelector('.ai-typing-indicator');
+    }
+
+    _injectWindowCSS() {
+        const style = document.createElement('style');
+        style.textContent = `
+            .app-instance-window.maximized {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                border-radius: 0 !important;
+                resize: none !important;
+                transition: none !important;
+                z-index: 9999 !important;
+            }
+            
+            .window-title-bar {
+                cursor: grab;
+            }
+            
+            .window-title-bar:active {
+                cursor: grabbing;
+            }
+            
+            .app-instance-window.maximized .window-title-bar {
+                cursor: default !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
     _injectDesktopCSS() {
@@ -54,6 +85,7 @@ class WarmwindOS {
                 transition: all 0.2s ease;
                 border-radius: 8px;
                 padding: 8px;
+                z-index: 15;
             }
 
             .desktop-item:hover {
@@ -67,10 +99,11 @@ class WarmwindOS {
                 border: 1px solid rgba(0, 122, 255, 0.5);
             }
 
-            .desktop-item.dragging {
-                opacity: 0.7;
-                transform: rotate(5deg) scale(1.1);
+            .desktop-item.being-dragged {
+                opacity: 0.8;
+                transform: rotate(3deg) scale(1.05);
                 z-index: 1000;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
             }
 
             .desktop-item-icon {
@@ -78,6 +111,7 @@ class WarmwindOS {
                 height: 48px;
                 margin-bottom: 4px;
                 filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                pointer-events: none;
             }
 
             .desktop-item-name {
@@ -89,6 +123,7 @@ class WarmwindOS {
                 word-wrap: break-word;
                 max-width: 70px;
                 line-height: 1.2;
+                pointer-events: none;
             }
 
             .desktop-item-name.editing {
@@ -98,6 +133,7 @@ class WarmwindOS {
                 padding: 2px 4px;
                 text-shadow: none;
                 outline: 2px solid #007AFF;
+                pointer-events: auto;
             }
 
             /* Context Menu */
@@ -133,31 +169,13 @@ class WarmwindOS {
                 cursor: not-allowed;
             }
 
-            .context-menu-item.disabled:hover {
-                background-color: transparent;
-            }
-
             .context-menu-separator {
                 height: 1px;
                 background-color: rgba(0, 0, 0, 0.1);
                 margin: 4px 0;
             }
 
-            .context-menu-icon {
-                width: 16px;
-                height: 16px;
-            }
-
-            /* Selection Rectangle */
-            .selection-rectangle {
-                position: absolute;
-                border: 1px solid rgba(0, 122, 255, 0.6);
-                background-color: rgba(0, 122, 255, 0.1);
-                pointer-events: none;
-                z-index: 999;
-            }
-
-            /* Recycle Bin */
+            /* macOS-style Recycle Bin */
             .recycle-bin {
                 position: absolute;
                 bottom: 20px;
@@ -172,6 +190,7 @@ class WarmwindOS {
                 border-radius: 8px;
                 padding: 8px;
                 transition: all 0.2s ease;
+                z-index: 16;
             }
 
             .recycle-bin:hover {
@@ -182,6 +201,7 @@ class WarmwindOS {
             .recycle-bin.drag-over {
                 background-color: rgba(255, 0, 0, 0.2);
                 border: 2px dashed rgba(255, 0, 0, 0.5);
+                transform: scale(1.1);
             }
 
             .recycle-bin-icon {
@@ -189,6 +209,41 @@ class WarmwindOS {
                 height: 48px;
                 margin-bottom: 4px;
                 filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+                font-size: 32px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+            }
+
+            .recycle-bin-icon.empty::before {
+                content: '🗑️';
+            }
+
+            .recycle-bin-icon.full::before {
+                content: '🗑️';
+                filter: brightness(1.2) saturate(1.3);
+                animation: fullTrash 0.3s ease;
+            }
+
+            .recycle-bin-icon.full::after {
+                content: '📄';
+                position: absolute;
+                font-size: 12px;
+                top: 8px;
+                right: 8px;
+                animation: paperFloat 2s ease-in-out infinite;
+            }
+
+            @keyframes fullTrash {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1); }
+            }
+
+            @keyframes paperFloat {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-2px); }
             }
 
             .recycle-bin-name {
@@ -231,13 +286,10 @@ class WarmwindOS {
     }
 
     _initDesktopSystem() {
-        // Desktop event listeners
         this.ui.desktop.addEventListener('dblclick', (e) => this._handleDesktopDoubleClick(e));
         this.ui.desktop.addEventListener('contextmenu', (e) => this._handleDesktopRightClick(e));
         this.ui.desktop.addEventListener('click', (e) => this._handleDesktopClick(e));
-        this.ui.desktop.addEventListener('mousedown', (e) => this._handleDesktopMouseDown(e));
         
-        // Global event listeners
         document.addEventListener('click', (e) => this._hideContextMenu(e));
         document.addEventListener('keydown', (e) => this._handleKeydown(e));
     }
@@ -246,33 +298,46 @@ class WarmwindOS {
         const recycleBin = document.createElement('div');
         recycleBin.className = 'recycle-bin';
         recycleBin.innerHTML = `
-            <div class="recycle-bin-icon">🗑️</div>
-            <div class="recycle-bin-name">Recycle Bin</div>
+            <div class="recycle-bin-icon empty"></div>
+            <div class="recycle-bin-name">Trash</div>
         `;
-        
-        // Drag and drop functionality
-        recycleBin.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            recycleBin.classList.add('drag-over');
-        });
-        
-        recycleBin.addEventListener('dragleave', () => {
-            recycleBin.classList.remove('drag-over');
-        });
-        
-        recycleBin.addEventListener('drop', (e) => {
-            e.preventDefault();
-            recycleBin.classList.remove('drag-over');
-            this._handleRecycleBinDrop(e);
-        });
         
         recycleBin.addEventListener('dblclick', () => {
             this._openRecycleBin();
         });
         
         this.ui.desktop.appendChild(recycleBin);
+        this.ui.recycleBin = recycleBin;
     }
 
+    _updateRecycleBinVisual() {
+        if (!this.ui.recycleBin) return;
+        
+        const icon = this.ui.recycleBin.querySelector('.recycle-bin-icon');
+        const name = this.ui.recycleBin.querySelector('.recycle-bin-name');
+        
+        if (this.state.recycleBin.length > 0) {
+            icon.className = 'recycle-bin-icon full';
+            name.textContent = `Trash (${this.state.recycleBin.length})`;
+        } else {
+            icon.className = 'recycle-bin-icon empty';
+            name.textContent = 'Trash';
+        }
+    }
+
+    _loadAppIntents() {
+        const appItems = document.querySelectorAll('.app-item');
+        appItems.forEach(el => {
+            this.state.availableApps.push({
+                element: el,
+                name: el.dataset.appname.toLowerCase(),
+                id: el.dataset.appid,
+            });
+        });
+        console.log('OS Intents Loaded:', this.state.availableApps);
+    }
+
+    // Desktop Management Functions
     _handleDesktopDoubleClick(e) {
         if (e.target === this.ui.desktop) {
             const rect = this.ui.desktop.getBoundingClientRect();
@@ -315,7 +380,6 @@ class WarmwindOS {
         this.state.desktopItems.push(folder);
         this._renderDesktopItem(folder);
         
-        // Start editing the name immediately
         setTimeout(() => {
             this._startRenaming(folder.id);
         }, 100);
@@ -327,7 +391,6 @@ class WarmwindOS {
         element.dataset.itemId = item.id;
         element.style.left = `${item.x}px`;
         element.style.top = `${item.y}px`;
-        element.draggable = true;
         
         const icon = document.createElement('div');
         icon.className = 'desktop-item-icon';
@@ -343,13 +406,110 @@ class WarmwindOS {
         element.appendChild(icon);
         element.appendChild(name);
         
-        // Event listeners
-        element.addEventListener('click', (e) => this._selectItem(e, item.id));
-        element.addEventListener('dblclick', (e) => this._openItem(e, item.id));
-        element.addEventListener('dragstart', (e) => this._handleDragStart(e, item.id));
-        element.addEventListener('dragend', (e) => this._handleDragEnd(e, item.id));
+        element.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this._selectItem(e, item.id);
+        });
+        
+        element.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            this._openItem(e, item.id);
+        });
+        
+        element.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.desktop-item-name.editing')) return;
+            e.stopPropagation();
+            this._startDesktopItemDrag(e, element, item);
+        });
         
         this.ui.desktop.appendChild(element);
+    }
+
+    _startDesktopItemDrag(e, element, item) {
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startLeft = parseInt(element.style.left);
+        const startTop = parseInt(element.style.top);
+        
+        let isDragging = false;
+        let dragThreshold = 5;
+        
+        const handleMouseMove = (moveEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            const deltaY = moveEvent.clientY - startY;
+            
+            if (!isDragging && (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold)) {
+                isDragging = true;
+                element.classList.add('being-dragged');
+                document.body.style.userSelect = 'none';
+                element.style.pointerEvents = 'none';
+                element.style.zIndex = '1000';
+            }
+            
+            if (isDragging) {
+                const newLeft = startLeft + deltaX;
+                const newTop = startTop + deltaY;
+                
+                const maxLeft = this.ui.desktop.clientWidth - 80;
+                const maxTop = this.ui.desktop.clientHeight - 80;
+                
+                const constrainedLeft = Math.max(0, Math.min(maxLeft, newLeft));
+                const constrainedTop = Math.max(0, Math.min(maxTop, newTop));
+                
+                element.style.left = `${constrainedLeft}px`;
+                element.style.top = `${constrainedTop}px`;
+                
+                item.x = constrainedLeft;
+                item.y = constrainedTop;
+                
+                // Check if hovering over recycle bin
+                const recycleBin = this.ui.recycleBin;
+                if (recycleBin) {
+                    const recycleBinRect = recycleBin.getBoundingClientRect();
+                    const mouseX = moveEvent.clientX;
+                    const mouseY = moveEvent.clientY;
+                    
+                    const isOverRecycleBin = mouseX >= recycleBinRect.left && 
+                                           mouseX <= recycleBinRect.right && 
+                                           mouseY >= recycleBinRect.top && 
+                                           mouseY <= recycleBinRect.bottom;
+                    
+                    if (isOverRecycleBin) {
+                        recycleBin.classList.add('drag-over');
+                    } else {
+                        recycleBin.classList.remove('drag-over');
+                    }
+                }
+            }
+        };
+        
+        const handleMouseUp = () => {
+            if (isDragging) {
+                element.classList.remove('being-dragged');
+                element.style.pointerEvents = '';
+                element.style.zIndex = '';
+                document.body.style.userSelect = '';
+                
+                const recycleBin = this.ui.recycleBin;
+                if (recycleBin && recycleBin.classList.contains('drag-over')) {
+                    recycleBin.classList.remove('drag-over');
+                    this._deleteItem(item.id);
+                    console.log(`Deleted ${item.name} by dropping on trash`);
+                } else {
+                    console.log(`Moved ${item.name} to (${item.x}, ${item.y})`);
+                }
+                
+                if (recycleBin) {
+                    recycleBin.classList.remove('drag-over');
+                }
+            }
+            
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+        
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
     }
 
     _selectItem(e, itemId) {
@@ -379,7 +539,6 @@ class WarmwindOS {
         const item = this.state.desktopItems.find(i => i.id === itemId);
         
         if (item && item.type === 'folder') {
-            // Create a simple folder window
             this._createFolderWindow(item);
         }
     }
@@ -406,18 +565,15 @@ class WarmwindOS {
         
         menu.innerHTML = `
             <div class="context-menu-item" data-action="new-folder">
-                <span class="context-menu-icon">📁</span>
-                New Folder
+                <span>📁</span> New Folder
             </div>
             <div class="context-menu-separator"></div>
             <div class="context-menu-item" data-action="paste" ${this.state.clipboard ? '' : 'class="disabled"'}>
-                <span class="context-menu-icon">📋</span>
-                Paste
+                <span>📋</span> Paste
             </div>
             <div class="context-menu-separator"></div>
             <div class="context-menu-item" data-action="refresh">
-                <span class="context-menu-icon">🔄</span>
-                Refresh
+                <span>🔄</span> Refresh
             </div>
         `;
         
@@ -429,24 +585,12 @@ class WarmwindOS {
         });
         
         this.ui.desktop.appendChild(menu);
-        
-        // Adjust position if menu goes off screen
-        const rect = menu.getBoundingClientRect();
-        const desktopRect = this.ui.desktop.getBoundingClientRect();
-        
-        if (rect.right > desktopRect.right) {
-            menu.style.left = `${x - rect.width}px`;
-        }
-        if (rect.bottom > desktopRect.bottom) {
-            menu.style.top = `${y - rect.height}px`;
-        }
     }
 
     _showItemContextMenu(x, y, itemElement) {
         this._hideContextMenu();
         
         const itemId = parseInt(itemElement.dataset.itemId);
-        const item = this.state.desktopItems.find(i => i.id === itemId);
         
         const menu = document.createElement('div');
         menu.className = 'context-menu';
@@ -455,27 +599,18 @@ class WarmwindOS {
         
         menu.innerHTML = `
             <div class="context-menu-item" data-action="open">
-                <span class="context-menu-icon">📂</span>
-                Open
+                <span>📂</span> Open
             </div>
             <div class="context-menu-separator"></div>
             <div class="context-menu-item" data-action="rename">
-                <span class="context-menu-icon">✏️</span>
-                Rename
+                <span>✏️</span> Rename
             </div>
             <div class="context-menu-item" data-action="copy">
-                <span class="context-menu-icon">📄</span>
-                Copy
+                <span>📄</span> Copy
             </div>
             <div class="context-menu-separator"></div>
             <div class="context-menu-item" data-action="delete">
-                <span class="context-menu-icon">🗑️</span>
-                Delete
-            </div>
-            <div class="context-menu-separator"></div>
-            <div class="context-menu-item" data-action="properties">
-                <span class="context-menu-icon">ℹ️</span>
-                Properties
+                <span>🗑️</span> Delete
             </div>
         `;
         
@@ -516,9 +651,6 @@ class WarmwindOS {
             case 'refresh':
                 this._refreshDesktop();
                 break;
-            case 'properties':
-                this._showProperties(data.itemId);
-                break;
         }
     }
 
@@ -531,7 +663,6 @@ class WarmwindOS {
         nameElement.contentEditable = true;
         nameElement.focus();
         
-        // Select all text
         const range = document.createRange();
         range.selectNodeContents(nameElement);
         const selection = window.getSelection();
@@ -569,18 +700,18 @@ class WarmwindOS {
     _deleteItem(itemId) {
         const item = this.state.desktopItems.find(i => i.id === itemId);
         if (item) {
-            // Move to recycle bin
             this.state.recycleBin.push({
                 ...item,
                 deletedAt: new Date()
             });
             
-            // Remove from desktop
             this.state.desktopItems = this.state.desktopItems.filter(i => i.id !== itemId);
             const element = document.querySelector(`[data-item-id="${itemId}"]`);
             if (element) {
                 element.remove();
             }
+            
+            this._updateRecycleBinVisual();
         }
     }
 
@@ -607,39 +738,13 @@ class WarmwindOS {
     }
 
     _refreshDesktop() {
-        // Re-render all desktop items
         document.querySelectorAll('.desktop-item').forEach(el => el.remove());
         this.state.desktopItems.forEach(item => this._renderDesktopItem(item));
     }
 
-    _showProperties(itemId) {
-        const item = this.state.desktopItems.find(i => i.id === itemId);
-        if (item) {
-            alert(`Properties of ${item.name}:\n\nType: ${item.type}\nCreated: ${item.created.toLocaleString()}\nPosition: (${item.x}, ${item.y})`);
-        }
-    }
-
-    _handleDragStart(e, itemId) {
-        const element = document.querySelector(`[data-item-id="${itemId}"]`);
-        element.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', itemId);
-    }
-
-    _handleDragEnd(e, itemId) {
-        const element = document.querySelector(`[data-item-id="${itemId}"]`);
-        element.classList.remove('dragging');
-    }
-
-    _handleRecycleBinDrop(e) {
-        const itemId = parseInt(e.dataTransfer.getData('text/plain'));
-        if (itemId) {
-            this._deleteItem(itemId);
-        }
-    }
-
     _openRecycleBin() {
         if (this.state.recycleBin.length === 0) {
-            alert('Recycle Bin is empty');
+            alert('Trash is empty');
             return;
         }
         
@@ -647,7 +752,12 @@ class WarmwindOS {
             `${item.name} (deleted ${item.deletedAt.toLocaleString()})`
         ).join('\n');
         
-        alert(`Recycle Bin Contents:\n\n${items}`);
+        const shouldEmpty = confirm(`Trash Contents (${this.state.recycleBin.length} items):\n\n${items}\n\nWould you like to empty the trash?`);
+        
+        if (shouldEmpty) {
+            this.state.recycleBin = [];
+            this._updateRecycleBinVisual();
+        }
     }
 
     _hideContextMenu() {
@@ -665,49 +775,7 @@ class WarmwindOS {
         }
     }
 
-    // [Keep all your existing methods: _injectWindowCSS, _loadAppIntents, launchApp, etc...]
-    _injectWindowCSS() {
-        const style = document.createElement('style');
-        style.textContent = `
-            .app-instance-window.maximized {
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                border-radius: 0 !important;
-                resize: none !important;
-                transition: none !important;
-                z-index: 9999 !important;
-            }
-            
-            .window-title-bar {
-                cursor: grab;
-            }
-            
-            .window-title-bar:active {
-                cursor: grabbing;
-            }
-            
-            .app-instance-window.maximized .window-title-bar {
-                cursor: default !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    _loadAppIntents() {
-        const appItems = document.querySelectorAll('.app-item');
-        appItems.forEach(el => {
-            this.state.availableApps.push({
-                element: el,
-                name: el.dataset.appname.toLowerCase(),
-                id: el.dataset.appid,
-            });
-        });
-        console.log('OS Intents Loaded:', this.state.availableApps);
-    }
-
+    // Window Management Functions
     launchApp(appElement) {
         const appData = {
             id: appElement.dataset.appid,
@@ -805,7 +873,6 @@ class WarmwindOS {
         });
 
         this._createDockIcon(appData, windowId);
-        
         this._focusWindow(windowEl);
     }
 
@@ -964,7 +1031,7 @@ class WarmwindOS {
         
         this.ui.aiSendBtn.disabled = false;
     }
-    
+
     _processCommand(query) {
         const lowerQuery = query.toLowerCase();
         
@@ -1045,10 +1112,8 @@ class WarmwindOS {
     }
 
     _handleCreateFolderCommand(query) {
-        // Extract folder name from query
         let folderName = 'New Folder';
         
-        // Look for patterns like "called X", "named X", "folder X"
         const patterns = [
             /(?:called|named)\s+["']?([^"']+)["']?/i,
             /(?:folder|create)\s+["']?([^"']+)["']?(?:\s+folder)?/i,
@@ -1063,7 +1128,6 @@ class WarmwindOS {
             }
         }
         
-        // Generate unique name if folder exists
         const existingNames = this.state.desktopItems.map(item => item.name.toLowerCase());
         let finalName = folderName;
         let counter = 1;
@@ -1076,7 +1140,6 @@ class WarmwindOS {
         return {
             message: `Creating folder "${finalName}"...`,
             action: () => {
-                // Create folder in center of desktop
                 const desktopRect = this.ui.desktop.getBoundingClientRect();
                 const x = (desktopRect.width / 2) - 40;
                 const y = (desktopRect.height / 2) - 40;
@@ -1093,7 +1156,6 @@ class WarmwindOS {
                 this.state.desktopItems.push(folder);
                 this._renderDesktopItem(folder);
                 
-                // Select the new folder
                 setTimeout(() => {
                     this._selectItem({stopPropagation: () => {}, ctrlKey: false}, folder.id);
                 }, 100);
@@ -1102,11 +1164,9 @@ class WarmwindOS {
     }
 
     _handleDeleteFolderCommand(query) {
-        // Look for specific folder name in query
         const folderNames = this.state.desktopItems.map(item => item.name);
         let targetFolder = null;
         
-        // Find folder name in query
         for (const name of folderNames) {
             if (query.includes(name.toLowerCase())) {
                 targetFolder = this.state.desktopItems.find(item => item.name === name);
@@ -1114,7 +1174,6 @@ class WarmwindOS {
             }
         }
         
-        // If no specific folder found, check for "selected" or use selected folders
         if (!targetFolder) {
             if (query.includes('selected') && this.state.selectedItems.length > 0) {
                 return this._handleDeleteSelectedCommand();
@@ -1164,7 +1223,6 @@ class WarmwindOS {
             };
         }
         
-        // Extract new name from query
         const patterns = [
             /rename\s+(?:to\s+)?["']?([^"']+)["']?/i,
             /(?:call\s+it|name\s+it)\s+["']?([^"']+)["']?/i
@@ -1219,7 +1277,7 @@ class WarmwindOS {
     _handleEmptyRecycleBinCommand() {
         if (this.state.recycleBin.length === 0) {
             return {
-                message: "The recycle bin is already empty.",
+                message: "The trash is already empty.",
                 action: null
             };
         }
@@ -1227,16 +1285,17 @@ class WarmwindOS {
         const itemCount = this.state.recycleBin.length;
         
         return {
-            message: `Emptying recycle bin (${itemCount} item${itemCount > 1 ? 's' : ''})...`,
+            message: `Emptying trash (${itemCount} item${itemCount > 1 ? 's' : ''})...`,
             action: () => {
                 this.state.recycleBin = [];
+                this._updateRecycleBinVisual();
             }
         };
     }
 
     _handleShowRecycleBinCommand() {
         return {
-            message: "Opening recycle bin...",
+            message: "Opening trash...",
             action: () => {
                 this._openRecycleBin();
             }
@@ -1244,7 +1303,6 @@ class WarmwindOS {
     }
 
     _handleMoveToRecycleBinCommand(query) {
-        // Look for specific folder name or use selected
         const folderNames = this.state.desktopItems.map(item => item.name);
         let targetFolder = null;
         
@@ -1261,13 +1319,13 @@ class WarmwindOS {
         
         if (!targetFolder) {
             return {
-                message: "Please specify which folder to move to recycle bin or select a folder first.",
+                message: "Please specify which folder to move to trash or select a folder first.",
                 action: null
             };
         }
         
         return {
-            message: `Moving "${targetFolder.name}" to recycle bin...`,
+            message: `Moving "${targetFolder.name}" to trash...`,
             action: () => {
                 this._deleteItem(targetFolder.id);
             }
@@ -1300,9 +1358,8 @@ class WarmwindOS {
         const bubbleDiv = document.createElement('div');
         bubbleDiv.className = 'message-bubble';
         
-        // Add desktop command suggestions for AI messages
         if (sender === 'ai' && text.includes("I'm not connected to the AI network")) {
-            bubbleDiv.innerHTML = `${text}<br><br><strong>💡 Desktop Commands Available:</strong><br>• "Create a new folder"<br>• "Make a folder called Documents"<br>• "Delete selected folder"<br>• "Rename to Work Files"<br>• "Show all folders"<br>• "Empty recycle bin"`;
+            bubbleDiv.innerHTML = `${text}<br><br><strong>💡 Desktop Commands Available:</strong><br>• "Create a new folder"<br>• "Make a folder called Documents"<br>• "Delete selected folder"<br>• "Rename to Work Files"<br>• "Show all folders"<br>• "Empty trash"`;
         } else if (sender === 'ai' && this.state.desktopItems.length === 0 && !text.includes('Creating') && !text.includes('launched')) {
             bubbleDiv.innerHTML = `${text}<br><br><em>💡 Try: "Create a new folder" or "Make a folder called Documents"</em>`;
         } else {
