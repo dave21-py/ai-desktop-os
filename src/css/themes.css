@@ -57,3 +57,82 @@
     background-color: var(--btn-add-bg);
     color: var(--btn-add-text);
 } /* FIX: Removed stray period that was causing a syntax error */
+
+body.dark-theme {
+    --body-background: #2a2a2e;
+    --text-primary-dark: #e1e1e1;
+    --text-secondary-dark: #b0b0b0;
+    --surface-1: #1e1e22;
+    --surface-2: #2c2c31;
+    --surface-3: #3a3a40;
+    --border-color-dark: #4a4a50;
+}
+
+body.dark-theme .app-window {
+    /* The Magic Line: We're overriding the background for dark mode */
+    background-image: url('../assets/background-dark.jpg');
+    
+    /* Keep background-size and position to ensure it fits well */
+    background-size: cover;
+    background-position: center;
+}
+body.dark-theme .top-pill {
+    background-color: rgba(44, 44, 49, 0.8);
+    color: var(--text-secondary-dark);
+}
+body.dark-theme .welcome-heading { color: var(--text-primary-dark); }
+body.dark-theme .welcome-subheading { color: rgba(225, 225, 225, 0.8); }
+body.dark-theme .browse-apps-btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary-dark);
+}
+body.dark-theme .browse-apps-btn:hover { background-color: rgba(255, 255, 255, 0.15); }
+body.dark-theme .bottom-bar { background-color: var(--surface-2); }
+body.dark-theme .ask-text { color: var(--text-secondary-dark); }
+body.dark-theme .add-btn {
+    background-color: var(--surface-3);
+    color: var(--text-secondary-dark);
+}
+body.dark-theme .add-btn:hover { background-color: #45454b; }
+body.dark-theme .modal-overlay { background-color: rgba(10, 10, 10, 0.3); backdrop-filter: blur(10px); }
+body.dark-theme .app-drawer {
+    background-color: rgba(44, 44, 49, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .app-drawer-header { border-bottom-color: var(--border-color-dark); }
+body.dark-theme .app-drawer-header h2 { color: var(--text-primary-dark); }
+body.dark-theme .app-search-bar { background-color: var(--surface-1); }
+body.dark-theme .app-search-bar input, body.dark-theme .app-search-bar svg { color: var(--text-secondary-dark); }
+body.dark-theme .app-search-bar input::placeholder { color: #777; }
+body.dark-theme .close-modal-btn { background: var(--surface-3); color: var(--text-secondary-dark); }
+body.dark-theme .close-modal-btn:hover { background: #45454b; }
+body.dark-theme .app-item {
+    background-color: rgba(60, 60, 65, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+body.dark-theme .app-item:hover { background-color: rgba(70, 70, 75, 0.8); }
+body.dark-theme .app-item span { color: var(--text-primary-dark); }
+body.dark-theme .download-btn {
+    background-color: var(--surface-3);
+    color: var(--text-secondary-dark);
+}
+body.dark-theme .download-btn:hover { background: #45454b; }
+body.dark-theme .app-instance-window {
+    background-color: #252528;
+    border-color: var(--border-color-dark);
+}
+body.dark-theme .window-title-bar {
+    background-color: #1e1e22;
+    border-bottom-color: var(--border-color-dark);
+}
+body.dark-theme .window-title { color: var(--text-primary-dark); }
+body.dark-theme .window-close-btn, body.dark-theme .window-minimize-btn, body.dark-theme .window-maximize-btn { color: var(--text-secondary-dark); }
+body.dark-theme .window-close-btn:hover { background-color: #e81123; color: white; }
+body.dark-theme .window-minimize-btn:hover, body.dark-theme .window-maximize-btn:hover { background-color: var(--surface-3); }
+body.dark-theme .window-content { background-color: #1e1e22; }
+body.dark-theme .loading-overlay { background-color: #1e1e22; color: var(--text-primary-dark); }
+body.dark-theme .spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--text-primary-dark);
+}

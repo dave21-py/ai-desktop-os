@@ -901,6 +901,21 @@ class WarmwindOS {
         this.ui.modalOverlay.classList.add('hidden');
     }
 
+    /**
+     * Toggles the OS theme.
+     * @param {'light' | 'dark'} themeName - The name of the theme to apply.
+     */
+    _setTheme(themeName) {
+        // We'll toggle a 'dark-theme' class on the body
+        if (themeName === 'dark') {
+            document.body.classList.add('dark-theme');
+            console.log('Theme changed to Dark');
+        } else {
+            document.body.classList.remove('dark-theme');
+            console.log('Theme changed to Light');
+        }
+    }
+
     // AI Assistant Functions
     showAIPanel() {
         this.ui.aiPanel.classList.remove('hidden');
@@ -951,16 +966,12 @@ class WarmwindOS {
         const windowCommands = ['close', 'minimize', 'maximize', 'restore'];
         for (const command of windowCommands) {
             if (lowerQuery.startsWith(command)) {
-                // Find the app name mentioned after the command (e.g., "close vscode")
                 const appNameToFind = lowerQuery.replace(command, '').trim();
-
-                // Find the open window that matches the name
                 const openWindow = this.state.openWindows.find(w => 
                     w.appData.name.toLowerCase().includes(appNameToFind)
                 );
 
                 if (openWindow) {
-                    // We found the window! Execute the command.
                     let action;
                     let message = '';
                     switch (command) {
@@ -1002,26 +1013,28 @@ class WarmwindOS {
         }
         
         // --- 3. Quick Calculator ---
-        // Looks for queries like "what is 5*5" or "calculate 10+2"
         if (lowerQuery.startsWith('what is') || lowerQuery.startsWith('calculate')) {
             const mathExpression = lowerQuery.replace('what is', '').replace('calculate', '').trim();
             try {
-                // Use a safe way to evaluate the expression
                 const result = new Function(`return ${mathExpression}`)();
                 return { message: `${mathExpression} = ${result}` };
             } catch (error) {
-                // This will fall through to the Gemini AI if the math is too complex or invalid
                 console.log('Math evaluation failed, passing to AI.');
             }
         }
 
-        // --- 4. System Commands (e.g., Themes) - A placeholder for now ---
-        // We'll implement the JS for this next if you like the idea!
+        // --- 4. System Commands (THEMES) - THIS IS THE UPDATED PART ---
         if (lowerQuery.includes('dark mode') || lowerQuery.includes('dark theme')) {
-            return { message: "Switching to dark mode is a great idea! We can build that next." };
+            return { 
+                message: "Switching to dark mode. Looking cool.",
+                action: () => this._setTheme('dark')
+            };
         }
         if (lowerQuery.includes('light mode') || lowerQuery.includes('light theme')) {
-            return { message: "Light mode it is! Let's build that feature together." };
+            return {
+                message: "Let there be light! Switching to the light theme.",
+                action: () => this._setTheme('light')
+            };
         }
 
         // --- Fallback ---
