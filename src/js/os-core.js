@@ -170,6 +170,7 @@ class WarmwindOS {
     }
 
     updateDashboardData(windowEl) {
+        console.log("Updating dashboard data..."); // Debug
         // Get elements
         const totalWindowsEl = windowEl.querySelector('#total-windows');
         const appWindowsEl = windowEl.querySelector('#app-windows');
@@ -692,7 +693,7 @@ class WarmwindOS {
             action: () => this._setTheme('dark')
         };
     }
-    
+
         if (lowerQuery.startsWith('open ')) {
             const appName = lowerQuery.substring(5).trim();
             const app = this.state.availableApps.find(a => 
