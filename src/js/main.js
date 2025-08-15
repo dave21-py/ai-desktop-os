@@ -276,3 +276,51 @@ Try saying: "Make a folder called My Files"
         }, 1000);
     }
 });
+
+// in main.js - Add this entire block at the end of the file
+
+// --- DYNAMIC DOCK INITIALIZATION ---
+const dockContainer = document.querySelector('.bar-section.center');
+// Get ALL items that should magnify, not just opened apps
+const dockItems = Array.from(dockContainer.children); 
+
+// --- Configuration ---
+const MAX_MAGNIFICATION = 1.8; // How big the icon gets directly under the mouse
+const MAGNIFICATION_RANGE = 80; // In pixels, how far the "ripple" extends
+
+const handleDockMouseMove = (e) => {
+    const mouseX = e.clientX; // Get mouse X position from the event
+
+    dockItems.forEach(item => {
+        const itemRect = item.getBoundingClientRect();
+        const itemCenterX = itemRect.left + itemRect.width / 2;
+        
+        // Calculate the distance between the mouse and the center of the icon
+        const distance = Math.abs(mouseX - itemCenterX);
+        
+        let scale = 1; // Default scale is 1 (normal size)
+
+        // If the mouse is within the magnification range, calculate the scale
+        if (distance < MAGNIFICATION_RANGE) {
+            // Use a squared falloff for a nice curve effect
+            const falloff = Math.pow(1 - (distance / MAGNIFICATION_RANGE), 2);
+            scale = 1 + (MAX_MAGNIFICATION - 1) * falloff;
+        }
+
+        // Apply the calculated scale using CSS transform
+        item.style.transform = `scale(${scale})`;
+    });
+};
+
+const handleDockMouseLeave = () => {
+    // Reset all items to their original size when the mouse leaves the dock
+    dockItems.forEach(item => {
+        item.style.transform = 'scale(1)';
+    });
+};
+
+// Attach the event listeners to the dock container
+if (dockContainer) {
+    dockContainer.addEventListener('mousemove', handleDockMouseMove);
+    dockContainer.addEventListener('mouseleave', handleDockMouseLeave);
+}
