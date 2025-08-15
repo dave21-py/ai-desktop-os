@@ -269,3 +269,35 @@ body {
     text-align: center;
     word-break: break-word;
 }
+/* --- NEW: Context Menu --- */
+.context-menu {
+    position: absolute;
+    z-index: 1000;
+    width: 200px;
+    background-color: rgba(240, 240, 240, 0.7);
+    backdrop-filter: blur(20px);
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.context-menu-item:hover {
+    background-color: rgba(0, 122, 255, 0.8);
+    color: white;
+}
+
+.context-menu-item svg {
+    margin-right: 10px;
+}

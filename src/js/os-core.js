@@ -93,6 +93,28 @@ class WarmwindOS {
             this.ui.desktop.appendChild(itemEl);
         });
     }
+    // This function should go inside the WarmwindOS class in os-core.js
+    _createNewFolder(x, y) {
+        // Find the highest number for existing "New Folder" names
+        let maxNum = 0;
+        this.state.desktopItems.forEach(item => {
+            if (item.name?.startsWith('New Folder')) {
+                const num = parseInt(item.name.replace('New Folder', '').trim()) || 0;
+                if (num > maxNum) maxNum = num;
+            }
+        });
+        const newName = maxNum > 0 ? `New Folder ${maxNum + 1}` : 'New Folder';
+        const newItem = {
+            id: this.state.nextItemID++,
+            type: 'folder',
+            name: newName,
+            x: x,
+            y: y
+        };
+        this.state.desktopItems.push(newItem);
+        this._renderDesktop(); // Re-draw the desktop to show the new folder
+        this._saveState();     // Save it so it persists
+    }
     
     _saveState() {
         const stateToSave = {

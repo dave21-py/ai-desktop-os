@@ -42,6 +42,17 @@
             </div>
         </template>
 
+                <!-- NEW: Template for the context menu -->
+                <template id="context-menu-template">
+                    <div class="context-menu">
+                        <div class="context-menu-item" data-action="new-folder">
+                            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
+                            <span>New Folder</span>
+                        </div>
+                        <!-- We can add more options here later -->
+                    </div>
+                </template>
+
         <!-- The Main Bottom Bar (Dock) -->
         <footer class="bottom-bar">
             <!-- This button now opens the Command Center -->

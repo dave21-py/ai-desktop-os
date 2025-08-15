@@ -64,6 +64,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======================================================
+// --- NEW: CONTEXT MENU INTERACTIONS ---
+// ======================================================
+
+function showContextMenu(e) {
+    e.preventDefault();
+    // Remove any existing menu first
+    const existingMenu = document.querySelector('.context-menu');
+    if (existingMenu) existingMenu.remove();
+
+    const menuTemplate = document.querySelector('#context-menu-template');
+    const menu = menuTemplate.content.cloneNode(true).firstElementChild;
+
+    // Position the menu, ensuring it doesn't go off-screen
+    const appWindow = document.querySelector('.app-window');
+    const appRect = appWindow.getBoundingClientRect();
+    const x = Math.min(e.clientX, appRect.right - 200); // 200 is menu width
+    const y = Math.min(e.clientY, appRect.bottom - 100); // 100 is menu height
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+    document.body.appendChild(menu);
+
+    // Handle clicks on menu items
+    menu.addEventListener('click', (clickEvent) => {
+        const action = clickEvent.target.closest('.context-menu-item')?.dataset.action;
+        if (action === 'new-folder') {
+            const desktopRect = desktop.getBoundingClientRect();
+            // Convert viewport coordinates to desktop-relative coordinates
+            const folderX = e.clientX - desktopRect.left;
+            const folderY = e.clientY - desktopRect.top;
+            os._createNewFolder(folderX, folderY);
+        }
+        menu.remove();
+    });
+
+    // Close the menu when clicking anywhere else
+    const closeMenu = () => {
+        if(document.body.contains(menu)) {
+            menu.remove();
+        }
+        document.removeEventListener('click', closeMenu);
+    };
+    // Use a tiny timeout to prevent the context menu click from closing itself
+    setTimeout(() => document.addEventListener('click', closeMenu), 0);
+}
+
+desktop.addEventListener('contextmenu', showContextMenu);
+
+    // ======================================================
 // --- DESKTOP & WINDOW INTERACTIONS ---
 // ======================================================
 let isDraggingWindow = false;
