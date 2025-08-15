@@ -58,7 +58,7 @@
 <template id="file-explorer-template">
     <div class="app-instance-window file-explorer">
         <div class="window-title-bar">
-            <img class="window-icon" src="assets/icons/folder.svg" alt="Folder Icon">
+            <img class="window-icon" src="assets/icons/folder.png" alt="Folder Icon">
             <span class="window-title"></span>
             <div class="window-controls">
                 <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
@@ -83,6 +83,51 @@
     </div>
 </template>
 
+<!-- Add this template to your index.html -->
+<template id="dashboard-template">
+    <div class="app-instance-window dashboard-window">
+        <div class="window-title-bar">
+            <img class="window-icon" src="assets/icons/dashboard.png" alt="Dashboard Icon">
+            <span class="window-title">System Dashboard</span>
+            <div class="window-controls">
+                <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
+                <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
+                <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="dashboard-content">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3>Windows</h3>
+                        <div class="metric"><span id="total-windows">0</span> Open</div>
+                        <div class="metric"><span id="app-windows">0</span> Apps</div>
+                        <div class="metric"><span id="folder-windows">0</span> Folders</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Desktop</h3>
+                        <div class="metric"><span id="total-items">0</span> Items</div>
+                        <div class="metric"><span id="app-items">0</span> Apps</div>
+                        <div class="metric"><span id="folder-items">0</span> Folders</div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>System</h3>
+                        <div class="metric">Theme: <span id="current-theme">Light</span></div>
+                        <div class="metric">Time: <span id="current-time">--:--:--</span></div>
+                        <div class="metric">Apps: <span id="available-apps">0</span></div>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3>Performance</h3>
+                        <div class="metric">Memory: <span id="memory-usage">0%</span></div>
+                        <div class="metric">CPU: <span id="cpu-usage">0%</span></div>
+                        <div class="metric">Battery: <span id="battery-level">0%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
         <!-- The Main Bottom Bar (Dock) -->
         <footer class="bottom-bar">
             <!-- This button now opens the Command Center -->
@@ -91,6 +136,21 @@
             </button>
             <!-- Running app icons will be added here by JavaScript -->
         </footer>
+
+        <!-- Add this theme switcher button -->
+<button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+</button>
 
     </div> <!-- End of .app-window -->
 
@@ -124,6 +184,7 @@
         <div class="app-item" data-appid="gmail" data-appname="Gmail" data-url="https://mail.google.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon"></div>
         <div class="app-item" data-appid="google" data-appname="Google" data-url="https://www.google.com/search?igu=1"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Icon"></div>
         <div class="app-item" data-appid="youtube" data-appname="YouTube" data-url="https://youtube.com" data-launch-mode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg" alt="YouTube Icon"></div>
+        <div class="app-item" data-appid="dashboard" data-appname="System Dashboard" data-url="#"><img src="assets/icons/dashboard.png" alt="Dashboard Icon"></div>
         <!-- Add all your other apps here, just like before -->
     </div>
 
@@ -156,20 +217,9 @@
     <script src="js/os-core.js" defer></script>
     <script src="js/main.js" defer></script>
 
-    <!-- Add this theme switcher button -->
-<button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-</button>
+    
+
+
 
 </body>
 </html>

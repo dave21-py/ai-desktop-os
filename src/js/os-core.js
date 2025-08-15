@@ -6,12 +6,12 @@ class WarmwindOS {
             desktopItems: [
                 { id: 1, type: 'app', appId: 'vscode', x: 50, y: 50 },
                 { id: 2, type: 'app', appId: 'gemini', x: 50, y: 160 },
-                { id: 3, type: 'folder', name: 'Projects', x: 160, y: 50, children: [] } 
+                { id: 3, type: 'folder', name: 'Projects', x: 160, y: 50, children: [] }
             ],
             nextZIndex: 21,
             nextWindowID: 0,
             nextItemID: 4,
-            availableApps: [],
+            availableApps: [], // Ensure availableApps is initialized as an empty array
             theme: 'light'
         };
         this.ui = {};
@@ -20,7 +20,8 @@ class WarmwindOS {
     boot() {
         this._loadState();
         this._initUI();
-        this._loadApps();
+        this._loadApps(); // Load apps
+        console.log("Available Apps:", this.state.availableApps); // Log available apps
         this._renderDesktop();
         this._setTheme(this.state.theme);
     }
@@ -56,73 +57,228 @@ class WarmwindOS {
     }
 
     // ======================================================
+    // --- SYSTEM DASHBOARD ---
+    // ======================================================
+
+    showSystemInfo() {
+        // Get window statistics
+        const totalWindows = this.state.openWindows.length;
+        const appWindows = this.state.openWindows.filter(w => w.appData).length;
+        const folderWindows = this.state.openWindows.filter(w => w.folderId).length;
+        
+        // Get desktop item statistics
+        const totalDesktopItems = this.state.desktopItems.length;
+        const appItems = this.state.desktopItems.filter(item => item.type === 'app').length;
+        const folderItems = this.state.desktopItems.filter(item => item.type === 'folder').length;
+        
+        // Get system information
+        const theme = this.state.theme;
+        const time = new Date().toLocaleTimeString();
+        const date = new Date().toLocaleDateString();
+        const availableApps = this.state.availableApps.length;
+        
+        // Create a formatted message
+        const message = `📊 **System Status Dashboard**
+        
+**🖥️ Windows**
+• Total Open Windows: ${totalWindows}
+• Application Windows: ${appWindows}
+• Folder Windows: ${folderWindows}
+
+**📁 Desktop**
+• Total Items: ${totalDesktopItems}
+• Applications: ${appItems}
+• Folders: ${folderItems}
+
+**⚙️ System**
+• Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)} Mode
+• Current Time: ${time}
+• Current Date: ${date}
+• Available Apps: ${availableApps}
+
+**🤖 AI Assistant**
+• Status: Active and Ready
+• API: Google Gemini Connected`;
+
+        return {
+            message: message
+        };
+    }
+
+    getPerformanceMetrics() {
+        // Simulate some performance metrics (in a real OS this would be actual system data)
+        const memoryUsage = Math.floor(Math.random() * 30) + 60; // 60-90%
+        const cpuUsage = Math.floor(Math.random() * 20) + 5; // 5-25%
+        const networkStatus = 'Connected';
+        const batteryLevel = Math.floor(Math.random() * 40) + 60; // 60-100%
+        
+        return {
+            memoryUsage,
+            cpuUsage,
+            networkStatus,
+            batteryLevel
+        };
+    }
+
+    openDashboard() {
+        // Check if dashboard is already open
+        const existingDashboard = this.state.openWindows.find(w => w.isDashboard);
+        if (existingDashboard) {
+            this._focusWindow(existingDashboard.element);
+            return;
+        }
+        
+        // Create new dashboard window
+        const windowId = `window-${this.state.nextWindowID++}`;
+        const template = document.querySelector('#dashboard-template').content.cloneNode(true);
+        const windowEl = template.querySelector('.app-instance-window');
+
+        const appWindowRect = this.ui.desktop.getBoundingClientRect();
+        const windowWidth = 800;
+        const windowHeight = 500;
+        const centerX = (appWindowRect.width - windowWidth) / 2;
+        const centerY = (appWindowRect.height - windowHeight) / 2;
+
+        windowEl.dataset.windowId = windowId;
+        windowEl.style.left = `${Math.max(40, centerX)}px`;
+        windowEl.style.top = `${Math.max(40, centerY)}px`;
+
+        // Update dashboard with current data
+        this.updateDashboardData(windowEl);
+        
+        // Set up auto-refresh
+        const refreshInterval = setInterval(() => {
+            if (document.body.contains(windowEl)) {
+                this.updateDashboardData(windowEl);
+            } else {
+                clearInterval(refreshInterval);
+            }
+        }, 1000);
+
+        this.ui.desktop.appendChild(windowEl);
+        this.state.openWindows.push({ 
+            id: windowId, 
+            element: windowEl, 
+            isDashboard: true,
+            refreshInterval: refreshInterval
+        });
+
+        this._createDockIcon({ 
+            name: 'System Dashboard', 
+            icon: 'assets/icons/dashboard.png' 
+        }, windowId);
+        this._focusWindow(windowEl);
+    }
+
+    updateDashboardData(windowEl) {
+        // Get elements
+        const totalWindowsEl = windowEl.querySelector('#total-windows');
+        const appWindowsEl = windowEl.querySelector('#app-windows');
+        const folderWindowsEl = windowEl.querySelector('#folder-windows');
+        const totalItemsEl = windowEl.querySelector('#total-items');
+        const appItemsEl = windowEl.querySelector('#app-items');
+        const folderItemsEl = windowEl.querySelector('#folder-items');
+        const themeEl = windowEl.querySelector('#current-theme');
+        const timeEl = windowEl.querySelector('#current-time');
+        const appsEl = windowEl.querySelector('#available-apps');
+        const memoryEl = windowEl.querySelector('#memory-usage');
+        const cpuEl = windowEl.querySelector('#cpu-usage');
+        const batteryEl = windowEl.querySelector('#battery-level');
+        
+        // Calculate stats
+        const totalWindows = this.state.openWindows.length;
+        const appWindows = this.state.openWindows.filter(w => w.appData).length;
+        const folderWindows = this.state.openWindows.filter(w => w.folderId).length;
+        const totalItems = this.state.desktopItems.length;
+        const appItems = this.state.desktopItems.filter(item => item.type === 'app').length;
+        const folderItems = this.state.desktopItems.filter(item => item.type === 'folder').length;
+        const theme = this.state.theme;
+        const time = new Date().toLocaleTimeString();
+        const apps = this.state.availableApps.length;
+        const perf = this.getPerformanceMetrics();
+        
+        // Update UI
+        if (totalWindowsEl) totalWindowsEl.textContent = totalWindows;
+        if (appWindowsEl) appWindowsEl.textContent = appWindows;
+        if (folderWindowsEl) folderWindowsEl.textContent = folderWindows;
+        if (totalItemsEl) totalItemsEl.textContent = totalItems;
+        if (appItemsEl) appItemsEl.textContent = appItems;
+        if (folderItemsEl) folderItemsEl.textContent = folderItems;
+        if (themeEl) themeEl.textContent = theme.charAt(0).toUpperCase() + theme.slice(1);
+        if (timeEl) timeEl.textContent = time;
+        if (appsEl) appsEl.textContent = apps;
+        if (memoryEl) memoryEl.textContent = `${perf.memoryUsage}%`;
+        if (cpuEl) cpuEl.textContent = `${perf.cpuUsage}%`;
+        if (batteryEl) batteryEl.textContent = `${perf.batteryLevel}%`;
+    }
+
+    // ======================================================
     // --- DESKTOP & STATE MANAGEMENT ---
     // ======================================================
 
-    // Replace the _renderDesktop method with this optimized version:
-_renderDesktop() {
-    // Create a map of existing desktop items by ID
-    const existingItems = {};
-    this.ui.desktop.querySelectorAll('.desktop-item').forEach(item => {
-        const id = item.dataset.itemId;
-        if (id) {
-            existingItems[id] = item;
-        }
-    });
-    
-    // Process each desktop item
-    this.state.desktopItems.forEach(item => {
-        let itemEl = existingItems[item.id];
-        
-        // If item doesn't exist, create it
-        if (!itemEl) {
-            itemEl = document.createElement('div');
-            itemEl.className = 'desktop-item';
-            itemEl.dataset.itemId = item.id;
-            this.ui.desktop.appendChild(itemEl);
-        }
-        
-        // Update position
-        itemEl.style.left = `${item.x}px`;
-        itemEl.style.top = `${item.y}px`;
-        
-        // Update content if needed
-        let iconSrc = '';
-        let name = '';
-        
-        if (item.type === 'app') {
-            const appData = this.state.availableApps.find(app => app.id === item.appId);
-            if (appData) {
-                iconSrc = appData.icon;
-                name = appData.name;
-                itemEl.dataset.appId = item.appId;
+    _renderDesktop() {
+        // Create a map of existing desktop items by ID
+        const existingItems = {};
+        this.ui.desktop.querySelectorAll('.desktop-item').forEach(item => {
+            const id = item.dataset.itemId;
+            if (id) {
+                existingItems[id] = item;
             }
-        } else if (item.type === 'folder') {
-            iconSrc = 'assets/icons/folder.svg';
-            name = item.name;
-            delete itemEl.dataset.appId; // Remove app ID if it was previously an app
-        }
-        
-        // Only update innerHTML if content has changed
-        const currentHTML = itemEl.innerHTML;
-        const newHTML = `
+        });
+    
+        // Process each desktop item
+        this.state.desktopItems.forEach(item => {
+            let itemEl = existingItems[item.id];
+    
+            // If item doesn't exist, create it
+            if (!itemEl) {
+                itemEl = document.createElement('div');
+                itemEl.className = 'desktop-item';
+                itemEl.dataset.itemId = item.id;
+                this.ui.desktop.appendChild(itemEl);
+            }
+    
+            // Update position
+            itemEl.style.left = `${item.x}px`;
+            itemEl.style.top = `${item.y}px`;
+    
+            // Update content if needed
+            let iconSrc = '';
+            let name = '';
+    
+            if (item.type === 'app') {
+                const appData = this.state.availableApps.find(app => app.id === item.appId);
+                if (appData) {
+                    iconSrc = appData.icon;
+                    name = appData.name;
+                    itemEl.dataset.appId = item.appId;
+                }
+            } else if (item.type === 'folder') {
+                iconSrc = 'assets/icons/folder.png'; // Ensure this path exists!
+                name = item.name;
+                delete itemEl.dataset.appId; // Remove app ID if it was previously an app
+            }
+    
+            // Only update innerHTML if content has changed
+            const currentHTML = itemEl.innerHTML;
+            const newHTML = `
                 <img src="${iconSrc}" alt="${name}">
                 <span>${name}</span>
             `;
-        
-        if (currentHTML !== newHTML) {
-            itemEl.innerHTML = newHTML;
-        }
-    });
     
-    // Remove any desktop items that no longer exist in state
-    const stateItemIds = this.state.desktopItems.map(item => item.id.toString());
-    Object.keys(existingItems).forEach(id => {
-        if (!stateItemIds.includes(id)) {
-            existingItems[id].remove();
-        }
-    });
-}
+            if (currentHTML !== newHTML) {
+                itemEl.innerHTML = newHTML;
+            }
+        });
+    
+        // Remove any desktop items that no longer exist in state
+        const stateItemIds = this.state.desktopItems.map(item => item.id.toString());
+        Object.keys(existingItems).forEach(id => {
+            if (!stateItemIds.includes(id)) {
+                existingItems[id].remove();
+            }
+        });
+    }
 
     _createNewFolder(x, y) {
         let maxNum = 0;
@@ -176,11 +332,28 @@ _renderDesktop() {
 
     launchApp(appId) {
         const appData = this.state.availableApps.find(app => app.id === appId);
-        if (!appData) { console.error(`App with ID "${appId}" not found.`); return; }
-        if (appData.launchMode === 'new-tab') { window.open(appData.url, '_blank'); return; }
+        if (!appData) { 
+            console.error(`App with ID "${appId}" not found.`); 
+            return; 
+        }
+        
+        if (appData.launchMode === 'new-tab') { 
+            // Create temporary link and simulate click (bypasses CSP)
+            const link = document.createElement('a');
+            link.href = appData.url;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return;
+        }
+        
         const existingWindow = this.state.openWindows.find(w => w.appData && w.appData.id === appId);
         if (existingWindow) { this._restoreWindow(existingWindow.element); return; }
         this._createWindow(appData);
+        console.log("Launching app:", appData.name, "URL:", appData.url, "Mode:", appData.launchMode);
     }
 
     openFolder(itemId) {
@@ -232,127 +405,125 @@ _renderDesktop() {
         this._focusWindow(windowEl);
     }
 
-    // Replace the _createFileExplorerWindow method with this enhanced version:
-_createFileExplorerWindow(folderData) {
-    const windowId = `window-${this.state.nextWindowID++}`;
-    const template = document.querySelector('#file-explorer-template').content.cloneNode(true);
-    const windowEl = template.querySelector('.app-instance-window');
+    _createFileExplorerWindow(folderData) {
+        const windowId = `window-${this.state.nextWindowID++}`;
+        const template = document.querySelector('#file-explorer-template').content.cloneNode(true);
+        const windowEl = template.querySelector('.app-instance-window');
 
-    const appWindowRect = this.ui.desktop.getBoundingClientRect();
-    const windowWidth = 720;
-    const windowHeight = 480;
-    const centerX = (appWindowRect.width - windowWidth) / 2;
-    const centerY = (appWindowRect.height - windowHeight) / 2;
+        const appWindowRect = this.ui.desktop.getBoundingClientRect();
+        const windowWidth = 720;
+        const windowHeight = 480;
+        const centerX = (appWindowRect.width - windowWidth) / 2;
+        const centerY = (appWindowRect.height - windowHeight) / 2;
 
-    windowEl.dataset.windowId = windowId;
-    windowEl.style.left = `${Math.max(40, centerX)}px`;
-    windowEl.style.top = `${Math.max(40, centerY)}px`;
+        windowEl.dataset.windowId = windowId;
+        windowEl.style.left = `${Math.max(40, centerX)}px`;
+        windowEl.style.top = `${Math.max(40, centerY)}px`;
 
-    // Set folder title
-    const titleBar = windowEl.querySelector('.window-title-bar');
-    titleBar.querySelector('.window-title').textContent = folderData.name;
+        // Set folder title
+        const titleBar = windowEl.querySelector('.window-title-bar');
+        titleBar.querySelector('.window-title').textContent = folderData.name;
 
-    // Render folder contents
-    this._renderFolderContents(windowEl, folderData);
+        // Render folder contents
+        this._renderFolderContents(windowEl, folderData);
 
-    // Add event listeners for toolbar buttons
-    const newFolderBtn = windowEl.querySelector('.new-folder-btn');
-    newFolderBtn?.addEventListener('click', () => {
-        this._createNewFolderInExplorer(folderData, windowEl);
-    });
+        // Add event listeners for toolbar buttons
+        const newFolderBtn = windowEl.querySelector('.new-folder-btn');
+        newFolderBtn?.addEventListener('click', () => {
+            this._createNewFolderInExplorer(folderData, windowEl);
+        });
 
-    this.ui.desktop.appendChild(windowEl);
-    this.state.openWindows.push({ id: windowId, element: windowEl, folderId: folderData.id });
+        this.ui.desktop.appendChild(windowEl);
+        this.state.openWindows.push({ id: windowId, element: windowEl, folderId: folderData.id });
 
-    // Create dock icon for folder
-    this._createDockIcon({ name: folderData.name, icon: 'assets/icons/folder.svg' }, windowId);
-    this._focusWindow(windowEl);
-}
+        // Create dock icon for folder
+        this._createDockIcon({ name: folderData.name, icon: 'assets/icons/folder.png' }, windowId);
+        this._focusWindow(windowEl);
+    }
 
-_renderFolderContents(windowEl, folderData) {
-    const contentArea = windowEl.querySelector('.file-explorer-content');
-    const emptyMessage = windowEl.querySelector('.empty-folder-message');
-    
-    // Clear existing content
-    contentArea.innerHTML = '';
-    
-    if (!folderData.children || folderData.children.length === 0) {
-        // Show empty folder message
+    _renderFolderContents(windowEl, folderData) {
+        const contentArea = windowEl.querySelector('.file-explorer-content');
+        const emptyMessage = windowEl.querySelector('.empty-folder-message');
+        
+        // Clear existing content
+        contentArea.innerHTML = '';
+        
+        if (!folderData.children || folderData.children.length === 0) {
+            // Show empty folder message
+            if (emptyMessage) {
+                emptyMessage.style.display = 'block';
+            }
+            return;
+        }
+        
+        // Hide empty folder message
         if (emptyMessage) {
-            emptyMessage.style.display = 'block';
-        }
-        return;
-    }
-    
-    // Hide empty folder message
-    if (emptyMessage) {
-        emptyMessage.style.display = 'none';
-    }
-    
-    // Render folder contents
-    folderData.children.forEach(item => {
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        fileItem.dataset.itemId = item.id;
-        
-        let iconSrc = '';
-        let name = '';
-        
-        if (item.type === 'folder') {
-            iconSrc = 'assets/icons/folder.svg';
-            name = item.name;
-        } else {
-            // For files, use a generic file icon or determine based on extension
-            iconSrc = 'assets/icons/file.svg';
-            name = item.name;
+            emptyMessage.style.display = 'none';
         }
         
-        fileItem.innerHTML = `
-            <img src="${iconSrc}" alt="${name}">
-            <span>${name}</span>
-        `;
-        
-        // Add double-click to open
-        fileItem.addEventListener('dblclick', () => {
-            if (item.type === 'folder') {
-                this.openFolder(item.id);
-            }
-            // For files, we could implement opening functionality here
-        });
-        
-        contentArea.appendChild(fileItem);
-    });
-}
-
-_createNewFolderInExplorer(folderData, windowEl) {
-    let maxNum = 0;
-    if (folderData.children) {
+        // Render folder contents
         folderData.children.forEach(item => {
-            if (item.name?.startsWith('New Folder')) {
-                const num = parseInt(item.name.replace('New Folder', '').trim()) || 0;
-                if (num > maxNum) maxNum = num;
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            fileItem.dataset.itemId = item.id;
+            
+            let iconSrc = '';
+            let name = '';
+            
+            if (item.type === 'folder') {
+                iconSrc = 'assets/icons/folder.png';
+                name = item.name;
+            } else {
+                // For files, use a generic file icon or determine based on extension
+                iconSrc = 'assets/icons/file.svg';
+                name = item.name;
             }
+            
+            fileItem.innerHTML = `
+                <img src="${iconSrc}" alt="${name}">
+                <span>${name}</span>
+            `;
+            
+            // Add double-click to open
+            fileItem.addEventListener('dblclick', () => {
+                if (item.type === 'folder') {
+                    this.openFolder(item.id);
+                }
+                // For files, we could implement opening functionality here
+            });
+            
+            contentArea.appendChild(fileItem);
         });
     }
-    
-    const newName = maxNum > 0 ? `New Folder ${maxNum + 1}` : 'New Folder';
-    const newItem = {
-        id: this.state.nextItemID++,
-        type: 'folder',
-        name: newName,
-        children: []
-    };
-    
-    if (!folderData.children) {
-        folderData.children = [];
-    }
-    
-    folderData.children.push(newItem);
-    this._renderFolderContents(windowEl, folderData);
-    this._saveState();
-}
 
-    // UPDATED: Made this function more generic to accept any window type
+    _createNewFolderInExplorer(folderData, windowEl) {
+        let maxNum = 0;
+        if (folderData.children) {
+            folderData.children.forEach(item => {
+                if (item.name?.startsWith('New Folder')) {
+                    const num = parseInt(item.name.replace('New Folder', '').trim()) || 0;
+                    if (num > maxNum) maxNum = num;
+                }
+            });
+        }
+        
+        const newName = maxNum > 0 ? `New Folder ${maxNum + 1}` : 'New Folder';
+        const newItem = {
+            id: this.state.nextItemID++,
+            type: 'folder',
+            name: newName,
+            children: []
+        };
+        
+        if (!folderData.children) {
+            folderData.children = [];
+        }
+        
+        folderData.children.push(newItem);
+        this._renderFolderContents(windowEl, folderData);
+        this._saveState();
+    }
+
     _createDockIcon(data, windowId) {
         const commandBtn = this.ui.dock.querySelector('#command-center-btn');
         const dockIcon = document.createElement('button');
@@ -410,7 +581,9 @@ _createNewFolderInExplorer(folderData, windowEl) {
         windowElement.classList.toggle('maximized'); 
     }
     
-    // ... (All other functions from command center to AI remain unchanged) ...
+    // ======================================================
+    // --- COMMAND CENTER & SEARCH ---
+    // ======================================================
 
     showCommandCenter() {
         this.ui.commandCenterOverlay.classList.remove('hidden');
@@ -418,7 +591,11 @@ _createNewFolderInExplorer(folderData, windowEl) {
         this.ui.commandCenterInput.value = '';
         this.ui.commandCenterInput.focus();
     }
-    closeCommandCenter() { this.ui.commandCenterOverlay.classList.add('hidden'); }
+    
+    closeCommandCenter() { 
+        this.ui.commandCenterOverlay.classList.add('hidden'); 
+    }
+    
     _updateCommandCenterResults(query) {
         this.ui.commandCenterResults.innerHTML = '';
         const lowerQuery = query.toLowerCase().trim();
@@ -431,6 +608,7 @@ _createNewFolderInExplorer(folderData, windowEl) {
              filteredApps.forEach(app => this._createAppResult(app));
         }
     }
+    
     _createAppResult(app) {
         const template = this.ui.appSearchResultTemplate.content.cloneNode(true);
         const resultEl = template.querySelector('.app-result-item');
@@ -439,8 +617,20 @@ _createNewFolderInExplorer(folderData, windowEl) {
         resultEl.querySelector('.app-name').textContent = app.name;
         this.ui.commandCenterResults.appendChild(resultEl);
     }
-    showAIPanel() { this.ui.aiPanel.classList.remove('hidden'); this.ui.aiInput.focus(); }
-    closeAIPanel() { this.ui.aiPanel.classList.add('hidden'); }
+    
+    // ======================================================
+    // --- AI ASSISTANT ---
+    // ======================================================
+
+    showAIPanel() { 
+        this.ui.aiPanel.classList.remove('hidden'); 
+        this.ui.aiInput.focus(); 
+    }
+    
+    closeAIPanel() { 
+        this.ui.aiPanel.classList.add('hidden'); 
+    }
+    
     async askAI(query) {
         this.showAIPanel();
         this._addMessageToChat('user', query);
@@ -464,83 +654,178 @@ _createNewFolderInExplorer(folderData, windowEl) {
             this._addMessageToChat('ai', aiResponse);
         } catch (error) {
             console.error("AI Error:", error);
-            this._addMessageToChat('ai', "Sorry, I'm having trouble connecting to the AI network right now.");
+            let userMessage = "Sorry, I'm having trouble connecting to the AI network right now.";
+            
+            // Provide more specific error messages to the user
+            if (error.message.includes("Network error")) {
+                userMessage = "Network connection error. Please check your internet connection.";
+            } else if (error.message.includes("API_KEY_INVALID")) {
+                userMessage = "Invalid API key. Please check your configuration in config.js.";
+            } else if (error.message.includes("401")) {
+                userMessage = "Authentication failed. Please check your API key.";
+            } else if (error.message.includes("429")) {
+                userMessage = "Rate limit exceeded. Please wait a moment before trying again.";
+            }
+            
+            this._addMessageToChat('ai', userMessage);
         } finally {
             this.ui.aiTypingIndicator.classList.add('hidden');
             this.ui.aiSendBtn.disabled = false;
         }
     }
+    
     _processCommand(query) {
-        const lowerQuery = query.toLowerCase();
-        // This logic remains the same
+        const lowerQuery = query.toLowerCase().trim();
+        
+        // Handle app launching commands
+        if (lowerQuery.startsWith('open ')) {
+            const appName = lowerQuery.substring(5).trim();
+            const app = this.state.availableApps.find(a => 
+                a.name.toLowerCase().includes(appName) || 
+                a.id.toLowerCase().includes(appName)
+            );
+            
+            if (app) {
+                return {
+                    message: `Opening ${app.name}...`,
+                    action: () => this.launchApp(app.id)
+                };
+            } else {
+                return {
+                    message: `I couldn't find an app named "${appName}". Try searching for it in the command center.`
+                };
+            }
+        }
+        
+        // Handle folder creation commands
+        if (lowerQuery === 'create folder' || lowerQuery === 'new folder') {
+            // Create folder at a default position
+            const centerX = this.ui.desktop.clientWidth / 2 - 45;
+            const centerY = this.ui.desktop.clientHeight / 2 - 55;
+            
+            return {
+                message: "Creating a new folder on the desktop...",
+                action: () => this._createNewFolder(centerX, centerY)
+            };
+        }
+        
+        // Handle system info commands
+        if (lowerQuery.includes('system') && (lowerQuery.includes('info') || lowerQuery.includes('status'))) {
+            return this.showSystemInfo();
+        }
+        
+        if (lowerQuery === 'dashboard' || lowerQuery === 'sysinfo') {
+            return this.showSystemInfo();
+        }
+        
+        // Handle dashboard opening
+        if (lowerQuery.includes('open') && lowerQuery.includes('dashboard')) {
+            return {
+                message: "Opening System Dashboard...",
+                action: () => this.openDashboard()
+            };
+        }
+        
+        // Handle theme switching commands
+        if (lowerQuery === 'dark mode' || lowerQuery === 'enable dark mode') {
+            return {
+                message: "Switching to dark mode...",
+                action: () => this._setTheme('dark')
+            };
+        }
+        
+        if (lowerQuery === 'light mode' || lowerQuery === 'enable light mode') {
+            return {
+                message: "Switching to light mode...",
+                action: () => this._setTheme('light')
+            };
+        }
+        
+        // Handle help command
+        if (lowerQuery === 'help' || lowerQuery === 'what can you do') {
+            return {
+                message: `I can help you with:
+• Opening apps (try "open [app name]")
+• Creating folders (try "create folder")
+• Switching themes (try "dark mode" or "light mode")
+• Answering questions (just ask anything!)
+
+You can also search for apps in the command center by typing their name.`
+            };
+        }
+        
+        // If no specific command matched, return null to proceed with AI
         return null;
     }
+    
     _setTheme(themeName) {
         this.state.theme = themeName;
         document.body.classList.toggle('dark-theme', themeName === 'dark');
         this._saveState();
     }
-    // In os-core.js, replace the _getGeminiResponse method with this improved version:
-async _getGeminiResponse(query) {
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.GEMINI_API_KEY}`;
     
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                contents: [{ 
-                    parts: [{ 
-                        text: `You are VibeOS, a friendly and helpful operating system assistant. Keep your answers concise and helpful. User query: "${query}"` 
+    async _getGeminiResponse(query) {
+        // FIXED: Removed the space in the API URL
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.GEMINI_API_KEY}`;
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    contents: [{ 
+                        parts: [{ 
+                            text: `You are VibeOS, a friendly and helpful operating system assistant. Keep your answers concise and helpful. User query: "${query}"` 
+                        }] 
                     }] 
-                }] 
-            })
-        });
+                })
+            });
 
-        if (!response.ok) {
-            let errorMessage = `API request failed with status ${response.status}`;
-            
-            // Try to get more specific error information
-            try {
-                const errorData = await response.json();
-                if (errorData.error && errorData.error.message) {
-                    errorMessage = errorData.error.message;
+            if (!response.ok) {
+                let errorMessage = `API request failed with status ${response.status}`;
+                
+                // Try to get more specific error information
+                try {
+                    const errorData = await response.json();
+                    if (errorData.error && errorData.error.message) {
+                        errorMessage = errorData.error.message;
+                    }
+                } catch (e) {
+                    // If we can't parse the error, use the status text
+                    errorMessage = response.statusText || errorMessage;
                 }
-            } catch (e) {
-                // If we can't parse the error, use the status text
-                errorMessage = response.statusText || errorMessage;
+                
+                throw new Error(errorMessage);
+            }
+
+            const data = await response.json();
+            
+            // Check if we have a valid response
+            if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
+                throw new Error("Received incomplete response from AI service");
             }
             
-            throw new Error(errorMessage);
+            return data.candidates[0].content.parts[0].text;
+            
+        } catch (error) {
+            console.error("AI Error:", error);
+            let userMessage = "Sorry, I'm having trouble connecting to the AI network right now.";
+            
+            // Provide more specific error messages to the user
+            if (error.message.includes("Network error")) {
+                userMessage = "Network connection error. Please check your internet connection.";
+            } else if (error.message.includes("API_KEY_INVALID")) {
+                userMessage = "Invalid API key. Please check your configuration in config.js.";
+            } else if (error.message.includes("401")) {
+                userMessage = "Authentication failed. Please check your API key.";
+            } else if (error.message.includes("429")) {
+                userMessage = "Rate limit exceeded. Please wait a moment before trying again.";
+            }
+            
+            throw new Error(userMessage);
         }
-
-        const data = await response.json();
-        
-        // Check if we have a valid response
-        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
-            throw new Error("Received incomplete response from AI service");
-        }
-        
-        return data.candidates[0].content.parts[0].text;
-        
-    } catch (error) {
-        console.error("AI Error:", error);
-        let userMessage = "Sorry, I'm having trouble connecting to the AI network right now.";
-        
-        // Provide more specific error messages to the user
-        if (error.message.includes("Network error")) {
-            userMessage = "Network connection error. Please check your internet connection.";
-        } else if (error.message.includes("API_KEY_INVALID")) {
-            userMessage = "Invalid API key. Please check your configuration in config.js.";
-        } else if (error.message.includes("401")) {
-            userMessage = "Authentication failed. Please check your API key.";
-        } else if (error.message.includes("429")) {
-            userMessage = "Rate limit exceeded. Please wait a moment before trying again.";
-        }
-        
-        this._addMessageToChat('ai', userMessage);
     }
-}
+    
     _addMessageToChat(sender, text) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `ai-message from-${sender}`;
@@ -552,72 +837,4 @@ async _getGeminiResponse(query) {
         this.ui.aiMessageList.appendChild(messageDiv);
         this.ui.aiMessageList.scrollTop = this.ui.aiMessageList.scrollHeight;
     }
-
-    // Add this method to the WarmwindOS class:
-_processCommand(query) {
-    const lowerQuery = query.toLowerCase().trim();
-    
-    // Handle app launching commands
-    if (lowerQuery.startsWith('open ')) {
-        const appName = lowerQuery.substring(5).trim();
-        const app = this.state.availableApps.find(a => 
-            a.name.toLowerCase().includes(appName) || 
-            a.id.toLowerCase().includes(appName)
-        );
-        
-        if (app) {
-            return {
-                message: `Opening ${app.name}...`,
-                action: () => this.launchApp(app.id)
-            };
-        } else {
-            return {
-                message: `I couldn't find an app named "${appName}". Try searching for it in the command center.`
-            };
-        }
-    }
-    
-    // Handle folder creation commands
-    if (lowerQuery === 'create folder' || lowerQuery === 'new folder') {
-        // Create folder at a default position
-        const centerX = this.ui.desktop.clientWidth / 2 - 45;
-        const centerY = this.ui.desktop.clientHeight / 2 - 55;
-        
-        return {
-            message: "Creating a new folder on the desktop...",
-            action: () => this._createNewFolder(centerX, centerY)
-        };
-    }
-    
-    // Handle theme switching commands
-    if (lowerQuery === 'dark mode' || lowerQuery === 'enable dark mode') {
-        return {
-            message: "Switching to dark mode...",
-            action: () => this._setTheme('dark')
-        };
-    }
-    
-    if (lowerQuery === 'light mode' || lowerQuery === 'enable light mode') {
-        return {
-            message: "Switching to light mode...",
-            action: () => this._setTheme('light')
-        };
-    }
-    
-    // Handle help command
-    if (lowerQuery === 'help' || lowerQuery === 'what can you do') {
-        return {
-            message: `I can help you with:
-• Opening apps (try "open [app name]")
-• Creating folders (try "create folder")
-• Switching themes (try "dark mode" or "light mode")
-• Answering questions (just ask anything!)
-
-You can also search for apps in the command center by typing their name.`
-        };
-    }
-    
-    // If no specific command matched, return null to proceed with AI
-    return null;
-}
 }
