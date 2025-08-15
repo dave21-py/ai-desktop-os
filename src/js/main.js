@@ -64,51 +64,112 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ======================================================
-    // --- DESKTOP & WINDOW INTERACTIONS ---
-    // ======================================================
-    let isDraggingWindow = false;
-    let dragTarget = null;
-    let dragOffset = { x: 0, y: 0 };
+// --- DESKTOP & WINDOW INTERACTIONS ---
+// ======================================================
+let isDraggingWindow = false;
+let isDraggingDesktopItem = false; // NEW state for desktop items
+let dragTarget = null;
+let dragOffset = { x: 0, y: 0 };
+let clickTimeout = null; // For detecting double-clicks
 
-    desktop.addEventListener('mousedown', (e) => {
-        const windowEl = e.target.closest('.app-instance-window');
-        if (!windowEl) return;
+desktop.addEventListener('mousedown', (e) => {
+    // Check for desktop item drag first
+    const desktopItem = e.target.closest('.desktop-item');
+    if (desktopItem) {
+        isDraggingDesktopItem = true;
+        dragTarget = desktopItem;
+        const rect = dragTarget.getBoundingClientRect();
+        const parentRect = desktop.getBoundingClientRect();
+        dragOffset.x = e.clientX - (rect.left - parentRect.left);
+        dragOffset.y = e.clientY - (rect.top - parentRect.top);
+        document.body.classList.add('no-select');
+        return; // Stop further processing
+    }
     
-        os._focusWindow(windowEl);
+    // Original window logic
+    const windowEl = e.target.closest('.app-instance-window');
+    if (!windowEl) return;
+
+    os._focusWindow(windowEl);
+
+    // Window controls
+    if (e.target.closest('.window-close-btn')) { os._closeWindow(windowEl); return; }
+    if (e.target.closest('.window-minimize-btn')) { os._minimizeWindow(windowEl); return; }
+    if (e.target.closest('.window-maximize-btn')) { os._maximizeWindow(windowEl); return; }
+
+    // Dragging a window
+    if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
+        isDraggingWindow = true;
+        dragTarget = windowEl;
+        const rect = windowEl.getBoundingClientRect();
+        const parentRect = dragTarget.parentElement.getBoundingClientRect();
+        dragOffset.x = e.clientX - (rect.left - parentRect.left);
+        dragOffset.y = e.clientY - (rect.top - parentRect.top);
+        document.body.classList.add('no-select');
+    }
+});
+
+desktop.addEventListener('mouseup', (e) => {
+    // Check if we just finished dragging a desktop item
+    if (isDraggingDesktopItem && dragTarget) {
+        const itemId = dragTarget.dataset.itemId;
+        const newX = parseInt(dragTarget.style.left);
+        const newY = parseInt(dragTarget.style.top);
+        os.updateDesktopItemPosition(itemId, newX, newY);
+    }
     
-        // Window controls
-        if (e.target.closest('.window-close-btn')) { os._closeWindow(windowEl); return; }
-        if (e.target.closest('.window-minimize-btn')) { os._minimizeWindow(windowEl); return; }
-        if (e.target.closest('.window-maximize-btn')) { os._maximizeWindow(windowEl); return; }
-    
-        // Dragging a window
-        if (e.target.closest('.window-title-bar') && !windowEl.classList.contains('maximized')) {
-            isDraggingWindow = true;
-            dragTarget = windowEl;
-            const rect = windowEl.getBoundingClientRect();
-            // IMPORTANT: Use parent's rect to calculate relative position
-            const parentRect = dragTarget.parentElement.getBoundingClientRect();
-            dragOffset.x = e.clientX - (rect.left - parentRect.left);
-            dragOffset.y = e.clientY - (rect.top - parentRect.top);
-            document.body.classList.add('no-select');
+    // Clear all dragging states
+    isDraggingWindow = false;
+    isDraggingDesktopItem = false;
+    dragTarget = null;
+    document.body.classList.remove('no-select');
+});
+
+// Double-click logic for desktop items
+desktop.addEventListener('click', (e) => {
+    const desktopItem = e.target.closest('.desktop-item');
+    if (!desktopItem) return;
+
+    if (!clickTimeout) {
+        // First click
+        clickTimeout = setTimeout(() => {
+            clickTimeout = null; // Reset after timeout
+            // Logic for single-click (e.g., selecting an icon) can go here
+        }, 250);
+    } else {
+        // Second click (double-click)
+        clearTimeout(clickTimeout);
+        clickTimeout = null;
+        const appId = desktopItem.dataset.appId;
+        if (appId) {
+            os.launchApp(appId);
         }
-    });
+        // Add folder logic here later
+    }
+});
 
-    document.addEventListener('mousemove', (e) => {
-        if (isDraggingWindow && dragTarget) {
-            e.preventDefault(); // Prevent text selection during drag
-            const newX = e.clientX - dragOffset.x;
-            const newY = e.clientY - dragOffset.y;
-            dragTarget.style.left = `${newX}px`;
-            dragTarget.style.top = `${newY}px`;
-        }
-    });
 
-    document.addEventListener('mouseup', () => {
-        isDraggingWindow = false;
-        dragTarget = null;
-        document.body.classList.remove('no-select');
-    });
+document.addEventListener('mousemove', (e) => {
+    e.preventDefault(); // Good practice to prevent unwanted text selection
+    if (isDraggingWindow && dragTarget) {
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        dragTarget.style.left = `${newX}px`;
+        dragTarget.style.top = `${newY}px`;
+    } else if (isDraggingDesktopItem && dragTarget) {
+        const newX = e.clientX - dragOffset.x;
+        const newY = e.clientY - dragOffset.y;
+        const maxX = desktop.clientWidth - dragTarget.offsetWidth;
+        const maxY = desktop.clientHeight - dragTarget.offsetHeight;
+
+        // Constrain to desktop bounds
+        const constrainedX = Math.max(0, Math.min(maxX, newX));
+        const constrainedY = Math.max(0, Math.min(maxY, newY));
+
+        dragTarget.style.left = `${constrainedX}px`;
+        dragTarget.style.top = `${constrainedY}px`;
+    }
+});
 
     // ======================================================
     // --- DOCK INTERACTIONS ---
