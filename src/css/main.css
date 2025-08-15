@@ -100,24 +100,7 @@ body {
 }
 
 /* UPDATED CSS in main.css */
-.bottom-bar { 
-    height: 60px; 
-    display: flex; 
-    align-items: center; 
-    /* CHANGED: We now just center the single child div */
-    justify-content: center; 
-    padding: 0 30px; 
-    z-index: 10;
-    position: relative;
-}
 
-.bar-section.center { 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    cursor: pointer;
-    /* REMOVED: No longer need flex-basis */
-}
 
 .bar-section.center { 
     justify-content: center; 
@@ -841,4 +824,171 @@ body {
 /* Add this class to the body during a drag to prevent text selection */
 .no-select {
     user-select: none;
+}
+
+/* in main.css - Add this new block */
+
+/* ========================================= */
+/* ========= IPADOS HOME SCREEN UI ========= */
+/* ========================================= */
+
+#desktop {
+    /* Make the desktop a flex container to center the grid */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.app-grid.home-screen {
+    /* Overrides for the home screen grid */
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 30px;
+    max-width: 900px; /* Control the max width of the icon area */
+    width: 100%;
+    padding: 0;
+    overflow-y: visible; /* Not a scrolling list anymore */
+}
+
+/* Make the icons bigger and more touch-friendly */
+.home-screen .app-item {
+    padding: 0;
+    background-color: transparent; /* Icons are just icons, no background */
+    border: none;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+
+.home-screen .app-item:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Subtle hover for desktop users */
+    transform: scale(1.05); /* Gentle pop on hover */
+    box-shadow: none;
+}
+
+.home-screen .app-item img {
+    width: 72px;  /* Much larger icon size */
+    height: 72px;
+    border-radius: 16px; /* The iconic squircle look */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 12px;
+}
+
+.home-screen .app-item span {
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* in main.css - Add this new block */
+
+/* ========================================= */
+/* ======== IPADOS AUTO-HIDING DOCK ======== */
+/* ========================================= */
+
+.bottom-bar {
+    position: absolute;
+    bottom: 20px; /* Position it slightly up from the bottom edge */
+    left: 50%;
+    
+    /* Center it and hide it by default */
+    transform: translateX(-50%) translateY(120%); /* Move it down 120% to hide it completely */
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    gap: 10px; /* Space out the icons */
+    
+    /* The classic pill look */
+    background-color: rgba(240, 240, 240, 0.5);
+    backdrop-filter: blur(20px) saturate(1.2);
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    
+    z-index: 100; /* Ensure it's above other content */
+    
+    /* THE MAGIC: Smooth transition for the slide-up/down effect */
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* New "visible" state for the dock */
+.bottom-bar.dock-visible {
+    transform: translateX(-50%) translateY(0); /* Move it back to its original position */
+}
+
+
+.bottom-bar .dock-item {
+    width: 48px;
+    height: 48px;
+    margin: 0;
+}
+
+
+/* The invisible trigger zone */
+.dock-trigger-zone {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px; /* A 30px tall zone at the bottom */
+    z-index: 99;
+    /* For debugging, you can add: background: rgba(255, 0, 0, 0.5); */
+}
+/* in main.css - Add this new block */
+
+/* ========================================= */
+/* ========= AI SEARCH PILL (DOCK) ========= */
+/* ========================================= */
+
+.ai-dock-button {
+    /* Reset button styles */
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    
+    /* Pill shape and sizing */
+    border-radius: 12px;
+    padding: 0 16px;
+    height: 48px;
+    min-width: 200px;
+    
+    /* Flexbox to align text inside */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align text to the left */
+
+    /* The subtle, premium look */
+    background-color: rgba(255, 255, 255, 0.9);
+    transition: background-color 0.2s ease;
+}
+
+/* Style the placeholder text */
+.ai-dock-button span {
+    font-size: 15px;
+    font-weight: 500;
+    color: #555;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+/* Hover effect */
+.ai-dock-button:hover {
+    background-color: #ffffff;
+}
+
+.ai-dock-button:hover span {
+    opacity: 1;
+}
+
+/* Dark Theme Adjustments */
+body.dark-theme .ai-dock-button {
+    background-color: var(--surface-3);
+}
+body.dark-theme .ai-dock-button span {
+    color: var(--text-secondary-dark);
+}
+body.dark-theme .ai-dock-button:hover {
+    background-color: #45454b;
 }
