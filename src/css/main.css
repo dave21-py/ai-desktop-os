@@ -1,3 +1,7 @@
+/* ================================================= */
+/* VibeOS - Main Stylesheet (macOS Inspired)         */
+/* ================================================= */
+
 /* --- Global Styles & Foundational Setup --- */
 :root {
     --font-heading: 'Pacifico', cursive;
@@ -5,11 +9,7 @@
     --body-background: #d8dde2;
 }
 
-* { 
-    margin: 0; 
-    padding: 0; 
-    box-sizing: border-box; 
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-body);
@@ -19,7 +19,10 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 2rem;
+    overflow: hidden;
 }
+
+.no-select { user-select: none; }
 
 /* --- Main Application Window --- */
 .app-window {
@@ -54,308 +57,8 @@ body {
     z-index: 5;
 }
 
-/* --- Central Welcome Content --- */
-.welcome-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-}
-
-.welcome-heading {
-    font-family: var(--font-heading);
-    font-size: 3.5rem;
-    margin-bottom: 0.5rem;
-    color: white;
-}
-
-.welcome-subheading {
-    font-size: 1.2rem;
-    margin-bottom: 2rem;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.browse-apps-btn {
-    border-radius: 50px;
-    font-family: var(--font-body); 
-    font-weight: 600; 
-    font-size: 1rem; 
-    border: 1px solid rgba(255, 255, 255, 0.4); 
-    padding: 12px 28px; 
-    cursor: pointer; 
-    backdrop-filter: blur(8px); 
-    -webkit-backdrop-filter: blur(8px); 
-    transition: all 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-.browse-apps-btn:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-/* UPDATED CSS in main.css */
-
-
-.bar-section.center { 
-    justify-content: center; 
-    cursor: pointer;
-}
-
-.bar-section.right { 
-    justify-content: flex-end; 
-}
-
-.avatar { 
-    border-radius: 50%; 
-    width: 32px; 
-    height: 32px; 
-    object-fit: cover; 
-    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05); 
-}
-
-.avatar-stack {
-    display: flex;
-    align-items: center;
-}
-
-.avatar-stack .avatar {
-    margin-left: -8px;
-}
-
-.avatar-stack .avatar:first-child {
-    margin-left: 0;
-}
-
-.add-btn { 
-    border-radius: 50%; 
-    flex-shrink: 0; 
-    width: 36px; 
-    height: 36px; 
-    border: none; 
-    font-size: 20px; 
-    font-weight: 600; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    cursor: pointer; 
-    transition: transform 0.2s ease;
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #333;
-    backdrop-filter: blur(10px);
-}
-
-.add-btn:hover { 
-    transform: scale(1.1);
-    background-color: rgba(255, 255, 255, 0.95);
-}
-
-.central-ask-avatar { 
-    width: 28px; 
-    height: 28px; 
-    margin-right: 12px; 
-}
-
-.ask-text { 
-    font-size: 14px; 
-    font-weight: 600; 
-    margin-right: 16px;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-/* --- Animation & Utility Classes --- */
-.hidden { 
-    display: none !important; 
-}
-
-@keyframes fadeInAnimation { 
-    from { 
-        opacity: 0; 
-        transform: scale(0.98) translateY(10px); 
-    } 
-    to { 
-        opacity: 1; 
-        transform: scale(1) translateY(0); 
-    } 
-}
-
-/* --- Modal & App Drawer --- */
-.modal-overlay { 
-    z-index: 100; 
-    position: absolute; 
-    inset: 0; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    background-color: rgba(60, 60, 60, 0.1); 
-    backdrop-filter: blur(5px); 
-}
-
-.app-drawer { 
-    border-radius: 24px; 
-    width: 90%; 
-    max-width: 800px; 
-    height: 85%; 
-    max-height: 600px; 
-    background-color: rgba(245, 245, 245, 0.6); 
-    backdrop-filter: blur(30px) saturate(1.2); 
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); 
-    border: 1px solid rgba(255, 255, 255, 0.2); 
-    display: flex; 
-    flex-direction: column; 
-    animation: fadeInAnimation 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-}
-
-.app-drawer-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    flex-shrink: 0;
-}
-
-.app-drawer-header h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-}
-
-.app-search-bar {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.6);
-    border-radius: 12px;
-    padding: 8px 12px;
-    margin: 0 20px;
-    flex-grow: 1;
-    max-width: 300px;
-}
-
-.app-search-bar svg {
-    color: #666;
-}
-
-.app-search-bar input {
-    border: none;
-    background: transparent;
-    outline: none;
-    flex-grow: 1;
-    margin-left: 8px;
-    font-size: 14px;
-    color: #333;
-}
-
-.app-search-bar input::placeholder {
-    color: #999;
-}
-
-.close-modal-btn {
-    background: rgba(255, 255, 255, 0.6);
-    border: none;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    color: #666;
-}
-
-.close-modal-btn:hover {
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.app-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 20px;
-    padding: 24px;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-.app-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 16px;
-    border-radius: 16px;
-    background-color: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    position: relative;
-}
-
-.app-item:hover {
-    transform: translateY(-4px);
-    background-color: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.app-item img {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    object-fit: contain;
-}
-
-.app-item span {
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    color: #333;
-    margin-bottom: 8px;
-    line-height: 1.2;
-}
-
-.download-btn {
-    background-color: rgba(255, 255, 255, 0.8);
-    border: none;
-    border-radius: 6px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    color: #666;
-}
-
-.download-btn:hover {
-    background-color: white;
-}
-
-.download-btn svg {
-    width: 14px;
-    height: 14px;
-    stroke: currentColor;
-    fill: none;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
 /* --- Desktop & Windowing System --- */
-#desktop { 
-    position: absolute; 
-    inset: 0; 
-    z-index: 10; 
-    pointer-events: none; 
-}
+#desktop { position: absolute; inset: 0; z-index: 10; }
 
 .app-instance-window {
     position: absolute;
@@ -371,624 +74,164 @@ body {
     resize: both;
     min-width: 300px;
     min-height: 200px;
-    pointer-events: auto;
     transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-.app-instance-window.active-window { 
-    z-index: 20; 
-}
+.app-instance-window.active-window { z-index: 20; }
+.app-instance-window.minimized { transform: translateY(100px) scale(0.9); opacity: 0; pointer-events: none; }
+.app-instance-window.maximized { width: 100% !important; height: 100% !important; top: 0 !important; left: 0 !important; border-radius: 0; resize: none; transition: none; }
 
-.app-instance-window.minimized { 
-    transform: translateY(100px) scale(0.9); 
-    opacity: 0; 
-    pointer-events: none; 
-}
+.window-title-bar { display: flex; align-items: center; padding: 0 8px 0 12px; height: 36px; background-color: #f1f1f1; flex-shrink: 0; cursor: grab; user-select: none; border-bottom: 1px solid #e0e0e0; }
+.window-title-bar:active { cursor: grabbing; }
 
-.app-instance-window.maximized { 
-    width: 100% !important; 
-    height: 100% !important; 
-    top: 0 !important; 
-    left: 0 !important; 
-    border-radius: 0; 
-    resize: none; 
-    transition: none; 
-}
+.window-icon { width: 20px; height: 20px; margin-right: 8px; object-fit: contain; }
+.window-title { flex-grow: 1; font-weight: 600; font-size: 14px; color: #333; }
+.window-controls { display: flex; align-items: center; gap: 4px; }
 
-.window-title-bar { 
-    display: flex; 
-    align-items: center; 
-    padding: 0 8px 0 12px; 
-    height: 36px; 
-    background-color: #f1f1f1; 
-    flex-shrink: 0; 
-    cursor: grab; 
-    user-select: none; 
-    border-bottom: 1px solid #e0e0e0;
-}
+.window-close-btn, .window-minimize-btn, .window-maximize-btn { border-radius: 50%; width: 24px; height: 24px; border: none; background-color: transparent; color: #555; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: background-color 0.2s; }
+.window-close-btn:hover { background-color: #e81123; color: white; }
+.window-minimize-btn:hover, .window-maximize-btn:hover { background-color: #ddd; }
 
-.window-title-bar:active { 
-    cursor: grabbing; 
-}
+.window-content { position: relative; flex-grow: 1; background-color: #fff; }
+.window-content iframe { width: 100%; height: 100%; border: none; background-color: #fff; }
 
-.window-icon { 
-    width: 20px; 
-    height: 20px; 
-    margin-right: 8px; 
-    object-fit: contain;
-}
+.loading-overlay { position: absolute; inset: 0; background-color: #fff; display: flex; justify-content: center; align-items: center; z-index: 2; transition: opacity 0.3s ease; }
+.loading-overlay.hidden { opacity: 0; pointer-events: none; }
 
-.window-title { 
-    flex-grow: 1; 
-    font-weight: 600; 
-    font-size: 14px; 
-    color: #333; 
-}
+.spinner { width: 40px; height: 40px; border: 4px solid rgba(0,0,0,0.1); border-left-color: #333; border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.window-controls { 
-    display: flex; 
-    align-items: center; 
-    gap: 4px; 
-}
 
-.window-close-btn, 
-.window-minimize-btn, 
-.window-maximize-btn { 
-    border-radius: 50%; 
-    width: 24px; 
-    height: 24px; 
-    border: none; 
-    background-color: transparent; 
-    color: #555; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    cursor: pointer; 
-    transition: background-color 0.2s; 
-}
-
-.window-close-btn:hover { 
-    background-color: #e81123; 
-    color: white; 
-}
-
-.window-minimize-btn:hover, 
-.window-maximize-btn:hover { 
-    background-color: #ddd; 
-}
-
-.window-content { 
-    position: relative; 
-    flex-grow: 1; 
-    background-color: #fff; 
-}
-
-.window-content iframe { 
-    width: 100%; 
-    height: 100%; 
-    border: none; 
-    background-color: #fff; 
-}
-
-/* --- Loading Spinner & Dock --- */
-.loading-overlay { 
-    position: absolute; 
-    inset: 0; 
-    background-color: #fff; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    z-index: 2; 
-    transition: opacity 0.3s ease; 
-}
-
-.loading-overlay.hidden { 
-    opacity: 0; 
-    pointer-events: none; 
-}
-
-.spinner { 
-    width: 40px; 
-    height: 40px; 
-    border: 4px solid rgba(0,0,0,0.1); 
-    border-left-color: #333; 
-    border-radius: 50%; 
-    animation: spin 1s linear infinite; 
-}
-
-@keyframes spin { 
-    to { 
-        transform: rotate(360deg); 
-    } 
-}
-
-.dock-item {
-    border-radius: 8px;
-    width: 40px;
-    height: 40px;
-    padding: 4px;
-    background-color: rgba(255, 255, 255, 0.2);
-    margin: 0 5px;
-    cursor: pointer;
-    
-    /* MODIFIED: Use transform for animations, not position. */
-    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1.2); /* The heart of the smooth feel! */
-
-    position: relative;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    backdrop-filter: blur(5px);
-}
-
-/* DELETED: We don't need the old hover effect anymore, the JS will handle it. */
-/*
-.dock-item:hover { 
-    transform: translateY(-4px); 
-    background-color: rgba(255,255,255,0.4); 
-}
-*/
-
-.bar-section.center > * {
-    /* This targets every direct child: .dock-item, .central-ask-avatar, .ask-text, .add-btn */
-    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1.2);
-}
-
-.dock-item.active-dock-icon::after { 
-    content: ''; 
-    position: absolute; 
-    bottom: -6px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    width: 6px; 
-    height: 6px; 
-    background-color: rgba(255, 255, 255, 0.8); 
-    border-radius: 50%; 
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.dock-item.minimized-dock-icon {
-    opacity: 0.6;
-    transform: scale(0.9);
-}
-
-.dock-item.minimized-dock-icon::after { 
-    content: ''; 
-    position: absolute; 
-    bottom: -6px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    width: 4px; 
-    height: 4px; 
-    background-color: rgba(255, 255, 255, 0.5); 
-    border-radius: 50%; 
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-.dock-item.minimized-dock-icon:hover {
-    opacity: 0.8;
-    transform: scale(0.95) translateY(-2px);
-}
-
-/* --- External Link Indicator --- */
-.app-item[data-launch-mode="new-tab"]:hover .download-btn { 
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E"); 
-    background-size: 16px 16px; 
-    background-repeat: no-repeat; 
-    background-position: center; 
-}
-
-.app-item[data-launch-mode="new-tab"]:hover .download-btn svg { 
-    display: none; 
-}
-
-/* --- AI Assistant Panel --- */
-.ai-assistant-panel { 
-    z-index: 50; 
-    position: absolute; 
-    bottom: 80px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    width: 90%; 
-    max-width: 600px; 
-    height: 70%; 
-    max-height: 550px; 
-    background-color: rgba(248, 249, 251, 0.75); 
-    backdrop-filter: blur(20px) saturate(1.5); 
-    border: 1px solid rgba(255, 255, 255, 0.3); 
-    border-radius: 16px; 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
-    display: flex; 
-    flex-direction: column; 
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; 
-}
-
-.ai-assistant-panel.hidden { 
-    opacity: 0; 
-    transform: translateX(-50%) translateY(50px) scale(0.95); 
-    pointer-events: none; 
-}
-
-.ai-panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 20px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    flex-shrink: 0;
-}
-
-.ai-panel-header h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #333;
-    margin: 0;
-}
-
-.ai-close-btn {
-    background: rgba(255, 255, 255, 0.6);
-    border: none;
-    border-radius: 6px;
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    color: #666;
-}
-
-.ai-close-btn:hover {
-    background: rgba(255, 255, 255, 0.8);
-}
-
-.ai-message-list {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.ai-message {
-    display: flex;
-}
-
-.ai-message.from-user {
-    justify-content: flex-end;
-}
-
-.ai-message.from-ai {
-    justify-content: flex-start;
-}
-
-.message-bubble {
-    max-width: 80%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.4;
-    word-wrap: break-word;
-}
-
-.ai-message.from-user .message-bubble {
-    background-color: #007AFF;
-    color: white;
-    border-bottom-right-radius: 4px;
-}
-
-.ai-message.from-ai .message-bubble {
-    background-color: rgba(255, 255, 255, 0.8);
-    color: #333;
-    border-bottom-left-radius: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.ai-typing-indicator {
-    display: flex;
-    justify-content: flex-start;
-    padding: 0 16px;
-}
-
-.ai-typing-indicator .message-bubble {
-    background-color: rgba(255, 255, 255, 0.8);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 12px 16px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.ai-typing-indicator .dot {
-    width: 6px;
-    height: 6px;
-    background-color: #999;
-    border-radius: 50%;
-    animation: typing 1.4s infinite ease-in-out;
-}
-
-.ai-typing-indicator .dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.ai-typing-indicator .dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 60%, 100% {
-        transform: scale(1);
-        opacity: 0.5;
-    }
-    30% {
-        transform: scale(1.2);
-        opacity: 1;
-    }
-}
-
-.ai-panel-footer {
-    padding: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    flex-shrink: 0;
-}
-
-.ai-input-form {
-    display: flex;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.ai-input-form input {
-    flex-grow: 1;
-    border: none;
-    background: transparent;
-    padding: 10px 12px;
-    font-size: 14px;
-    outline: none;
-    color: #333;
-}
-
-.ai-input-form input::placeholder {
-    color: #999;
-}
-
-.ai-input-form button {
-    background-color: #007AFF;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
-}
-
-.ai-input-form button:hover:not(:disabled) {
-    background-color: #0056CC;
-}
-
-.ai-input-form button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    opacity: 0.6;
-}
-
-/* --- Responsive Design --- */
-@media (max-width: 768px) {
-    body {
-        padding: 1rem;
-    }
-    
-    .app-window {
-        height: 95vh;
-        border-radius: 24px;
-    }
-    
-    .welcome-heading {
-        font-size: 2.5rem;
-    }
-    
-    .welcome-subheading {
-        font-size: 1rem;
-    }
-    
-    .app-drawer {
-        width: 95%;
-        height: 90%;
-    }
-    
-    .app-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 16px;
-        padding: 16px;
-    }
-    
-    .ai-assistant-panel {
-        width: 95%;
-        height: 80%;
-        bottom: 70px;
-    }
-    
-    .bar-section.center .ask-text {
-        display: none;
-    }
-}
-
-/* Add this class to the body during a drag to prevent text selection */
-.no-select {
-    user-select: none;
-}
-
-/* in main.css - Add this new block */
-
-/* ========================================= */
-/* ========= IPADOS HOME SCREEN UI ========= */
-/* ========================================= */
-
-#desktop {
-    /* Make the desktop a flex container to center the grid */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-}
-
-.app-grid.home-screen {
-    /* Overrides for the home screen grid */
-    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-    gap: 30px;
-    max-width: 900px; /* Control the max width of the icon area */
-    width: 100%;
-    padding: 0;
-    overflow-y: visible; /* Not a scrolling list anymore */
-}
-
-/* Make the icons bigger and more touch-friendly */
-.home-screen .app-item {
-    padding: 0;
-    background-color: transparent; /* Icons are just icons, no background */
-    border: none;
-    backdrop-filter: none;
-    box-shadow: none;
-}
-
-.home-screen .app-item:hover {
-    background-color: rgba(255, 255, 255, 0.2); /* Subtle hover for desktop users */
-    transform: scale(1.05); /* Gentle pop on hover */
-    box-shadow: none;
-}
-
-.home-screen .app-item img {
-    width: 72px;  /* Much larger icon size */
-    height: 72px;
-    border-radius: 16px; /* The iconic squircle look */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    margin-bottom: 12px;
-}
-
-.home-screen .app-item span {
-    font-size: 14px;
-    color: white;
-    font-weight: 500;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-}
-
-/* in main.css - Add this new block */
-
-/* ========================================= */
-/* ======== IPADOS AUTO-HIDING DOCK ======== */
-/* ========================================= */
-
+/* --- macOS Dock --- */
 .bottom-bar {
     position: absolute;
-    bottom: 20px; /* Position it slightly up from the bottom edge */
+    bottom: 20px;
     left: 50%;
-    
-    /* Center it and hide it by default */
-    transform: translateX(-50%) translateY(120%); /* Move it down 120% to hide it completely */
-    
+    transform: translateX(-50%);
     display: flex;
-    align-items: center;
+    align-items: flex-end; /* Align to bottom for magnification effect */
     justify-content: center;
-    padding: 10px;
-    gap: 10px; /* Space out the icons */
-    
-    /* The classic pill look */
+    padding: 8px;
+    gap: 8px;
     background-color: rgba(240, 240, 240, 0.5);
     backdrop-filter: blur(20px) saturate(1.2);
     border-radius: 18px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    
-    z-index: 100; /* Ensure it's above other content */
-    
-    /* THE MAGIC: Smooth transition for the slide-up/down effect */
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    height: 64px; /* Give dock a fixed height */
 }
-
-/* New "visible" state for the dock */
-.bottom-bar.dock-visible {
-    transform: translateX(-50%) translateY(0); /* Move it back to its original position */
-}
-
-
-.bottom-bar .dock-item {
+.dock-item {
+    border-radius: 12px;
     width: 48px;
     height: 48px;
-    margin: 0;
-}
-
-
-/* The invisible trigger zone */
-.dock-trigger-zone {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30px; /* A 30px tall zone at the bottom */
-    z-index: 99;
-    /* For debugging, you can add: background: rgba(255, 0, 0, 0.5); */
-}
-/* in main.css - Add this new block */
-
-/* ========================================= */
-/* ========= AI SEARCH PILL (DOCK) ========= */
-/* ========================================= */
-
-.ai-dock-button {
-    /* Reset button styles */
-    border: none;
     background-color: transparent;
     cursor: pointer;
-    
-    /* Pill shape and sizing */
-    border-radius: 12px;
-    padding: 0 16px;
-    height: 48px;
-    min-width: 200px;
-    
-    /* Flexbox to align text inside */
+    transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1.2), width 0.15s, height 0.15s;
+    position: relative;
+    border: none;
     display: flex;
     align-items: center;
-    justify-content: flex-start; /* Align text to the left */
-
-    /* The subtle, premium look */
-    background-color: rgba(255, 255, 255, 0.9);
-    transition: background-color 0.2s ease;
+    justify-content: center;
+    transform-origin: bottom; /* Magnify from the bottom */
 }
+.dock-item img, .dock-item svg { width: 100%; height: 100%; object-fit: contain; color: #333; }
+.dock-item.active-dock-icon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; background-color: rgba(0, 0, 0, 0.5); border-radius: 50%; }
+.dock-item.minimized-dock-icon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background-color: rgba(0, 0, 0, 0.3); border-radius: 50%; }
 
-/* Style the placeholder text */
-.ai-dock-button span {
-    font-size: 15px;
-    font-weight: 500;
-    color: #555;
-    opacity: 0.7;
+/* --- NEW: Command Center --- */
+.command-center-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    padding-top: 15vh;
+    opacity: 1;
     transition: opacity 0.2s ease;
 }
+.command-center-overlay.hidden { opacity: 0; pointer-events: none; }
 
-/* Hover effect */
-.ai-dock-button:hover {
-    background-color: #ffffff;
+.command-center {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
 }
+#command-center-input {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    outline: none;
+    color: #333;
+    font-family: var(--font-body);
+}
+#command-center-results {
+    margin-top: 16px;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.app-result-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.app-result-item:last-child { border-bottom: none; }
+.app-result-item:hover, .app-result-item:focus { background-color: rgba(0, 0, 0, 0.05); }
+.app-result-item img { width: 32px; height: 32px; margin-right: 16px; }
+.app-result-item .app-name { font-size: 1rem; color: #333; font-weight: 500; }
 
-.ai-dock-button:hover span {
-    opacity: 1;
+/* --- AI Assistant Panel --- */
+.ai-assistant-panel { 
+    z-index: 110;
+    position: absolute; bottom: 20px; right: 20px;
+    width: 90%; max-width: 400px; height: 70%; max-height: 550px;
+    background-color: rgba(248, 249, 251, 0.75); backdrop-filter: blur(20px) saturate(1.5); 
+    border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 16px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); 
+    display: flex; flex-direction: column; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease; 
 }
+.ai-assistant-panel.hidden { opacity: 0; transform: translateY(50px) scale(0.95); pointer-events: none; }
+.ai-panel-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid rgba(200, 200, 200, 0.5); flex-shrink: 0; }
+.ai-panel-header h3 { font-size: 1rem; font-weight: 600; color: #333; margin: 0; }
+.ai-close-btn { background: transparent; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: #666; }
+.ai-message-list { flex-grow: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.ai-message { display: flex; }
+.ai-message.from-user { justify-content: flex-end; }
+.ai-message.from-ai { justify-content: flex-start; }
+.message-bubble { max-width: 80%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+.ai-message.from-user .message-bubble { background-color: #007AFF; color: white; border-bottom-right-radius: 4px; }
+.ai-message.from-ai .message-bubble { background-color: rgba(229, 229, 234, 1); color: #333; border-bottom-left-radius: 4px; }
+.ai-typing-indicator { display: flex; justify-content: flex-start; padding: 0 16px; }
+.ai-typing-indicator .message-bubble { background-color: rgba(229, 229, 234, 1); display: flex; align-items: center; gap: 4px; padding: 12px 16px; }
+.ai-typing-indicator .dot { width: 6px; height: 6px; background-color: #999; border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
+.ai-typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%, 60%, 100% { transform: scale(1); opacity: 0.5; } 30% { transform: scale(1.2); opacity: 1; } }
+.ai-panel-footer { padding: 12px; border-top: 1px solid rgba(200, 200, 200, 0.5); flex-shrink: 0; }
+.ai-input-form { display: flex; align-items: center; background-color: rgba(229, 229, 234, 1); border-radius: 12px; padding: 4px; }
+.ai-input-form input { flex-grow: 1; border: none; background: transparent; padding: 8px; font-size: 14px; outline: none; color: #333; }
+.ai-input-form button { background-color: #007AFF; color: white; border: none; border-radius: 8px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s ease; flex-shrink: 0; }
+.ai-input-form button:hover:not(:disabled) { background-color: #0056CC; }
+.ai-input-form button:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
 
-/* Dark Theme Adjustments */
-body.dark-theme .ai-dock-button {
-    background-color: var(--surface-3);
-}
-body.dark-theme .ai-dock-button span {
-    color: var(--text-secondary-dark);
-}
-body.dark-theme .ai-dock-button:hover {
-    background-color: #45454b;
+/* --- Utility Classes --- */
+.hidden { display: none !important; }
+
+/* --- Responsive Design --- */
+@media (max-width: 768px) {
+    body { padding: 0; }
+    .app-window { height: 100vh; max-height: none; border-radius: 0; }
+    .command-center { max-width: 90%; }
+    .ai-assistant-panel { width: 95%; height: 80%; bottom: 10px; right: 10px; }
 }
