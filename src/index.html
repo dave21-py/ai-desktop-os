@@ -54,23 +54,34 @@
                 </template>
 
                         <!-- NEW: Template for the File Explorer window -->
-        <template id="file-explorer-template">
-            <div class="app-instance-window file-explorer">
-                <div class="window-title-bar">
-                    <img class="window-icon" src="assets/icons/folder.svg" alt="Folder Icon">
-                    <span class="window-title"></span>
-                    <div class="window-controls">
-                        <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
-                        <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
-                        <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
-                    </div>
-                </div>
-                <div class="window-content">
-                    <!-- File icons will go here -->
-                    <div class="empty-folder-message">This folder is empty.</div>
-                </div>
+        <!-- Replace the existing file-explorer-template with this enhanced version -->
+<template id="file-explorer-template">
+    <div class="app-instance-window file-explorer">
+        <div class="window-title-bar">
+            <img class="window-icon" src="assets/icons/folder.svg" alt="Folder Icon">
+            <span class="window-title"></span>
+            <div class="window-controls">
+                <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
+                <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
+                <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
             </div>
-        </template>
+        </div>
+        <div class="window-content">
+            <div class="file-explorer-toolbar">
+                <button class="toolbar-btn new-file-btn" title="New File">
+                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2v20M2 12h20"></path></svg>
+                </button>
+                <button class="toolbar-btn new-folder-btn" title="New Folder">
+                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
+                </button>
+            </div>
+            <div class="file-explorer-content">
+                <!-- File icons will go here -->
+                <div class="empty-folder-message">This folder is empty.</div>
+            </div>
+        </div>
+    </div>
+</template>
 
         <!-- The Main Bottom Bar (Dock) -->
         <footer class="bottom-bar">
@@ -144,6 +155,21 @@
     <script src="js/config.js" defer></script>
     <script src="js/os-core.js" defer></script>
     <script src="js/main.js" defer></script>
+
+    <!-- Add this theme switcher button -->
+<button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+</button>
 
 </body>
 </html>

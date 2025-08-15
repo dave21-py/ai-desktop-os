@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const commandCenterInput = document.querySelector('#command-center-input');
     const commandCenterResults = document.querySelector('#command-center-results');
 
+    // Add this to the event listeners section in main.js
+const themeToggleBtn = document.querySelector('#theme-toggle');
+themeToggleBtn?.addEventListener('click', () => {
+    const currentTheme = os.state.theme;
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    os._setTheme(newTheme);
+});
+
     commandCenterBtn?.addEventListener('click', () => os.showCommandCenter());
     
     commandCenterOverlay?.addEventListener('click', (e) => {

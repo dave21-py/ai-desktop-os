@@ -59,37 +59,70 @@ class WarmwindOS {
     // --- DESKTOP & STATE MANAGEMENT ---
     // ======================================================
 
-    _renderDesktop() {
-        this.ui.desktop.innerHTML = ''; // Clear existing icons before re-rendering
-        this.state.desktopItems.forEach(item => {
-            const itemEl = document.createElement('div');
+    // Replace the _renderDesktop method with this optimized version:
+_renderDesktop() {
+    // Create a map of existing desktop items by ID
+    const existingItems = {};
+    this.ui.desktop.querySelectorAll('.desktop-item').forEach(item => {
+        const id = item.dataset.itemId;
+        if (id) {
+            existingItems[id] = item;
+        }
+    });
+    
+    // Process each desktop item
+    this.state.desktopItems.forEach(item => {
+        let itemEl = existingItems[item.id];
+        
+        // If item doesn't exist, create it
+        if (!itemEl) {
+            itemEl = document.createElement('div');
             itemEl.className = 'desktop-item';
             itemEl.dataset.itemId = item.id;
-            itemEl.style.left = `${item.x}px`;
-            itemEl.style.top = `${item.y}px`;
-
-            let iconSrc = '';
-            let name = '';
-
-            if (item.type === 'app') {
-                const appData = this.state.availableApps.find(app => app.id === item.appId);
-                if (appData) {
-                    iconSrc = appData.icon;
-                    name = appData.name;
-                    itemEl.dataset.appId = item.appId;
-                }
-            } else if (item.type === 'folder') {
-                iconSrc = 'assets/icons/folder.svg';
-                name = item.name;
+            this.ui.desktop.appendChild(itemEl);
+        }
+        
+        // Update position
+        itemEl.style.left = `${item.x}px`;
+        itemEl.style.top = `${item.y}px`;
+        
+        // Update content if needed
+        let iconSrc = '';
+        let name = '';
+        
+        if (item.type === 'app') {
+            const appData = this.state.availableApps.find(app => app.id === item.appId);
+            if (appData) {
+                iconSrc = appData.icon;
+                name = appData.name;
+                itemEl.dataset.appId = item.appId;
             }
-
-            itemEl.innerHTML = `
+        } else if (item.type === 'folder') {
+            iconSrc = 'assets/icons/folder.svg';
+            name = item.name;
+            delete itemEl.dataset.appId; // Remove app ID if it was previously an app
+        }
+        
+        // Only update innerHTML if content has changed
+        const currentHTML = itemEl.innerHTML;
+        const newHTML = `
                 <img src="${iconSrc}" alt="${name}">
                 <span>${name}</span>
             `;
-            this.ui.desktop.appendChild(itemEl);
-        });
-    }
+        
+        if (currentHTML !== newHTML) {
+            itemEl.innerHTML = newHTML;
+        }
+    });
+    
+    // Remove any desktop items that no longer exist in state
+    const stateItemIds = this.state.desktopItems.map(item => item.id.toString());
+    Object.keys(existingItems).forEach(id => {
+        if (!stateItemIds.includes(id)) {
+            existingItems[id].remove();
+        }
+    });
+}
 
     _createNewFolder(x, y) {
         let maxNum = 0;
@@ -199,32 +232,125 @@ class WarmwindOS {
         this._focusWindow(windowEl);
     }
 
-    _createFileExplorerWindow(folderData) {
-        const windowId = `window-${this.state.nextWindowID++}`;
-        const template = document.querySelector('#file-explorer-template').content.cloneNode(true);
-        const windowEl = template.querySelector('.app-instance-window');
-    
-        const appWindowRect = this.ui.desktop.getBoundingClientRect();
-        const windowWidth = 720;
-        const windowHeight = 480;
-        const centerX = (appWindowRect.width - windowWidth) / 2;
-        const centerY = (appWindowRect.height - windowHeight) / 2;
+    // Replace the _createFileExplorerWindow method with this enhanced version:
+_createFileExplorerWindow(folderData) {
+    const windowId = `window-${this.state.nextWindowID++}`;
+    const template = document.querySelector('#file-explorer-template').content.cloneNode(true);
+    const windowEl = template.querySelector('.app-instance-window');
 
-        windowEl.dataset.windowId = windowId;
-        windowEl.style.left = `${Math.max(40, centerX)}px`;
-        windowEl.style.top = `${Math.max(40, centerY)}px`;
+    const appWindowRect = this.ui.desktop.getBoundingClientRect();
+    const windowWidth = 720;
+    const windowHeight = 480;
+    const centerX = (appWindowRect.width - windowWidth) / 2;
+    const centerY = (appWindowRect.height - windowHeight) / 2;
+
+    windowEl.dataset.windowId = windowId;
+    windowEl.style.left = `${Math.max(40, centerX)}px`;
+    windowEl.style.top = `${Math.max(40, centerY)}px`;
+
+    // Set folder title
+    const titleBar = windowEl.querySelector('.window-title-bar');
+    titleBar.querySelector('.window-title').textContent = folderData.name;
+
+    // Render folder contents
+    this._renderFolderContents(windowEl, folderData);
+
+    // Add event listeners for toolbar buttons
+    const newFolderBtn = windowEl.querySelector('.new-folder-btn');
+    newFolderBtn?.addEventListener('click', () => {
+        this._createNewFolderInExplorer(folderData, windowEl);
+    });
+
+    this.ui.desktop.appendChild(windowEl);
+    this.state.openWindows.push({ id: windowId, element: windowEl, folderId: folderData.id });
+
+    // Create dock icon for folder
+    this._createDockIcon({ name: folderData.name, icon: 'assets/icons/folder.svg' }, windowId);
+    this._focusWindow(windowEl);
+}
+
+_renderFolderContents(windowEl, folderData) {
+    const contentArea = windowEl.querySelector('.file-explorer-content');
+    const emptyMessage = windowEl.querySelector('.empty-folder-message');
     
-        // UPDATED: Fixed bug where folder title was missing
-        const titleBar = windowEl.querySelector('.window-title-bar');
-        titleBar.querySelector('.window-title').textContent = folderData.name;
-        
-        this.ui.desktop.appendChild(windowEl);
-        this.state.openWindows.push({ id: windowId, element: windowEl, folderId: folderData.id });
-        
-        // NEW: Call the dock icon creator for folders too
-        this._createDockIcon({ name: folderData.name, icon: 'assets/icons/folder.svg' }, windowId);
-        this._focusWindow(windowEl);
+    // Clear existing content
+    contentArea.innerHTML = '';
+    
+    if (!folderData.children || folderData.children.length === 0) {
+        // Show empty folder message
+        if (emptyMessage) {
+            emptyMessage.style.display = 'block';
+        }
+        return;
     }
+    
+    // Hide empty folder message
+    if (emptyMessage) {
+        emptyMessage.style.display = 'none';
+    }
+    
+    // Render folder contents
+    folderData.children.forEach(item => {
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.dataset.itemId = item.id;
+        
+        let iconSrc = '';
+        let name = '';
+        
+        if (item.type === 'folder') {
+            iconSrc = 'assets/icons/folder.svg';
+            name = item.name;
+        } else {
+            // For files, use a generic file icon or determine based on extension
+            iconSrc = 'assets/icons/file.svg';
+            name = item.name;
+        }
+        
+        fileItem.innerHTML = `
+            <img src="${iconSrc}" alt="${name}">
+            <span>${name}</span>
+        `;
+        
+        // Add double-click to open
+        fileItem.addEventListener('dblclick', () => {
+            if (item.type === 'folder') {
+                this.openFolder(item.id);
+            }
+            // For files, we could implement opening functionality here
+        });
+        
+        contentArea.appendChild(fileItem);
+    });
+}
+
+_createNewFolderInExplorer(folderData, windowEl) {
+    let maxNum = 0;
+    if (folderData.children) {
+        folderData.children.forEach(item => {
+            if (item.name?.startsWith('New Folder')) {
+                const num = parseInt(item.name.replace('New Folder', '').trim()) || 0;
+                if (num > maxNum) maxNum = num;
+            }
+        });
+    }
+    
+    const newName = maxNum > 0 ? `New Folder ${maxNum + 1}` : 'New Folder';
+    const newItem = {
+        id: this.state.nextItemID++,
+        type: 'folder',
+        name: newName,
+        children: []
+    };
+    
+    if (!folderData.children) {
+        folderData.children = [];
+    }
+    
+    folderData.children.push(newItem);
+    this._renderFolderContents(windowEl, folderData);
+    this._saveState();
+}
 
     // UPDATED: Made this function more generic to accept any window type
     _createDockIcon(data, windowId) {
@@ -354,17 +480,67 @@ class WarmwindOS {
         document.body.classList.toggle('dark-theme', themeName === 'dark');
         this._saveState();
     }
-    async _getGeminiResponse(query) {
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.GEMINI_API_KEY}`;
+    // In os-core.js, replace the _getGeminiResponse method with this improved version:
+async _getGeminiResponse(query) {
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.GEMINI_API_KEY}`;
+    
+    try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: `You are VibeOS, a friendly and helpful operating system assistant. Keep your answers concise and helpful. User query: "${query}"` }] }] })
+            body: JSON.stringify({ 
+                contents: [{ 
+                    parts: [{ 
+                        text: `You are VibeOS, a friendly and helpful operating system assistant. Keep your answers concise and helpful. User query: "${query}"` 
+                    }] 
+                }] 
+            })
         });
-        if (!response.ok) throw new Error(`API request failed with status ${response.status}`);
+
+        if (!response.ok) {
+            let errorMessage = `API request failed with status ${response.status}`;
+            
+            // Try to get more specific error information
+            try {
+                const errorData = await response.json();
+                if (errorData.error && errorData.error.message) {
+                    errorMessage = errorData.error.message;
+                }
+            } catch (e) {
+                // If we can't parse the error, use the status text
+                errorMessage = response.statusText || errorMessage;
+            }
+            
+            throw new Error(errorMessage);
+        }
+
         const data = await response.json();
+        
+        // Check if we have a valid response
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content || !data.candidates[0].content.parts) {
+            throw new Error("Received incomplete response from AI service");
+        }
+        
         return data.candidates[0].content.parts[0].text;
+        
+    } catch (error) {
+        console.error("AI Error:", error);
+        let userMessage = "Sorry, I'm having trouble connecting to the AI network right now.";
+        
+        // Provide more specific error messages to the user
+        if (error.message.includes("Network error")) {
+            userMessage = "Network connection error. Please check your internet connection.";
+        } else if (error.message.includes("API_KEY_INVALID")) {
+            userMessage = "Invalid API key. Please check your configuration in config.js.";
+        } else if (error.message.includes("401")) {
+            userMessage = "Authentication failed. Please check your API key.";
+        } else if (error.message.includes("429")) {
+            userMessage = "Rate limit exceeded. Please wait a moment before trying again.";
+        }
+        
+        this._addMessageToChat('ai', userMessage);
     }
+}
     _addMessageToChat(sender, text) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `ai-message from-${sender}`;
@@ -376,4 +552,72 @@ class WarmwindOS {
         this.ui.aiMessageList.appendChild(messageDiv);
         this.ui.aiMessageList.scrollTop = this.ui.aiMessageList.scrollHeight;
     }
+
+    // Add this method to the WarmwindOS class:
+_processCommand(query) {
+    const lowerQuery = query.toLowerCase().trim();
+    
+    // Handle app launching commands
+    if (lowerQuery.startsWith('open ')) {
+        const appName = lowerQuery.substring(5).trim();
+        const app = this.state.availableApps.find(a => 
+            a.name.toLowerCase().includes(appName) || 
+            a.id.toLowerCase().includes(appName)
+        );
+        
+        if (app) {
+            return {
+                message: `Opening ${app.name}...`,
+                action: () => this.launchApp(app.id)
+            };
+        } else {
+            return {
+                message: `I couldn't find an app named "${appName}". Try searching for it in the command center.`
+            };
+        }
+    }
+    
+    // Handle folder creation commands
+    if (lowerQuery === 'create folder' || lowerQuery === 'new folder') {
+        // Create folder at a default position
+        const centerX = this.ui.desktop.clientWidth / 2 - 45;
+        const centerY = this.ui.desktop.clientHeight / 2 - 55;
+        
+        return {
+            message: "Creating a new folder on the desktop...",
+            action: () => this._createNewFolder(centerX, centerY)
+        };
+    }
+    
+    // Handle theme switching commands
+    if (lowerQuery === 'dark mode' || lowerQuery === 'enable dark mode') {
+        return {
+            message: "Switching to dark mode...",
+            action: () => this._setTheme('dark')
+        };
+    }
+    
+    if (lowerQuery === 'light mode' || lowerQuery === 'enable light mode') {
+        return {
+            message: "Switching to light mode...",
+            action: () => this._setTheme('light')
+        };
+    }
+    
+    // Handle help command
+    if (lowerQuery === 'help' || lowerQuery === 'what can you do') {
+        return {
+            message: `I can help you with:
+• Opening apps (try "open [app name]")
+• Creating folders (try "create folder")
+• Switching themes (try "dark mode" or "light mode")
+• Answering questions (just ask anything!)
+
+You can also search for apps in the command center by typing their name.`
+        };
+    }
+    
+    // If no specific command matched, return null to proceed with AI
+    return null;
+}
 }
