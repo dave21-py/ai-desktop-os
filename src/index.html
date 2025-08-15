@@ -53,6 +53,25 @@
                     </div>
                 </template>
 
+                        <!-- NEW: Template for the File Explorer window -->
+        <template id="file-explorer-template">
+            <div class="app-instance-window file-explorer">
+                <div class="window-title-bar">
+                    <img class="window-icon" src="assets/icons/folder.svg" alt="Folder Icon">
+                    <span class="window-title"></span>
+                    <div class="window-controls">
+                        <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
+                        <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
+                        <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <!-- File icons will go here -->
+                    <div class="empty-folder-message">This folder is empty.</div>
+                </div>
+            </div>
+        </template>
+
         <!-- The Main Bottom Bar (Dock) -->
         <footer class="bottom-bar">
             <!-- This button now opens the Command Center -->

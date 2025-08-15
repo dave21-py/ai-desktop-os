@@ -301,3 +301,25 @@ body {
 .context-menu-item svg {
     margin-right: 10px;
 }
+/* --- File Explorer Window --- */
+.file-explorer .window-content {
+    background-color: #f7f7f7;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+body.dark-theme .file-explorer .window-content {
+    background-color: var(--surface-1);
+}
+
+.empty-folder-message {
+    font-size: 1rem;
+    color: #999;
+    user-select: none;
+}
+
+body.dark-theme .empty-folder-message {
+    color: var(--text-secondary-dark);
+}
