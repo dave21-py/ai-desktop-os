@@ -121,32 +121,31 @@ class WarmwindOS {
     }
 
     openDashboard() {
-        // Check if dashboard is already open
         const existingDashboard = this.state.openWindows.find(w => w.isDashboard);
         if (existingDashboard) {
             this._focusWindow(existingDashboard.element);
             return;
         }
-        
-        // Create new dashboard window
+    
         const windowId = `window-${this.state.nextWindowID++}`;
         const template = document.querySelector('#dashboard-template').content.cloneNode(true);
         const windowEl = template.querySelector('.app-instance-window');
-
+    
+        // Set position
         const appWindowRect = this.ui.desktop.getBoundingClientRect();
         const windowWidth = 800;
         const windowHeight = 500;
         const centerX = (appWindowRect.width - windowWidth) / 2;
         const centerY = (appWindowRect.height - windowHeight) / 2;
-
+    
         windowEl.dataset.windowId = windowId;
         windowEl.style.left = `${Math.max(40, centerX)}px`;
         windowEl.style.top = `${Math.max(40, centerY)}px`;
-
+    
         // Update dashboard with current data
         this.updateDashboardData(windowEl);
-        
-        // Set up auto-refresh
+    
+        // Auto-refresh every second
         const refreshInterval = setInterval(() => {
             if (document.body.contains(windowEl)) {
                 this.updateDashboardData(windowEl);
@@ -154,7 +153,7 @@ class WarmwindOS {
                 clearInterval(refreshInterval);
             }
         }, 1000);
-
+    
         this.ui.desktop.appendChild(windowEl);
         this.state.openWindows.push({ 
             id: windowId, 
@@ -162,7 +161,7 @@ class WarmwindOS {
             isDashboard: true,
             refreshInterval: refreshInterval
         });
-
+    
         this._createDockIcon({ 
             name: 'System Dashboard', 
             icon: 'assets/icons/dashboard.png' 
@@ -678,6 +677,22 @@ class WarmwindOS {
         const lowerQuery = query.toLowerCase().trim();
         
         // Handle app launching commands
+
+        // Handle theme switching commands
+    if (lowerQuery === 'light mode' || lowerQuery === 'enable light mode' || lowerQuery === 'light theme') {
+        return {
+            message: "Switching to light mode...",
+            action: () => this._setTheme('light')
+        };
+    }
+    
+    if (lowerQuery === 'dark mode' || lowerQuery === 'enable dark mode' || lowerQuery === 'dark theme') {
+        return {
+            message: "Switching to dark mode...",
+            action: () => this._setTheme('dark')
+        };
+    }
+    
         if (lowerQuery.startsWith('open ')) {
             const appName = lowerQuery.substring(5).trim();
             const app = this.state.availableApps.find(a => 
@@ -766,7 +781,7 @@ You can also search for apps in the command center by typing their name.`
     
     async _getGeminiResponse(query) {
         // FIXED: Removed the space in the API URL
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.GEMINI_API_KEY}`;
+        const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${this.GEMINI_API_KEY}`;
         
         try {
             const response = await fetch(API_URL, {

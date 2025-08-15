@@ -17,12 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
         // ======================================================
         
         // Theme Toggle Button
-        const themeToggleBtn = document.querySelector('#theme-toggle');
-        themeToggleBtn?.addEventListener('click', () => {
-            const currentTheme = os.state.theme;
-            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            os._setTheme(newTheme);
-        });
+const themeToggleBtn = document.querySelector('#theme-toggle');
+themeToggleBtn?.addEventListener('click', () => {
+    const currentTheme = os.state.theme;
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    os._setTheme(newTheme);
+    
+    // Add feedback
+    if (newTheme === 'light') {
+        alert("Switched to Light Mode");
+    } else {
+        alert("Switched to Dark Mode");
+    }
+});
 
         // ======================================================
         // --- COMMAND CENTER INTERACTIONS ---
