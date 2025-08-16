@@ -42,16 +42,24 @@
             </div>
         </template>
 
-                <!-- NEW: Template for the context menu -->
-                <template id="context-menu-template">
-                    <div class="context-menu">
-                        <div class="context-menu-item" data-action="new-folder">
-                            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
-                            <span>New Folder</span>
-                        </div>
-                        <!-- We can add more options here later -->
-                    </div>
-                </template>
+                        <!-- REPLACED: Template for the context menu -->
+        <template id="context-menu-template">
+            <div class="context-menu">
+                <div class="context-menu-item" data-action="new-folder">
+                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
+                    <span>New Folder</span>
+                </div>
+                <div class="context-menu-divider"></div>
+                <div class="context-menu-item" data-action="rename">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>Rename</span>
+                </div>
+                <div class="context-menu-item" data-action="delete">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span>Move to Trash</span>
+                </div>
+            </div>
+        </template>
 
                         <!-- NEW: Template for the File Explorer window -->
         <!-- Replace the existing file-explorer-template with this enhanced version -->
@@ -176,6 +184,54 @@
     </div>
 </template>
 
+        <!-- NEW: Template for the Settings App window -->
+        <template id="settings-app-template">
+            <div class="app-instance-window settings-app">
+                <div class="window-title-bar">
+                    <img class="window-icon" src="assets/icons/settings.png" alt="Settings Icon">
+                    <span class="window-title">Settings</span>
+                    <div class="window-controls">
+                        <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
+                        <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
+                        <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div class="settings-sidebar">
+                        <div class="settings-category active" data-category="appearance">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+                            <span>Appearance</span>
+                        </div>
+                        <!-- More categories can be added here -->
+                    </div>
+                    <div class="settings-main-content">
+                        <div class="settings-page" data-page="appearance">
+                            <h2>Appearance</h2>
+                            
+                            <div class="setting-item">
+                                <label for="theme-toggle-switch">Theme</label>
+                                <div class="theme-switch-wrapper">
+                                    <span>Light</span>
+                                    <label class="switch">
+                                        <input type="checkbox" id="theme-toggle-switch">
+                                        <span class="slider round"></span>
+                                    </label>
+                                    <span>Dark</span>
+                                </div>
+                            </div>
+
+                            <div class="setting-item">
+                                <label>Wallpaper</label>
+                                <div class="wallpaper-selection-grid">
+                                    <!-- Wallpapers will be dynamically inserted here by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+
         <!-- The Main Bottom Bar (Dock) -->
         <footer class="bottom-bar">
             <!-- This button now opens the Command Center -->
@@ -184,21 +240,6 @@
             </button>
             <!-- Running app icons will be added here by JavaScript -->
         </footer>
-
-        <!-- Add this theme switcher button -->
-<button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="5"></circle>
-        <line x1="12" y1="1" x2="12" y2="3"></line>
-        <line x1="12" y1="21" x2="12" y2="23"></line>
-        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-        <line x1="1" y1="12" x2="3" y2="12"></line>
-        <line x1="21" y1="12" x2="23" y2="12"></line>
-        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-</button>
 
     </div> <!-- End of .app-window -->
 
@@ -232,6 +273,10 @@
         <div class="app-item" data-appid="gmail" data-appname="Gmail" data-url="https://mail.google.com" data-launchMode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon"></div>
         <div class="app-item" data-appid="google" data-appname="Google" data-url="https://www.google.com/search?igu=1"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Icon"></div>
         <div class="app-item" data-appid="youtube" data-appname="YouTube" data-url="https://youtube.com" data-launchMode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg" alt="YouTube Icon"></div>
+                <!-- ADD these two lines -->
+                <div class="app-item" data-appid="settings" data-appname="Settings" data-url="#"><img src="assets/icons/settings.png" alt="Settings Icon"></div>
+                <div class="app-item" data-appid="trash" data-appname="Trash" data-url="#"><img src="assets/icons/trash.png" alt="Trash Icon"></div>
+                <!-- End of lines to add -->
         <div class="app-item" data-appid="dashboard" data-appname="System Dashboard" data-url="#"><img src="assets/icons/dashboard.png" alt="Dashboard Icon"></div>
         <!-- Add all your other apps here, just like before -->
     </div>

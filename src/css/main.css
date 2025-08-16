@@ -679,3 +679,260 @@ body.dark-theme .gauge-text-large {
 body.dark-theme .gauge-label {
     color: #ebebf599;
 }
+
+/* ================================================= */
+/* VibeOS - Tier 1 Polish Additions                  */
+/* ================================================= */
+
+/* --- 1. Window Snap & Animation --- */
+
+/* Add this to allow the window to animate from its spawn point */
+.app-instance-window {
+    transform-origin: center center; /* Default origin */
+}
+
+/* This class will be added by JS during window creation for the animation */
+.opening-animation {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+}
+
+/* This is the ghost preview for window snapping */
+.snap-preview {
+    position: absolute;
+    z-index: 9999;
+    background-color: rgba(0, 122, 255, 0.2);
+    border: 2px dashed rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.1s ease-out;
+    pointer-events: none; /* Make sure it doesn't interfere with mouse events */
+}
+
+
+/* --- 2. File System CRUD --- */
+
+/* Styling for the input field when renaming an item */
+.desktop-item .desktop-item-name-input {
+    width: 100%;
+    padding: 4px;
+    border-radius: 4px;
+    border: 1px solid #007AFF;
+    background-color: white;
+    color: black;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 13px;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Hide the original span while editing */
+.desktop-item.renaming span {
+    opacity: 0;
+}
+
+/* Visual feedback for dragging an item over a folder */
+.desktop-item.drop-target {
+    background-color: rgba(0, 122, 255, 0.3);
+    outline: 2px solid rgba(0, 122, 255, 0.7);
+}
+
+/* Divider for context menu */
+.context-menu-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.1);
+    margin: 4px 8px;
+}
+/* Style for disabled context menu items */
+.context-menu-item.disabled {
+    color: #999;
+    cursor: not-allowed;
+    background-color: transparent !important;
+}
+.context-menu-item.disabled:hover {
+    color: #999 !important;
+}
+
+
+/* --- 3. Settings App --- */
+.settings-app .window-content {
+    display: flex;
+    background-color: #f0f2f5; /* A slightly off-white for the content area */
+}
+body.dark-theme .settings-app .window-content {
+    background-color: #1e1e1e;
+}
+
+.settings-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background-color: rgba(229, 229, 234, 0.7);
+    padding: 16px 8px;
+    border-right: 1px solid rgba(0,0,0,0.1);
+}
+body.dark-theme .settings-sidebar {
+    background-color: rgba(44, 44, 46, 0.7);
+    border-right-color: rgba(255,255,255,0.1);
+}
+
+.settings-category {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #333;
+    transition: background-color 0.2s ease;
+}
+body.dark-theme .settings-category {
+    color: #eee;
+}
+
+.settings-category svg {
+    margin-right: 12px;
+}
+
+.settings-category:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+body.dark-theme .settings-category:hover {
+    background-color: rgba(255,255,255,0.08);
+}
+
+.settings-category.active {
+    background-color: #007AFF;
+    color: white;
+}
+body.dark-theme .settings-category.active {
+    background-color: #0A84FF;
+}
+
+.settings-main-content {
+    flex-grow: 1;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.settings-main-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+    color: #111;
+}
+body.dark-theme .settings-main-content h2 {
+    color: #f5f5f5;
+}
+
+.setting-item {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+}
+body.dark-theme .setting-item {
+    background: rgba(60, 60, 67, 0.5);
+}
+
+.setting-item label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+}
+body.dark-theme .setting-item label {
+    color: #ddd;
+}
+
+/* --- Theme Toggle Switch --- */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #555;
+}
+body.dark-theme .theme-switch-wrapper {
+    color: #bbb;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #007AFF;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #007AFF;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.slider.round { border-radius: 28px; }
+.slider.round:before { border-radius: 50%; }
+
+/* --- Wallpaper Selector --- */
+.wallpaper-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    max-width: 450px;
+}
+
+.wallpaper-thumbnail {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    border-radius: 8px;
+    cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.wallpaper-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.wallpaper-thumbnail.selected {
+    border-color: #007AFF;
+    box-shadow: 0 0 10px rgba(0, 122, 255, 0.5);
+}
