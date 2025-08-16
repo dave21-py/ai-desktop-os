@@ -181,15 +181,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // EVENT LISTENERS
     // ======================================================
 
-    enterOsBtn.addEventListener('click', () => {
-        welcomeOverlay.classList.add('hidden');
-        setTimeout(() => background.classList.add('loaded'), 100);
-        // Animate the dock if it has items in it from the start
-        if (dockedApps.length > 0) {
-            setTimeout(() => appDock.classList.add('visible'), 500);
-        }
-        setTimeout(() => bottomBar.classList.add('loaded'), 600);
-    });
+        // --- Welcome Screen & Homepage Animation ---
+        enterOsBtn.addEventListener('click', () => {
+            welcomeOverlay.classList.add('hidden');
+            setTimeout(() => background.classList.add('loaded'), 100);
+            
+            // Animate the dock if it has items in it from the start
+            if (dockedApps.length > 0) {
+                setTimeout(() => appDock.classList.add('visible'), 500);
+            }
+            
+            setTimeout(() => bottomBar.classList.add('loaded'), 600);
+    
+            // --- NEW: Trigger the AI Greeting after animations ---
+            setTimeout(() => {
+                // Make the chat interface visible
+                document.body.classList.add('chat-active');
+                document.body.classList.add('compact-active');
+    
+                // Tell the OS core to generate and display the greeting message
+                os.deliverGreeting(); 
+            }, 1000); // 1 second delay to feel deliberate
+        });
     
     appListContainer.addEventListener('click', (e) => {
         const addButton = e.target.closest('.add-app-btn');
