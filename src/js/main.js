@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- App Data (EDITED: Added a unique 'id' for tracking) ---
+    // --- App Data ---
     const appDatabase = [
         { name: 'Amazon', id: 'amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg', url: 'https://www.amazon.com' },
         { name: 'Canva', id: 'canva', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Canva_icon_2021.svg', url: 'https://www.canva.com' },
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     // --- State ---
-    let dockedApps = []; // This will hold the apps currently in our dock
+    let dockedApps = [];
 
     // --- UI Element Selectors ---
     const appDock = document.querySelector('.app-dock');
@@ -25,8 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const enterOsBtn = document.querySelector('#enter-os-btn');
     const background = document.querySelector('.background-image');
     const bottomBar = document.querySelector('.bottom-bar');
-    const topCenterMenu = document.querySelector('.top-center-menu');
-    const openAppStoreBtn = document.querySelector('#open-app-store-btn');
     const appStoreWindow = document.querySelector('.app-store-window');
     const closeAppStoreBtn = document.querySelector('.close-app-store-btn');
     const appListContainer = document.querySelector('.app-list');
@@ -37,8 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatOverlay = document.querySelector('.chat-overlay');
 
     // ======================================================
-    // DOCK LOGIC
+    // CORE LOGIC (Dock & App Store)
     // ======================================================
+
+    const openAppStore = () => appStoreWindow.classList.add('visible');
     
     const saveDockState = () => {
         const appIds = dockedApps.map(app => app.id);
@@ -47,14 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const loadDockState = () => {
         const savedAppIds = JSON.parse(localStorage.getItem('warmwindOS.dockedApps')) || [];
-        // Find the full app objects from the database using the saved IDs
-        dockedApps = savedAppIds.map(id => appDatabase.find(app => app.id === id)).filter(Boolean); // .filter(Boolean) removes any nulls if an app was deleted
+        dockedApps = savedAppIds.map(id => appDatabase.find(app => app.id === id)).filter(Boolean);
         renderDock();
-        renderApps(); // Re-render app store to show correct button states
+        renderApps();
     };
 
     const renderDock = () => {
-        appDock.innerHTML = ''; // Clear the dock before rendering
+        appDock.innerHTML = '';
         if (dockedApps.length > 0) {
             dockedApps.forEach(app => {
                 const dockItem = document.createElement('div');
@@ -68,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 appDock.appendChild(dockItem);
             });
-            appDock.classList.add('visible');
+            // Note: We don't add the .visible class here. The OS launch animation will handle that.
         } else {
             appDock.classList.remove('visible');
         }
@@ -81,7 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 dockedApps.push(appToAdd);
                 saveDockState();
                 renderDock();
-                renderApps(); // Update app store buttons
+                renderApps();
+                // If the dock wasn't visible before, make it visible now.
+                setTimeout(() => appDock.classList.add('visible'), 50);
                 return `${appToAdd.name} has been added to your dock.`;
             }
         }
@@ -101,13 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return `I couldn't find that app in your dock.`;
     };
 
-    // Initialize OS Core, passing the new control functions for the AI to use
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock });
+    // Initialize OS Core, passing all necessary control functions for the AI
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore });
     os.boot();
-
-    // ======================================================
-    // APP STORE & EVENT LISTENERS
-    // ======================================================
 
     const renderApps = (appsToRender = appDatabase) => {
         appListContainer.innerHTML = '';
@@ -129,14 +126,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
     
+    // ======================================================
+    // EVENT LISTENERS
+    // ======================================================
+
+    enterOsBtn.addEventListener('click', () => {
+        welcomeOverlay.classList.add('hidden');
+        setTimeout(() => background.classList.add('loaded'), 100);
+        // Animate the dock if it has items in it from the start
+        if (dockedApps.length > 0) {
+            setTimeout(() => appDock.classList.add('visible'), 500);
+        }
+        setTimeout(() => bottomBar.classList.add('loaded'), 600);
+    });
+    
     appListContainer.addEventListener('click', (e) => {
         const addButton = e.target.closest('.add-app-btn');
-        if (addButton) {
-            const appId = addButton.dataset.appId;
-            // Toggle functionality: add if not present, do nothing if already added (or could be remove)
-            if (!addButton.classList.contains('added')) {
-                addAppToDock(appId);
-            }
+        if (addButton && !addButton.classList.contains('added')) {
+            addAppToDock(addButton.dataset.appId);
             return;
         }
 
@@ -151,15 +158,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const dockItem = e.target.closest('.dock-item');
 
         if (removeButton) {
-            e.stopPropagation(); // Prevent launching the app when clicking the remove button
-            const appId = dockItem.dataset.appId;
-            removeAppFromDock(appId);
+            e.stopPropagation();
+            removeAppFromDock(dockItem.dataset.appId);
             return;
         }
 
         if (dockItem) {
-            const appId = dockItem.dataset.appId;
-            const appToLaunch = appDatabase.find(app => app.id === appId);
+            const appToLaunch = appDatabase.find(app => app.id === dockItem.dataset.appId);
             if (appToLaunch) {
                 window.open(appToLaunch.url, '_blank');
             }
@@ -172,31 +177,20 @@ document.addEventListener('DOMContentLoaded', () => {
         renderApps(filteredApps);
     });
 
-    // --- Welcome Screen & Homepage Animation ---
-    enterOsBtn.addEventListener('click', () => {
-        welcomeOverlay.classList.add('hidden');
-        setTimeout(() => background.classList.add('loaded'), 100);
-        setTimeout(() => topCenterMenu.classList.add('loaded'), 500);
-        setTimeout(() => bottomBar.classList.add('loaded'), 600);
-    });
-
-    // --- Homepage Triggers ---
-    openAppStoreBtn.addEventListener('click', () => appStoreWindow.classList.add('visible'));
     closeAppStoreBtn.addEventListener('click', () => appStoreWindow.classList.remove('visible'));
-
-    // --- In-Place Input Logic ---
+    
     centerConsole.addEventListener('click', (e) => {
         if (!e.target.closest('.compact-input-overlay')) {
             document.body.classList.add('compact-active');
             setTimeout(() => compactInput.focus(), 100);
         }
     });
+
     compactInput.addEventListener('input', () => {
         compactInput.style.height = 'auto';
         compactInput.style.height = `${compactInput.scrollHeight}px`;
     });
-
-    // --- AI Form Submission Logic ---
+    
     compactInputForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const prompt = compactInput.value.trim();
@@ -207,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         await os.askAI(prompt);
     });
 
-    // --- Closing Logic ---
     const closeAll = () => {
         appStoreWindow.classList.remove('visible');
         document.body.classList.remove('compact-active');

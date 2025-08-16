@@ -1,8 +1,8 @@
 class WarmwindOS {
-    constructor(apps = [], dockControls = {}) {
+    constructor(apps = [], controls = {}) {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
-        this.apps = apps; // Store the list of all available apps
-        this.dockControls = dockControls; // Store the functions { addAppToDock, removeAppFromDock }
+        this.apps = apps;
+        this.controls = controls; // Contains { addAppToDock, removeAppFromDock, openAppStore }
         this.state = {
             conversationHistory: []
         };
@@ -27,7 +27,17 @@ class WarmwindOS {
     _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
         
-        // --- Command: Open App ---
+        // --- Command: Open App Store ---
+        const appStoreKeywords = ['browse apps', 'show apps', 'open app store', 'find apps'];
+        if (appStoreKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            if (this.controls.openAppStore) {
+                this.controls.openAppStore();
+                this._addMessageToChat('ai', 'Here are the available apps.');
+                return true;
+            }
+        }
+
+        // --- Command: Open Specific App ---
         const openKeywords = ['open', 'launch', 'go to', 'navigate to'];
         if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
             for (const app of this.apps) {
@@ -44,9 +54,8 @@ class WarmwindOS {
         if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
              for (const app of this.apps) {
                 if (lowerCasePrompt.includes(app.name.toLowerCase())) {
-                    // Check if the addAppToDock function was provided
-                    if (this.dockControls.addAppToDock) {
-                        const message = this.dockControls.addAppToDock(app.id);
+                    if (this.controls.addAppToDock) {
+                        const message = this.controls.addAppToDock(app.id);
                         this._addMessageToChat('ai', message);
                     }
                     return true;
@@ -59,9 +68,8 @@ class WarmwindOS {
         if (removeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
              for (const app of this.apps) {
                 if (lowerCasePrompt.includes(app.name.toLowerCase())) {
-                     // Check if the removeAppFromDock function was provided
-                    if (this.dockControls.removeAppFromDock) {
-                        const message = this.dockControls.removeAppFromDock(app.id);
+                    if (this.controls.removeAppFromDock) {
+                        const message = this.controls.removeAppFromDock(app.id);
                         this._addMessageToChat('ai', message);
                     }
                     return true;
@@ -72,15 +80,13 @@ class WarmwindOS {
         return false; // This was not a recognized command
     }
 
-
     async askAI(prompt) {
         if (!prompt) return;
 
         this._addMessageToChat('user', prompt);
 
-        // Check for local commands BEFORE calling the AI.
         if (this._handleCommand(prompt)) {
-            return; // Stop the function if a command was handled.
+            return;
         }
         
         if(this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove('hidden');
@@ -98,7 +104,6 @@ class WarmwindOS {
 
     async _getGeminiResponse(prompt) {
         if (!this.GEMINI_API_KEY) {
-            // Added a friendly message directly to the chat for this common error
             this._addMessageToChat('ai', "It seems the API key is missing. Please check the `js/config.js` file.");
             throw new Error("API key is missing.");
         }
@@ -130,7 +135,6 @@ class WarmwindOS {
         messageDiv.innerHTML = `<div class="message-bubble">${formattedText}</div>`;
         this.ui.aiMessageList.appendChild(messageDiv);
         
-        // Auto-scroll the container
         const container = this.ui.aiMessageList.closest('.ai-message-list-container');
         if (container) {
             container.scrollTop = container.scrollHeight;

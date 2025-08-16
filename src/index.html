@@ -21,7 +21,6 @@
         </div>
     </div>
 
-    <!-- The App Store Window (structure is correct) -->
     <div class="app-store-window">
         <div class="app-store-content">
             <div class="app-store-header">
@@ -33,9 +32,7 @@
                     <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
                 </button>
             </div>
-            <div class="app-list">
-                <!-- App items will be dynamically inserted here by JavaScript -->
-            </div>
+            <div class="app-list"></div>
         </div>
     </div>
 
@@ -45,9 +42,14 @@
         
         <div class="background-image"></div>
 
-        <div class="top-center-menu">
-            <button id="open-app-store-btn">Browse apps</button>
+        <!-- MOVED & REPURPOSED: The dock now lives at the top -->
+        <div class="app-dock-container">
+            <div class="app-dock">
+                <!-- Docked app icons will be dynamically inserted here -->
+            </div>
         </div>
+
+        <!-- REMOVED: The old top-center-menu with the "Browse apps" button is gone -->
 
         <div class="chat-view-container">
             <div class="ai-message-list-container">
@@ -59,13 +61,7 @@
         </div>
 
         <footer class="bottom-bar">
-            <!-- NEW: The App Dock Container -->
-            <div class="app-dock-container">
-                <div class="app-dock">
-                    <!-- Docked app icons will be dynamically inserted here -->
-                </div>
-            </div>
-
+            <!-- The dock container is no longer here -->
             <div class="user-group">
                 <img src="https://i.pravatar.cc/150?img=1" alt="User 1" class="avatar">
                 <img src="https://i.pravatar.cc/150?img=2" alt="User 2" class="avatar">

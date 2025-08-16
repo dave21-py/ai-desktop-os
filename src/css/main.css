@@ -22,63 +22,21 @@ body {
 .background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
 .background-image.loaded { opacity: 1; transform: scale(1); }
 
-/* --- Top Center Menu Button --- */
-.top-center-menu {
-    position: absolute;
-    top: 16px;
-    left: 50%;
-    transform: translateX(-50%) translateY(-30px);
-    z-index: 10;
-    opacity: 0;
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out;
-}
-.top-center-menu.loaded {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-#open-app-store-btn {
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: rgba(240, 240, 240, 0.5);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-radius: 50px;
-    padding: 8px 16px;
-    font-family: var(--font-body);
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-#open-app-store-btn:hover {
-    transform: scale(1.05);
-    background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-
-/* --- Bottom Bar --- */
-/* EDITED: Increased z-index to ensure it sits above the dock initially */
-.bottom-bar { position: relative; width: 100%; z-index: 10; display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 40px; opacity: 0; transform: translateY(50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
-.bottom-bar.loaded { opacity: 1; transform: translateY(0); }
-.user-group, .right-user { display: flex; align-items: center; }
-.avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.user-group .avatar:not(:first-child) { margin-left: -12px; }
-
+/* --- REMOVED: Top Center Menu Button --- */
 
 /* ====================================================== */
-/* NEW: App Dock Styles                                   */
+/* MODIFIED: App Dock Styles (Now at the top)             */
 /* ====================================================== */
 .app-dock-container {
     position: absolute;
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-bottom: 16px;
-    z-index: 5; /* Below the main bottom-bar elements */
-    pointer-events: none; /* Allows clicks to pass through to the main container */
+    padding-top: 16px;
+    z-index: 10;
+    pointer-events: none;
 }
 
 .app-dock {
@@ -93,11 +51,11 @@ body {
     border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    pointer-events: auto; /* Re-enable pointer events for the dock itself */
+    pointer-events: auto;
     
-    /* Animation for appearing */
+    /* Animation for appearing from the top */
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-20px);
     transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .app-dock.visible {
@@ -113,7 +71,8 @@ body {
     transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .dock-item:hover {
-    transform: scale(1.15) translateY(-5px);
+    /* Expand downwards now */
+    transform: scale(1.15) translateY(5px);
 }
 .dock-item:active {
     transform: scale(1.05) translateY(0);
@@ -122,7 +81,6 @@ body {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* Prevents dragging the image itself */
     -webkit-user-drag: none;
     user-select: none;
 }
@@ -148,6 +106,13 @@ body {
     opacity: 1;
     transform: scale(1);
 }
+
+/* --- Bottom Bar --- */
+.bottom-bar { position: relative; width: 100%; z-index: 10; display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 40px; opacity: 0; transform: translateY(50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
+.bottom-bar.loaded { opacity: 1; transform: translateY(0); }
+.user-group, .right-user { display: flex; align-items: center; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.user-group .avatar:not(:first-child) { margin-left: -12px; }
 
 /* --- Center Console & In-Place Input --- */
 .center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
@@ -199,31 +164,20 @@ body {
 .app-item:hover { background-color: rgba(255, 255, 255, 0.3); }
 .app-item .app-icon { width: 40px; height: 40px; object-fit: contain; }
 .app-item .app-name { flex-grow: 1; font-size: 1rem; font-weight: 600; color: #333; }
-.app-item .add-app-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ccc; background-color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; } /* Added position relative */
+.app-item .add-app-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ccc; background-color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; }
 .app-item .add-app-btn:hover { background-color: #fff; border-color: #aaa; transform: scale(1.05); }
 .app-item .add-app-btn svg { width: 20px; height: 20px; color: #666; transition: opacity 0.2s ease; }
-
-/* NEW: Styles for when an app is already in the dock */
 .app-item .add-app-btn.added {
-    background-color: #34c759; /* Green for success */
+    background-color: #34c759;
     border-color: #34c759;
     cursor: not-allowed;
 }
-.app-item .add-app-btn.added .plus-icon {
-    opacity: 0;
-}
-.app-item .add-app-btn .check-icon {
-    opacity: 0;
-    position: absolute;
-}
-.app-item .add-app-btn.added .check-icon {
-    opacity: 1;
-    color: white;
-}
-
+.app-item .add-app-btn.added .plus-icon { opacity: 0; }
+.app-item .add-app-btn .check-icon { opacity: 0; position: absolute; }
+.app-item .add-app-btn.added .check-icon { opacity: 1; color: white; }
 
 /* ====================================================== */
-/* Chat History & Overlay (No Changes)                    */
+/* Chat History & Overlay                                 */
 /* ====================================================== */
 .chat-overlay { position: fixed; inset: 0; z-index: 5; background-color: rgba(0, 0, 0, 0.1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s; }
 .chat-view-container { position: absolute; bottom: 120px; left: 0; right: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 16px; opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; pointer-events: none; }
