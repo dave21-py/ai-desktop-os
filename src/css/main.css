@@ -168,6 +168,45 @@ body {
 .app-item .add-app-btn.added .check-icon { opacity: 1; color: white; }
 
 /* ====================================================== */
+/* NEW: AI Quick Actions Styles                           */
+/* ====================================================== */
+.quick-actions-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    /* Aligns with the start of the AI bubble */
+    padding-left: 4px; 
+}
+
+.quick-action-btn {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    background-color: var(--primary-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.quick-action-btn:active {
+    transform: translateY(0);
+    background-color: var(--secondary-bg);
+}
+
+/* ====================================================== */
 /* Chat History & Overlay                                 */
 /* ====================================================== */
 .chat-overlay { position: fixed; inset: 0; z-index: 5; background-color: rgba(0, 0, 0, 0.1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s; }

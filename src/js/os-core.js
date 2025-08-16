@@ -59,10 +59,43 @@ class WarmwindOS {
     _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
         
-        // --- Command: Set Theme ---
+        // --- NEW Command: Help & Onboarding ---
+        const helpKeywords = ['help', 'what can you do', 'show commands', 'commands'];
+        if (helpKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            const helpText = "I can do many things! I can manage your workspace, find apps, and answer questions. Here are a few things to try:";
+            const helpActions = [
+                { label: 'Change my wallpaper', payload: 'change wallpaper' },
+                { label: 'Switch to dark mode', payload: 'dark mode' },
+                { label: 'Browse apps', payload: 'browse apps' }
+            ];
+            this._addMessageToChat('ai', helpText, helpActions);
+            return true;
+        }
+    
+        // --- Command: Add to Dock (Now with Quick Action) ---
+        const addKeywords = ['add', 'pin', 'dock'];
+        if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+             for (const app of this.apps) {
+                if (lowerCasePrompt.includes(app.name.toLowerCase())) {
+                    if (this.controls.addAppToDock) {
+                        const message = this.controls.addAppToDock(app.id);
+                        const addActions = [
+                            { label: `Open ${app.name}`, payload: `open ${app.name}` }
+                        ];
+                        // Only show the open button if the app wasn't already in the dock
+                        if (message.includes('has been added')) {
+                            this._addMessageToChat('ai', message, addActions);
+                        } else {
+                            this._addMessageToChat('ai', message); // No button if it was already there
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+        
+        // --- Other commands remain the same ---
         const darkThemeKeywords = ['dark mode', 'dark theme', 'night mode'];
-        const lightThemeKeywords = ['light mode', 'light theme', 'day mode'];
-
         if (darkThemeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
             if (this.controls.setTheme) {
                 this.controls.setTheme('dark');
@@ -70,7 +103,8 @@ class WarmwindOS {
                 return true;
             }
         }
-
+    
+        const lightThemeKeywords = ['light mode', 'light theme', 'day mode'];
         if (lightThemeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
             if (this.controls.setTheme) {
                 this.controls.setTheme('light');
@@ -78,8 +112,7 @@ class WarmwindOS {
                 return true;
             }
         }
-
-        // --- Command: Cycle Wallpaper ---
+        
         const wallpaperKeywords = ['wallpaper', 'background', 'scene'];
         if (wallpaperKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
             if (this.controls.cycleWallpaper) {
@@ -88,8 +121,7 @@ class WarmwindOS {
                 return true;
             }
         }
-
-        // --- Command: Open App Store ---
+        
         const appStoreKeywords = ['browse apps', 'show apps', 'open app store', 'find apps'];
         if (appStoreKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
             if (this.controls.openAppStore) {
@@ -98,8 +130,7 @@ class WarmwindOS {
                 return true;
             }
         }
-
-        // --- Command: Open Specific App ---
+        
         const openKeywords = ['open', 'launch', 'go to', 'navigate to'];
         if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
             for (const app of this.apps) {
@@ -110,22 +141,7 @@ class WarmwindOS {
                 }
             }
         }
-
-        // --- Command: Add to Dock ---
-        const addKeywords = ['add', 'pin', 'dock'];
-        if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-             for (const app of this.apps) {
-                if (lowerCasePrompt.includes(app.name.toLowerCase())) {
-                    if (this.controls.addAppToDock) {
-                        const message = this.controls.addAppToDock(app.id);
-                        this._addMessageToChat('ai', message);
-                    }
-                    return true;
-                }
-            }
-        }
-
-        // --- Command: Remove from Dock ---
+        
         const removeKeywords = ['remove', 'unpin', 'undock'];
         if (removeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
              for (const app of this.apps) {
@@ -138,7 +154,7 @@ class WarmwindOS {
                 }
             }
         }
-
+    
         return false;
     }
 
@@ -194,12 +210,34 @@ class WarmwindOS {
         }
     }
 
-    _addMessageToChat(sender, text) {
+    _addMessageToChat(sender, text, actions = []) {
         if (!this.ui.aiMessageList) return;
+    
         const messageDiv = document.createElement('div');
         messageDiv.className = `ai-message from-${sender}`;
+    
+        // Create and add the text bubble
         const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        messageDiv.innerHTML = `<div class="message-bubble">${formattedText}</div>`;
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.innerHTML = formattedText;
+        messageDiv.appendChild(bubble);
+    
+        // If there are actions, create and add them
+        if (actions.length > 0) {
+            const actionsContainer = document.createElement('div');
+            actionsContainer.className = 'quick-actions-container';
+    
+            actions.forEach(action => {
+                const actionButton = document.createElement('button');
+                actionButton.className = 'quick-action-btn';
+                actionButton.textContent = action.label;
+                actionButton.dataset.payload = action.payload; // Store the command
+                actionsContainer.appendChild(actionButton);
+            });
+            messageDiv.appendChild(actionsContainer);
+        }
+        
         this.ui.aiMessageList.appendChild(messageDiv);
         
         const container = this.ui.aiMessageList.closest('.ai-message-list-container');

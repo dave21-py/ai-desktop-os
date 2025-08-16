@@ -234,6 +234,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+        // --- NEW: Handle clicks on AI Quick Action buttons ---
+        const messageList = document.querySelector('.ai-message-list');
+        messageList.addEventListener('click', (e) => {
+            const button = e.target.closest('.quick-action-btn');
+            if (button) {
+                const payload = button.dataset.payload;
+                if (payload) {
+                    // Remove the buttons after one is clicked for a cleaner UI
+                    button.parentElement.remove();
+                    // Send the payload to the AI as if the user typed it
+                    os.askAI(payload);
+                }
+            }
+        });
     
     appSearchInput.addEventListener('input', () => {
         const searchTerm = appSearchInput.value.toLowerCase().trim();
