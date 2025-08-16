@@ -1,7 +1,8 @@
 class WarmwindOS {
-    constructor(apps = []) { // EDITED: Accept the list of apps
+    constructor(apps = [], dockControls = {}) {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
-        this.apps = apps; // EDITED: Store the app list
+        this.apps = apps; // Store the list of all available apps
+        this.dockControls = dockControls; // Store the functions { addAppToDock, removeAppFromDock }
         this.state = {
             conversationHistory: []
         };
@@ -14,37 +15,60 @@ class WarmwindOS {
     }
 
     _initUI() {
-        this.ui.askBar = document.querySelector('.ask-bar');
-        this.ui.commandCenterOverlay = document.querySelector('.command-center-overlay');
-        this.ui.commandCenterInput = document.querySelector('#command-center-input');
         this.ui.aiMessageList = document.querySelector('.ai-message-list');
         this.ui.aiTypingIndicator = document.querySelector('.ai-typing-indicator');
     }
 
-    // --- NEW: Command Handler ---
     /**
-     * Checks if the user's prompt is a local command (e.g., "open spotify").
+     * Checks if the user's prompt is a local command.
      * @param {string} prompt - The user's input text.
      * @returns {boolean} - True if a command was handled, false otherwise.
      */
     _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
-        const keywords = ['open', 'launch', 'go to', 'navigate to'];
-
-        // Check if the prompt starts with one of our action keywords
-        const isACommand = keywords.some(keyword => lowerCasePrompt.startsWith(keyword));
-
-        if (isACommand) {
+        
+        // --- Command: Open App ---
+        const openKeywords = ['open', 'launch', 'go to', 'navigate to'];
+        if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
             for (const app of this.apps) {
-                // Check if the prompt includes an app name
                 if (lowerCasePrompt.includes(app.name.toLowerCase())) {
-                    // Command Matched!
                     window.open(app.url, '_blank');
                     this._addMessageToChat('ai', `Opening ${app.name} for you...`);
-                    return true; // Command was successfully handled
+                    return true;
                 }
             }
         }
+
+        // --- Command: Add to Dock ---
+        const addKeywords = ['add', 'pin', 'dock'];
+        if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+             for (const app of this.apps) {
+                if (lowerCasePrompt.includes(app.name.toLowerCase())) {
+                    // Check if the addAppToDock function was provided
+                    if (this.dockControls.addAppToDock) {
+                        const message = this.dockControls.addAppToDock(app.id);
+                        this._addMessageToChat('ai', message);
+                    }
+                    return true;
+                }
+            }
+        }
+
+        // --- Command: Remove from Dock ---
+        const removeKeywords = ['remove', 'unpin', 'undock'];
+        if (removeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+             for (const app of this.apps) {
+                if (lowerCasePrompt.includes(app.name.toLowerCase())) {
+                     // Check if the removeAppFromDock function was provided
+                    if (this.dockControls.removeAppFromDock) {
+                        const message = this.dockControls.removeAppFromDock(app.id);
+                        this._addMessageToChat('ai', message);
+                    }
+                    return true;
+                }
+            }
+        }
+
         return false; // This was not a recognized command
     }
 
@@ -52,15 +76,13 @@ class WarmwindOS {
     async askAI(prompt) {
         if (!prompt) return;
 
-        // Add the user's message to the screen immediately.
         this._addMessageToChat('user', prompt);
 
-        // EDITED: Check for local commands BEFORE calling the AI.
+        // Check for local commands BEFORE calling the AI.
         if (this._handleCommand(prompt)) {
             return; // Stop the function if a command was handled.
         }
         
-        // If it wasn't a command, proceed with the Gemini API call.
         if(this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove('hidden');
         
         try {
@@ -76,7 +98,9 @@ class WarmwindOS {
 
     async _getGeminiResponse(prompt) {
         if (!this.GEMINI_API_KEY) {
-            throw new Error("API key is missing. Please check your config.js file.");
+            // Added a friendly message directly to the chat for this common error
+            this._addMessageToChat('ai', "It seems the API key is missing. Please check the `js/config.js` file.");
+            throw new Error("API key is missing.");
         }
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
         const requestBody = { "contents": [{ "parts": [{ "text": prompt }] }] };
@@ -105,6 +129,11 @@ class WarmwindOS {
         const formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         messageDiv.innerHTML = `<div class="message-bubble">${formattedText}</div>`;
         this.ui.aiMessageList.appendChild(messageDiv);
-        this.ui.aiMessageList.parentElement.scrollTop = this.ui.aiMessageList.parentElement.scrollHeight;
+        
+        // Auto-scroll the container
+        const container = this.ui.aiMessageList.closest('.ai-message-list-container');
+        if (container) {
+            container.scrollTop = container.scrollHeight;
+        }
     }
 }

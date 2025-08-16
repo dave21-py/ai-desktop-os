@@ -58,11 +58,96 @@ body {
 
 
 /* --- Bottom Bar --- */
+/* EDITED: Increased z-index to ensure it sits above the dock initially */
 .bottom-bar { position: relative; width: 100%; z-index: 10; display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 40px; opacity: 0; transform: translateY(50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
 .bottom-bar.loaded { opacity: 1; transform: translateY(0); }
 .user-group, .right-user { display: flex; align-items: center; }
 .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .user-group .avatar:not(:first-child) { margin-left: -12px; }
+
+
+/* ====================================================== */
+/* NEW: App Dock Styles                                   */
+/* ====================================================== */
+.app-dock-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding-bottom: 16px;
+    z-index: 5; /* Below the main bottom-bar elements */
+    pointer-events: none; /* Allows clicks to pass through to the main container */
+}
+
+.app-dock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px;
+    background-color: rgba(240, 240, 240, 0.5);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border-radius: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+    pointer-events: auto; /* Re-enable pointer events for the dock itself */
+    
+    /* Animation for appearing */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.app-dock.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.dock-item {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.dock-item:hover {
+    transform: scale(1.15) translateY(-5px);
+}
+.dock-item:active {
+    transform: scale(1.05) translateY(0);
+}
+.dock-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Prevents dragging the image itself */
+    -webkit-user-drag: none;
+    user-select: none;
+}
+.remove-dock-item {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+}
+.dock-item:hover .remove-dock-item {
+    opacity: 1;
+    transform: scale(1);
+}
 
 /* --- Center Console & In-Place Input --- */
 .center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
@@ -109,14 +194,33 @@ body {
     background-color: transparent;
     border-radius: 12px;
     transition: background-color 0.2s ease;
-    cursor: pointer; /* EDITED: Added cursor pointer */
+    cursor: pointer;
 }
 .app-item:hover { background-color: rgba(255, 255, 255, 0.3); }
 .app-item .app-icon { width: 40px; height: 40px; object-fit: contain; }
 .app-item .app-name { flex-grow: 1; font-size: 1rem; font-weight: 600; color: #333; }
-.app-item .add-app-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ccc; background-color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+.app-item .add-app-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid #ccc; background-color: rgba(255, 255, 255, 0.5); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; position: relative; } /* Added position relative */
 .app-item .add-app-btn:hover { background-color: #fff; border-color: #aaa; transform: scale(1.05); }
-.app-item .add-app-btn svg { width: 20px; height: 20px; color: #666; }
+.app-item .add-app-btn svg { width: 20px; height: 20px; color: #666; transition: opacity 0.2s ease; }
+
+/* NEW: Styles for when an app is already in the dock */
+.app-item .add-app-btn.added {
+    background-color: #34c759; /* Green for success */
+    border-color: #34c759;
+    cursor: not-allowed;
+}
+.app-item .add-app-btn.added .plus-icon {
+    opacity: 0;
+}
+.app-item .add-app-btn .check-icon {
+    opacity: 0;
+    position: absolute;
+}
+.app-item .add-app-btn.added .check-icon {
+    opacity: 1;
+    color: white;
+}
+
 
 /* ====================================================== */
 /* Chat History & Overlay (No Changes)                    */
