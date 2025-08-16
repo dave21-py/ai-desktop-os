@@ -16,38 +16,44 @@
     <div class="welcome-overlay">
         <div class="welcome-content">
             <h1>Welcome</h1>
-            <p>to the new way of operating systems.</p>
+            <p>in your new workspace.</p>
+            <!-- CORRECTED: Button text and ID reverted -->
             <button id="enter-os-btn">Launch OS</button>
         </div>
     </div>
 
-    <!-- This is now just a background blur overlay, shown when the chat is active -->
+    <!-- The App Store Window (structure is correct) -->
+    <div class="app-store-window">
+        <div class="app-store-content">
+            <div class="app-store-header">
+                <form class="search-form">
+                    <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5 16q-2.725 0-4.612-1.888T3 9.5q0-2.725 1.888-4.612T9.5 3q2.725 0 4.612 1.888T16 9.5q0 1.45-.55 2.725T14.1 14.4l5.6 5.6q.275.275.275.7t-.275.7q-.275.275-.7.275t-.7-.275l-5.6-5.6q-1.225.8-2.6.8Z"/></svg>
+                    <input type="search" id="app-search-input" placeholder="Search apps...">
+                </form>
+                <button class="close-app-store-btn" aria-label="Close App Store">
+                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                </button>
+            </div>
+            <div class="app-list">
+                <!-- App items will be dynamically inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <div class="chat-overlay hidden"></div>
 
     <main class="os-container">
         
         <div class="background-image"></div>
 
-        <div class="top-dock">
-             <div class="icon" title="Chrome"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome"></div>
-            <div class="icon" title="Word"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Microsoft_Office_Word_%282019%E2%80%93present%29.svg" alt="Word"></div>
-            <div class="icon" title="WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></div>
-            <div class="icon" title="Sheets"><img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Sheets"></div>
-            <div class="icon" title="Outlook"><img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook"></div>
-            <div class="icon" title="Calendar"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Calendar"></div>
-            <div class="icon" title="LinkedIn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn"></div>
-            <div class="icon" title="Spotify"><img src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" alt="Spotify"></div>
-            <div class="icon" title="Gmail"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail"></div>
-            <div class="icon" title="Instagram"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram"></div>
-            <div class="icon add-icon" title="Add App">+</div>
+        <!-- NEW: Subtle "Browse apps" button for the homepage -->
+        <div class="top-center-menu">
+            <button id="open-app-store-btn">Browse apps</button>
         </div>
 
-        <!-- NEW: Container for the chat history, appears above the input bar -->
         <div class="chat-view-container">
             <div class="ai-message-list-container">
-                <div class="ai-message-list">
-                    <!-- AI and User messages will appear here -->
-                </div>
+                <div class="ai-message-list"></div>
             </div>
             <div class="ai-typing-indicator hidden">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -65,18 +71,14 @@
                 <div class="main-user-avatar">
                     <img src="assets/icons/memo.png" alt="Main User Avatar">
                 </div>
-                <!-- This bar is shown initially -->
                 <div class="ask-bar">
                     <span>Ask something</span>
                 </div>
-                <!-- This overlay replaces the bar on click and expands in place -->
                 <div class="compact-input-overlay">
                     <form class="compact-input-form">
                         <textarea id="compact-input" placeholder="Ask something..." rows="1"></textarea>
                         <button type="submit" aria-label="Send Message">
-                            <svg width="16" height="16" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path>
-                            </svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
                         </button>
                     </form>
                 </div>
