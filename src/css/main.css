@@ -53,12 +53,106 @@ body {
 .welcome-content button:hover { transform: scale(1.05); background-color: white; }
 
 /* ====================================================== */
-/* AI Command Center (FIXED: Resized)                     */
+/* Progressive Expansion - Compact Input State            */
 /* ====================================================== */
-.command-center-overlay { position: fixed; inset: 0; z-index: 900; display: flex; flex-direction: column-reverse; align-items: center; padding-bottom: 24px; /* Matched bottom-bar padding */ background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, visibility 0.3s; }
+.compact-input-overlay {
+    position: fixed;
+    left: 50%;
+    bottom: 80px; /* Above the ask-bar */
+    transform: translateX(-50%);
+    z-index: 800;
+    
+    /* Match the exact ask-bar styling */
+    min-width: 280px;
+    background-color: rgba(224, 226, 229, 0.9);
+    border-radius: 50px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(20px) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.compact-input-overlay.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+.compact-input-form {
+    display: flex;
+    align-items: center;
+    padding: 10px 24px;
+    gap: 12px;
+}
+
+.compact-input-form textarea {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-size: 15px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    outline: none;
+    color: #6c757d;
+    resize: none;
+    line-height: 1.4;
+    min-height: 20px;
+    max-height: 80px;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.compact-input-form textarea::placeholder {
+    color: #6c757d;
+    text-align: center;
+}
+
+.compact-input-form button {
+    background: #007aff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.compact-input-form button:hover {
+    background-color: #0056b3;
+}
+
+/* ====================================================== */
+/* AI Command Center (Updated for smooth transitions)     */
+/* ====================================================== */
+.command-center-overlay { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 900; 
+    display: flex; 
+    flex-direction: column-reverse; 
+    align-items: center; 
+    padding-bottom: 24px; 
+    background-color: rgba(0, 0, 0, 0.2); 
+    backdrop-filter: blur(10px); 
+    -webkit-backdrop-filter: blur(10px); 
+    opacity: 0; 
+    visibility: hidden; 
+    pointer-events: none; 
+    transition: opacity 0.4s ease, visibility 0.4s; 
+}
 
 /* --- Chat History --- */
-.ai-message-list-container { width: 100%; max-width: 600px; /* Reduced max-width */ max-height: 50vh; /* Reduced max-height */ overflow-y: hidden; display: flex; flex-direction: column-reverse; }
+.ai-message-list-container { width: 100%; max-width: 600px; max-height: 50vh; overflow-y: hidden; display: flex; flex-direction: column-reverse; }
 .ai-message-list { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .ai-message { display: flex; max-width: 85%; }
 .ai-message.from-user { align-self: flex-end; justify-content: flex-end; }
@@ -73,23 +167,69 @@ body {
 .ai-typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing { 0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; } 30% { transform: scale(1.1); opacity: 1; } }
 
-/* --- Expanded Input Box --- */
-.command-center { width: 100%; max-width: 600px; /* Reduced max-width */ background-color: #fff; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: 1px solid rgba(200, 200, 200, 0.5); display: flex; flex-direction: column; overflow: hidden; margin-top: 16px; }
+/* --- Full Input Box with smooth entry animation --- */
+.command-center { 
+    width: 100%; 
+    max-width: 600px; 
+    background-color: #fff; 
+    border-radius: 24px; 
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
+    border: 1px solid rgba(200, 200, 200, 0.5); 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    margin-top: 16px; 
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .ai-input-form { display: flex; align-items: flex-start; padding: 12px; }
 #command-center-input { flex-grow: 1; border: none; background: transparent; padding: 10px; font-size: 1rem; font-family: var(--font-body); outline: none; color: #333; resize: none; line-height: 1.5; max-height: 200px; }
 .ai-input-form button { background: #007aff; border: none; border-radius: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background-color 0.2s ease; margin-top: 4px; flex-shrink: 0; }
 .ai-input-form button:hover { background-color: #0056b3; }
 
 /* ====================================================== */
-/* Command Active State                                   */
+/* Progressive State Management                           */
 /* ====================================================== */
+
+/* State 1: Compact input active */
+body.compact-active .center-console {
+    opacity: 0.3;
+    transform: translateX(-50%) scale(0.95);
+    pointer-events: none;
+}
+
+body.compact-active .compact-input-overlay {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* State 2: Full command center active */
 body.command-active .center-console {
     opacity: 0;
     transform: translateX(-50%) scale(0.9);
     pointer-events: none;
 }
+
+body.command-active .compact-input-overlay {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(-20px) scale(1.1);
+    transition: all 0.3s ease;
+}
+
 body.command-active .command-center-overlay {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
+}
+
+body.command-active .command-center {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    transition-delay: 0.1s;
 }
