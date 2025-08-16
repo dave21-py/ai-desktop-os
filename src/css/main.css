@@ -1,20 +1,11 @@
-/* ================================================= */
-/* AI OS - Homepage UI Stylesheet (FINAL)            */
-/* ================================================= */
-
 /* --- Foundational Setup --- */
 :root {
     --font-body: 'Nunito Sans', sans-serif;
-    /* --- IMPORTANT --- */
-    /* Place your desired background image URL here */
+    --font-welcome: 'Lobster', cursive; 
     --background-image-url: url('../assets/wallpapers/walllpaper1.png');
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
     font-family: var(--font-body);
@@ -26,181 +17,79 @@ body {
     overflow: hidden;
 }
 
-
 /* --- Main OS Container --- */
-.os-container {
-    position: relative;
-    width: 95vw;
-    height: 90vh;
-    max-width: 1600px;
-    max-height: 900px;
-    border-radius: 32px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+.os-container { position: relative; width: 95vw; height: 90vh; max-width: 1600px; max-height: 900px; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+.background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
+.background-image.loaded { opacity: 1; transform: scale(1); }
 
-/* --- Background Image --- */
-.background-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: var(--background-image-url);
-    background-size: cover;
-    background-position: center;
-    z-index: 1;
-    
-    /* Initial state for animation */
+/* --- Top Dock (FIXED: Restored original theme) --- */
+.top-dock { position: relative; align-self: center; margin-top: 16px; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 16px; background-color: rgba(240, 240, 240, 0.5); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); opacity: 0; transform: translateY(-50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
+.top-dock.loaded { opacity: 1; transform: translateY(0); }
+.top-dock .icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.top-dock .icon:hover { transform: scale(1.15); }
+.top-dock .icon img { width: 100%; height: 100%; object-fit: contain; }
+.top-dock .add-icon { font-size: 24px; font-weight: 400; color: #444; background-color: rgba(0,0,0,0.05); border-radius: 50%; cursor: pointer; }
+
+/* --- Bottom Bar --- */
+.bottom-bar { position: relative; width: 100%; z-index: 10; display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 40px; opacity: 0; transform: translateY(50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
+.bottom-bar.loaded { opacity: 1; transform: translateY(0); }
+.user-group, .right-user { display: flex; align-items: center; }
+.avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.user-group .avatar:not(:first-child) { margin-left: -12px; }
+
+/* --- Center Console (FIXED: Restored original theme) --- */
+.center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: opacity 0.2s ease, transform 0.2s ease; }
+.main-user-avatar { width: 48px; height: 48px; background-color: rgba(240, 240, 240, 0.5); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.main-user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.ask-bar { padding: 10px 24px; min-width: 250px; text-align: center; background-color: rgba(224, 226, 229, 0.9); border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #6c757d; font-size: 15px; font-weight: 600; }
+
+/* --- Welcome Screen --- */
+.welcome-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; background-image: var(--background-image-url); background-size: cover; background-position: center; transition: opacity 0.5s ease-out, visibility 0.5s; }
+.welcome-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.welcome-content { text-align: center; color: white; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); }
+.welcome-content h1 { font-family: var(--font-welcome); font-size: 10rem; font-weight: 400; line-height: 1; }
+.welcome-content p { font-size: 1.25rem; margin-top: -10px; opacity: 0.9; }
+.welcome-content button { margin-top: 30px; padding: 12px 30px; border: none; border-radius: 50px; background-color: rgba(255, 255, 255, 0.9); color: #333; font-size: 1rem; font-weight: 600; font-family: var(--font-body); cursor: pointer; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); transition: transform 0.2s ease, background-color 0.2s ease; }
+.welcome-content button:hover { transform: scale(1.05); background-color: white; }
+
+/* ====================================================== */
+/* AI Command Center (FIXED: Resized)                     */
+/* ====================================================== */
+.command-center-overlay { position: fixed; inset: 0; z-index: 900; display: flex; flex-direction: column-reverse; align-items: center; padding-bottom: 24px; /* Matched bottom-bar padding */ background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, visibility 0.3s; }
+
+/* --- Chat History --- */
+.ai-message-list-container { width: 100%; max-width: 600px; /* Reduced max-width */ max-height: 50vh; /* Reduced max-height */ overflow-y: hidden; display: flex; flex-direction: column-reverse; }
+.ai-message-list { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.ai-message { display: flex; max-width: 85%; }
+.ai-message.from-user { align-self: flex-end; justify-content: flex-end; }
+.ai-message.from-ai { align-self: flex-start; }
+.message-bubble { padding: 12px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.5; word-wrap: break-word; }
+.ai-message.from-user .message-bubble { background-color: #007aff; color: white; border-bottom-right-radius: 4px; }
+.ai-message.from-ai .message-bubble { background-color: #fff; color: #1c1c1e; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.ai-typing-indicator { display: flex; gap: 4px; padding: 12px 18px; border-radius: 18px; background-color: #fff; margin: 0 0 16px 24px; align-self: flex-start; }
+.ai-typing-indicator.hidden { display: none; }
+.ai-typing-indicator .dot { width: 8px; height: 8px; background-color: #aaa; border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
+.ai-typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing { 0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; } 30% { transform: scale(1.1); opacity: 1; } }
+
+/* --- Expanded Input Box --- */
+.command-center { width: 100%; max-width: 600px; /* Reduced max-width */ background-color: #fff; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); border: 1px solid rgba(200, 200, 200, 0.5); display: flex; flex-direction: column; overflow: hidden; margin-top: 16px; }
+.ai-input-form { display: flex; align-items: flex-start; padding: 12px; }
+#command-center-input { flex-grow: 1; border: none; background: transparent; padding: 10px; font-size: 1rem; font-family: var(--font-body); outline: none; color: #333; resize: none; line-height: 1.5; max-height: 200px; }
+.ai-input-form button { background: #007aff; border: none; border-radius: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background-color 0.2s ease; margin-top: 4px; flex-shrink: 0; }
+.ai-input-form button:hover { background-color: #0056b3; }
+
+/* ====================================================== */
+/* Command Active State                                   */
+/* ====================================================== */
+body.command-active .center-console {
     opacity: 0;
-    transform: scale(1.05);
-    transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out;
+    transform: translateX(-50%) scale(0.9);
+    pointer-events: none;
 }
-/* Final state for animation */
-.background-image.loaded {
+body.command-active .command-center-overlay {
     opacity: 1;
-    transform: scale(1);
-}
-
-
-/* --- Top Dock (Glassmorphism Effect) --- */
-.top-dock {
-    position: relative;
-    align-self: center;
-    margin-top: 16px;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background-color: rgba(240, 240, 240, 0.5);
-    backdrop-filter: blur(16px) saturate(1.2);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    border-radius: 50px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-
-    /* Initial state for animation */
-    opacity: 0;
-    transform: translateY(-50px);
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out;
-}
-/* Final state for animation */
-.top-dock.loaded {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.top-dock .icon {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.top-dock .icon:hover {
-    transform: scale(1.15);
-}
-
-.top-dock .icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.top-dock .add-icon {
-    font-size: 24px;
-    font-weight: 400;
-    color: #444;
-    background-color: rgba(0,0,0,0.05);
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-
-/* --- Bottom Bar & Components --- */
-.bottom-bar {
-    position: relative;
-    width: 100%;
-    z-index: 10;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 24px 40px;
-    
-    /* Initial state for animation */
-    opacity: 0;
-    transform: translateY(50px);
-    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out;
-}
-/* Final state for animation */
-.bottom-bar.loaded {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.user-group, .right-user {
-    display: flex;
-    align-items: center;
-}
-
-.avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.user-group .avatar:not(:first-child) {
-    margin-left: -12px;
-}
-
-/* --- Center Console (Main User & Ask Bar) --- */
-.center-console {
-    position: absolute;
-    left: 50%;
-    bottom: 24px;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.main-user-avatar {
-    width: 48px;
-    height: 48px;
-    background-color: rgba(240, 240, 240, 0.5);
-    backdrop-filter: blur(16px) saturate(1.2);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    padding: 4px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.main-user-avatar img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.ask-bar {
-    padding: 10px 24px;
-    min-width: 250px;
-    text-align: center;
-    background-color: rgba(224, 226, 229, 0.9);
-    border-radius: 50px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    color: #6c757d;
-    font-size: 15px;
-    font-weight: 600;
+    visibility: visible;
+    pointer-events: auto;
 }

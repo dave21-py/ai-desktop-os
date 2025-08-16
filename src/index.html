@@ -4,28 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI OS - Home</title>
-    <!-- We can keep the fonts you selected -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
     
-    <!-- For simplicity, we'll combine your CSS files into one. We will create this next. -->
     <link rel="stylesheet" href="css/main.css">
-    
-    <!-- We'll combine JS into one file for the animations later. -->
-    <script src="js/main.js" defer></script>
 </head>
 <body>
 
-    <!-- This is the main container for the entire OS view -->
+    <div class="welcome-overlay">
+        <div class="welcome-content">
+            <h1>Welcome</h1>
+            <p>in your new workspace.</p>
+            <!-- EDITED: Button text is now correct -->
+            <button id="enter-os-btn">Launch OS</button>
+        </div>
+    </div>
+
+    <div class="command-center-overlay hidden">
+        <div class="ai-message-list-container">
+            <div class="ai-message-list">
+                <!-- AI and User messages will appear here -->
+            </div>
+        </div>
+        <div class="command-center">
+            <div class="ai-typing-indicator hidden">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <form class="ai-input-form">
+                <textarea id="command-center-input" placeholder="Ask something..." rows="1"></textarea>
+                <button type="submit" aria-label="Send Message">
+                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
     <main class="os-container">
         
-        <!-- The background image will be applied here via CSS -->
         <div class="background-image"></div>
 
-        <!-- The top dock with application icons -->
         <div class="top-dock">
-            <div class="icon" title="Chrome"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome"></div>
+             <div class="icon" title="Chrome"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome"></div>
             <div class="icon" title="Word"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Microsoft_Office_Word_%282019%E2%80%93present%29.svg" alt="Word"></div>
             <div class="icon" title="WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></div>
             <div class="icon" title="Sheets"><img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Sheets"></div>
@@ -38,10 +59,8 @@
             <div class="icon add-icon" title="Add App">+</div>
         </div>
 
-        <!-- The bottom bar with user avatars and the input field -->
         <footer class="bottom-bar">
             <div class="user-group">
-                <!-- Replace with your user avatar images -->
                 <img src="https://i.pravatar.cc/150?img=1" alt="User 1" class="avatar">
                 <img src="https://i.pravatar.cc/150?img=2" alt="User 2" class="avatar">
                 <img src="https://i.pravatar.cc/150?img=3" alt="User 3" class="avatar">
@@ -49,7 +68,6 @@
 
             <div class="center-console">
                 <div class="main-user-avatar">
-                    <!-- Replace with your main user avatar image -->
                     <img src="assets/icons/memo.png" alt="Main User Avatar">
                 </div>
                 <div class="ask-bar">
@@ -58,12 +76,15 @@
             </div>
 
             <div class="right-user">
-                 <!-- Replace with your other user avatar image -->
                 <img src="https://i.pravatar.cc/150?img=5" alt="User 4" class="avatar">
             </div>
         </footer>
 
     </main>
+
+    <script src="js/config.js" defer></script>
+    <script src="js/os-core.js" defer></script>
+    <script src="js/main.js" defer></script>
 
 </body>
 </html>
