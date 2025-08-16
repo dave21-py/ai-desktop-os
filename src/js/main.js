@@ -34,6 +34,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactInputForm = document.querySelector('.compact-input-form');
     const chatOverlay = document.querySelector('.chat-overlay');
 
+        // ======================================================
+    // THEME LOGIC
+    // ======================================================
+
+    const setTheme = (theme) => {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+        localStorage.setItem('warmwindOS.theme', theme);
+    };
+
+    const loadTheme = () => {
+        const savedTheme = localStorage.getItem('warmwindOS.theme') || 'light';
+        setTheme(savedTheme);
+    };
+
     // ======================================================
     // CORE LOGIC (Dock & App Store)
     // ======================================================
@@ -103,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -222,4 +240,5 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- Initial Load ---
     loadDockState();
+    loadTheme(); // ADD THIS LINE
 });

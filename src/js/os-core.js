@@ -2,10 +2,8 @@ class WarmwindOS {
     constructor(apps = [], controls = {}) {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
         this.apps = apps;
-        this.controls = controls; // Contains { addAppToDock, removeAppFromDock, openAppStore }
-        this.state = {
-            conversationHistory: []
-        };
+        this.controls = controls; // Now stores { addAppToDock, removeAppFromDock, openAppStore, setTheme }
+        this.state = { conversationHistory: [] };
         this.ui = {};
     }
 
@@ -27,6 +25,26 @@ class WarmwindOS {
     _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
         
+        // --- NEW Command: Set Theme ---
+        const darkThemeKeywords = ['dark mode', 'dark theme', 'night mode'];
+        const lightThemeKeywords = ['light mode', 'light theme', 'day mode'];
+    
+        if (darkThemeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            if (this.controls.setTheme) {
+                this.controls.setTheme('dark');
+                this._addMessageToChat('ai', 'Switching to dark mode.');
+                return true;
+            }
+        }
+    
+        if (lightThemeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            if (this.controls.setTheme) {
+                this.controls.setTheme('light');
+                this._addMessageToChat('ai', 'Switching to light mode.');
+                return true;
+            }
+        }
+    
         // --- Command: Open App Store ---
         const appStoreKeywords = ['browse apps', 'show apps', 'open app store', 'find apps'];
         if (appStoreKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
@@ -36,7 +54,7 @@ class WarmwindOS {
                 return true;
             }
         }
-
+    
         // --- Command: Open Specific App ---
         const openKeywords = ['open', 'launch', 'go to', 'navigate to'];
         if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
@@ -48,7 +66,7 @@ class WarmwindOS {
                 }
             }
         }
-
+    
         // --- Command: Add to Dock ---
         const addKeywords = ['add', 'pin', 'dock'];
         if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
@@ -62,7 +80,7 @@ class WarmwindOS {
                 }
             }
         }
-
+    
         // --- Command: Remove from Dock ---
         const removeKeywords = ['remove', 'unpin', 'undock'];
         if (removeKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
@@ -76,7 +94,7 @@ class WarmwindOS {
                 }
             }
         }
-
+    
         return false; // This was not a recognized command
     }
 
