@@ -3,316 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VibeOS</title>
-    <!-- Import Fonts -->
+    <title>AI OS - Home</title>
+    <!-- We can keep the fonts you selected -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <!-- Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- For simplicity, we'll combine your CSS files into one. We will create this next. -->
     <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/themes.css">
+    
+    <!-- We'll combine JS into one file for the animations later. -->
+    <script src="js/main.js" defer></script>
 </head>
 <body>
 
-    <!-- Main Application Window -->
-    <div class="app-window">
+    <!-- This is the main container for the entire OS view -->
+    <main class="os-container">
+        
+        <!-- The background image will be applied here via CSS -->
+        <div class="background-image"></div>
 
-        <div class="top-pill">VibeOS</div>
-
-        <div id="desktop">
-            <!-- App windows will be created here by JavaScript -->
+        <!-- The top dock with application icons -->
+        <div class="top-dock">
+            <div class="icon" title="Chrome"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome"></div>
+            <div class="icon" title="Word"><img src="https://upload.wikimedia.org/wikipedia/commons/f/fd/Microsoft_Office_Word_%282019%E2%80%93present%29.svg" alt="Word"></div>
+            <div class="icon" title="WhatsApp"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></div>
+            <div class="icon" title="Sheets"><img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg" alt="Sheets"></div>
+            <div class="icon" title="Outlook"><img src="https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg" alt="Outlook"></div>
+            <div class="icon" title="Calendar"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg" alt="Calendar"></div>
+            <div class="icon" title="LinkedIn"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn"></div>
+            <div class="icon" title="Spotify"><img src="https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg" alt="Spotify"></div>
+            <div class="icon" title="Gmail"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail"></div>
+            <div class="icon" title="Instagram"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram"></div>
+            <div class="icon add-icon" title="Add App">+</div>
         </div>
 
-        <!-- Template for new app windows -->
-        <template id="window-template">
-            <div class="app-instance-window">
-                <div class="window-title-bar">
-                    <img class="window-icon" src="" alt="App Icon">
-                    <span class="window-title"></span>
-                    <div class="window-controls">
-                        <button class="window-minimize-btn" title="Minimize" aria-label="Minimize Window"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
-                        <button class="window-maximize-btn" title="Maximize" aria-label="Maximize Window"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
-                        <button class="window-close-btn" title="Close" aria-label="Close Window"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
-                    </div>
-                </div>
-                <div class="window-content">
-                    <div class="loading-overlay"><div class="spinner"></div></div>
-                    <iframe title="Application Content"></iframe>
-                </div>
-            </div>
-        </template>
-
-                        <!-- REPLACED: Template for the context menu -->
-        <template id="context-menu-template">
-            <div class="context-menu">
-                <div class="context-menu-item" data-action="new-folder">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
-                    <span>New Folder</span>
-                </div>
-                <div class="context-menu-divider"></div>
-                <div class="context-menu-item" data-action="rename">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    <span>Rename</span>
-                </div>
-                <div class="context-menu-item" data-action="delete">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                    <span>Move to Trash</span>
-                </div>
-            </div>
-        </template>
-
-                        <!-- NEW: Template for the File Explorer window -->
-        <!-- Replace the existing file-explorer-template with this enhanced version -->
-<template id="file-explorer-template">
-    <div class="app-instance-window file-explorer">
-        <div class="window-title-bar">
-            <img class="window-icon" src="assets/icons/folder.png" alt="Folder Icon">
-            <span class="window-title"></span>
-            <div class="window-controls">
-                <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
-                <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
-                <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
-            </div>
-        </div>
-        <div class="window-content">
-            <div class="file-explorer-toolbar">
-                <button class="toolbar-btn new-file-btn" title="New File">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2v20M2 12h20"></path></svg>
-                </button>
-                <button class="toolbar-btn new-folder-btn" title="New Folder">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12h-2v2h-2v-2H6v-2h2V8h2v2h2v2zm-2-6H2v12h20V8h-8l-2-2z"></path></svg>
-                </button>
-            </div>
-            <div class="file-explorer-content">
-                <!-- File icons will go here -->
-                <div class="empty-folder-message">This folder is empty.</div>
-            </div>
-        </div>
-    </div>
-</template>
-
-<!-- FINAL, CORRECTED DASHBOARD TEMPLATE -->
-<template id="dashboard-template">
-    <div class="app-instance-window dashboard-window">
-        <div class="window-title-bar">
-            <img class="window-icon" src="assets/icons/dashboard.png" alt="Dashboard Icon">
-            <span class="window-title">System Dashboard</span>
-            <div class="window-controls">
-                <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
-                <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
-                <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
-            </div>
-        </div>
-        <div class="window-content">
-            <div class="dashboard-content">
-                <div class="dashboard-grid-refined">
-                    
-                    <div class="dashboard-card-refined">
-                        <div class="card-header">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line></svg>
-                            <h3>Windows</h3>
-                        </div>
-                        <div class="metric-large"><span id="total-windows">0</span> Open</div>
-                        <div class="metric-small"><span id="app-windows">0</span> Apps</div>
-                        <div class="metric-small"><span id="folder-windows">0</span> Folders</div>
-                    </div>
-
-                    <div class="dashboard-card-refined">
-                        <div class="card-header">
-                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-                            <h3>Desktop</h3>
-                        </div>
-                        <div class="metric-large"><span id="total-items">0</span> Items</div>
-                        <div class="metric-small"><span id="app-items">0</span> Apps</div>
-                        <div class="metric-small"><span id="folder-items">0</span> Folders</div>
-                    </div>
-
-                    <div class="dashboard-card-refined system-card">
-                         <div class="card-header">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            <h3>System</h3>
-                        </div>
-                        <div class="system-metrics">
-                            <div class="metric">Theme: <span id="current-theme">Light</span></div>
-                            <div class="metric">Time: <span id="current-time">--:--:--</span></div>
-                            <div class="metric">Apps: <span id="available-apps">0</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-card-refined performance-card">
-                        <div class="card-header">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-                            <h3>Performance</h3>
-                        </div>
-                        <div class="performance-gauges">
-                            <div class="performance-gauge-item">
-                                <div class="performance-gauge">
-                                    <svg viewBox="0 0 36 36">
-                                        <circle class="gauge-track" cx="18" cy="18" r="15.915"></circle>
-                                        <circle id="cpu-gauge-fill" class="gauge-fill cpu" cx="18" cy="18" r="15.915"></circle>
-                                    </svg>
-                                    <div id="cpu-usage-text" class="gauge-text-large">0%</div>
-                                </div>
-                                <div class="gauge-label">CPU</div>
-                            </div>
-                            <div class="performance-gauge-item">
-                                <div class="performance-gauge">
-                                    <svg viewBox="0 0 36 36">
-                                        <circle class="gauge-track" cx="18" cy="18" r="15.915"></circle>
-                                        <circle id="memory-gauge-fill" class="gauge-fill memory" cx="18" cy="18" r="15.915"></circle>
-                                    </svg>
-                                    <div id="memory-usage-text" class="gauge-text-large">0%</div>
-                                </div>
-                                <div class="gauge-label">Memory</div>
-                            </div>
-                            <div class="performance-gauge-item">
-                                <div class="performance-gauge">
-                                    <svg viewBox="0 0 36 36">
-                                        <circle class="gauge-track" cx="18" cy="18" r="15.915"></circle>
-                                        <circle id="battery-gauge-fill" class="gauge-fill battery" cx="18" cy="18" r="15.915"></circle>
-                                    </svg>
-                                    <div id="battery-level-text" class="gauge-text-large">0%</div>
-                                </div>
-                                <div class="gauge-label">Battery</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</template>
-
-        <!-- NEW: Template for the Settings App window -->
-        <template id="settings-app-template">
-            <div class="app-instance-window settings-app">
-                <div class="window-title-bar">
-                    <img class="window-icon" src="assets/icons/settings.png" alt="Settings Icon">
-                    <span class="window-title">Settings</span>
-                    <div class="window-controls">
-                        <button class="window-minimize-btn" title="Minimize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"></path></svg></button>
-                        <button class="window-maximize-btn" title="Maximize"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M16 8V4H4v12h4"></path><rect width="12" height="12" x="8" y="8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" rx="2"></rect></svg></button>
-                        <button class="window-close-btn" title="Close"><svg width="12" height="12" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M18 6L6 18M6 6l12 12"></path></svg></button>
-                    </div>
-                </div>
-                <div class="window-content">
-                    <div class="settings-sidebar">
-                        <div class="settings-category active" data-category="appearance">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
-                            <span>Appearance</span>
-                        </div>
-                        <!-- More categories can be added here -->
-                    </div>
-                    <div class="settings-main-content">
-                        <div class="settings-page" data-page="appearance">
-                            <h2>Appearance</h2>
-                            
-                            <div class="setting-item">
-                                <label for="theme-toggle-switch">Theme</label>
-                                <div class="theme-switch-wrapper">
-                                    <span>Light</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="theme-toggle-switch">
-                                        <span class="slider round"></span>
-                                    </label>
-                                    <span>Dark</span>
-                                </div>
-                            </div>
-
-                            <div class="setting-item">
-                                <label>Wallpaper</label>
-                                <div class="wallpaper-selection-grid">
-                                    <!-- Wallpapers will be dynamically inserted here by JS -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </template>
-
-        <!-- The Main Bottom Bar (Dock) -->
+        <!-- The bottom bar with user avatars and the input field -->
         <footer class="bottom-bar">
-            <!-- This button now opens the Command Center -->
-            <button class="dock-item" id="command-center-btn" title="Apps & Search" aria-label="Open Command Center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6Z"/><path d="M14 6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2V6Z"/><path d="M4 16a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2Z"/><path d="M14 16a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-2Z"/></svg>
-            </button>
-            <!-- Running app icons will be added here by JavaScript -->
+            <div class="user-group">
+                <!-- Replace with your user avatar images -->
+                <img src="https://i.pravatar.cc/150?img=1" alt="User 1" class="avatar">
+                <img src="https://i.pravatar.cc/150?img=2" alt="User 2" class="avatar">
+                <img src="https://i.pravatar.cc/150?img=3" alt="User 3" class="avatar">
+            </div>
+
+            <div class="center-console">
+                <div class="main-user-avatar">
+                    <!-- Replace with your main user avatar image -->
+                    <img src="assets/icons/memo.png" alt="Main User Avatar">
+                </div>
+                <div class="ask-bar">
+                    <span>Ask something</span>
+                </div>
+            </div>
+
+            <div class="right-user">
+                 <!-- Replace with your other user avatar image -->
+                <img src="https://i.pravatar.cc/150?img=5" alt="User 4" class="avatar">
+            </div>
         </footer>
 
-    </div> <!-- End of .app-window -->
-
-    <!-- ============================================= -->
-    <!-- NEW: The Command Center & AI Assistant Panel  -->
-    <!-- ============================================= -->
-
-    <!-- Command Center for launching apps and searching -->
-    <div class="command-center-overlay hidden">
-        <div class="command-center">
-            <input type="text" id="command-center-input" placeholder="Search for apps or ask AI...">
-            <div id="command-center-results">
-                <!-- Search results will appear here -->
-            </div>
-        </div>
-    </div>
-    
-    <!-- Template for Command Center search results -->
-    <template id="app-search-result-template">
-        <div class="app-result-item" tabindex="0">
-            <img src="" alt="App Icon">
-            <span class="app-name"></span>
-        </div>
-    </template>
-    
-    <!-- All App Data (remains hidden, acts as a database) -->
-    <div id="app-data-store" class="hidden">
-        <div class="app-item" data-appid="vscode" data-appname="Code Editor" data-url="https://vscode.dev"><img src="assets/vscode.gif" alt="VS Code Icon"></div>
-        <div class="app-item" data-appid="gemini" data-appname="Google Gemini" data-url="https://aistudio.google.com/prompts/new_chat" data-launchMode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Google_Gemini_logo.svg" alt="Gemini Icon"></div>
-        <div class="app-item" data-appid="wikipedia" data-appname="Wikipedia" data-url="https://www.wikipedia.org"><img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Wikipedia_logo_puzzle_globe_spins_horizontally_and_vertically%2C_revealing_the_contents_of_all_of_its_puzzle_pieces%2C_without_background.gif" alt="Wikipedia Icon"></div>
-        <div class="app-item" data-appid="gmail" data-appname="Gmail" data-url="https://mail.google.com" data-launchMode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg" alt="Gmail Icon"></div>
-        <div class="app-item" data-appid="google" data-appname="Google" data-url="https://www.google.com/search?igu=1"><img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" alt="Google Icon"></div>
-        <div class="app-item" data-appid="youtube" data-appname="YouTube" data-url="https://youtube.com" data-launchMode="new-tab"><img src="https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg" alt="YouTube Icon"></div>
-                <!-- ADD these two lines -->
-                <div class="app-item" data-appid="settings" data-appname="Settings" data-url="#"><img src="assets/icons/settings.png" alt="Settings Icon"></div>
-                <div class="app-item" data-appid="trash" data-appname="Trash" data-url="#"><img src="assets/icons/trash.png" alt="Trash Icon"></div>
-                <!-- End of lines to add -->
-        <div class="app-item" data-appid="dashboard" data-appname="System Dashboard" data-url="#"><img src="assets/icons/dashboard.png" alt="Dashboard Icon"></div>
-        <!-- Add all your other apps here, just like before -->
-    </div>
-
-    <!-- AI Assistant Panel -->
-    <div class="ai-assistant-panel hidden">
-        <div class="ai-panel-header">
-            <h3>AI Assistant</h3>
-            <button class="ai-close-btn" aria-label="Close AI Assistant">&times;</button>
-        </div>
-        <div class="ai-message-list">
-            <!-- Messages will appear here -->
-        </div>
-        <div class="ai-typing-indicator hidden">
-            <div class="message-bubble">
-                <div class="dot"></div> <div class="dot"></div> <div class="dot"></div>
-            </div>
-        </div>
-        <div class="ai-panel-footer">
-            <form class="ai-input-form">
-                <input type="text" placeholder="Ask a follow-up...">
-                <button type="submit" aria-label="Send Message">
-                    <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="js/config.js" defer></script>
-    <script src="js/os-core.js" defer></script>
-    <script src="js/main.js" defer></script>
-
-    
-
-
+    </main>
 
 </body>
 </html>
