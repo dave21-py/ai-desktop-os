@@ -16,42 +16,13 @@
     <div class="welcome-overlay">
         <div class="welcome-content">
             <h1>Welcome</h1>
-            <p>in your new workspace.</p>
-            <!-- EDITED: Button text is now correct -->
+            <p>to the new way of operating systems.</p>
             <button id="enter-os-btn">Launch OS</button>
         </div>
     </div>
 
-    <div class="command-center-overlay hidden">
-        <div class="ai-message-list-container">
-            <div class="ai-message-list">
-                <!-- AI and User messages will appear here -->
-            </div>
-        </div>
-        <div class="command-center">
-            <div class="ai-typing-indicator hidden">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-            </div>
-            <form class="ai-input-form">
-                <textarea id="command-center-input" placeholder="Ask something..." rows="1"></textarea>
-                <button type="submit" aria-label="Send Message">
-                    <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- NEW: Compact Input Overlay for Progressive Expansion -->
-    <div class="compact-input-overlay">
-        <form class="compact-input-form">
-            <textarea id="compact-input" placeholder="Ask something..." rows="1"></textarea>
-            <button type="submit" aria-label="Send Message">
-                <svg width="16" height="16" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path>
-                </svg>
-            </button>
-        </form>
-    </div>
+    <!-- This is now just a background blur overlay, shown when the chat is active -->
+    <div class="chat-overlay hidden"></div>
 
     <main class="os-container">
         
@@ -71,6 +42,18 @@
             <div class="icon add-icon" title="Add App">+</div>
         </div>
 
+        <!-- NEW: Container for the chat history, appears above the input bar -->
+        <div class="chat-view-container">
+            <div class="ai-message-list-container">
+                <div class="ai-message-list">
+                    <!-- AI and User messages will appear here -->
+                </div>
+            </div>
+            <div class="ai-typing-indicator hidden">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+        </div>
+
         <footer class="bottom-bar">
             <div class="user-group">
                 <img src="https://i.pravatar.cc/150?img=1" alt="User 1" class="avatar">
@@ -82,8 +65,20 @@
                 <div class="main-user-avatar">
                     <img src="assets/icons/memo.png" alt="Main User Avatar">
                 </div>
+                <!-- This bar is shown initially -->
                 <div class="ask-bar">
                     <span>Ask something</span>
+                </div>
+                <!-- This overlay replaces the bar on click and expands in place -->
+                <div class="compact-input-overlay">
+                    <form class="compact-input-form">
+                        <textarea id="compact-input" placeholder="Ask something..." rows="1"></textarea>
+                        <button type="submit" aria-label="Send Message">
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
 

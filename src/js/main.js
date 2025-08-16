@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize the OS Core but don't show the UI yet
+    // Initialize the OS Core
     const os = new WarmwindOS();
     os.boot();
 
@@ -9,170 +9,88 @@ document.addEventListener('DOMContentLoaded', () => {
     const background = document.querySelector('.background-image');
     const topDock = document.querySelector('.top-dock');
     const bottomBar = document.querySelector('.bottom-bar');
+    
+    // Core chat elements
     const centerConsole = document.querySelector('.center-console');
-    const commandCenterOverlay = document.querySelector('.command-center-overlay');
-    const commandCenterInput = document.querySelector('#command-center-input');
-    const aiInputForm = document.querySelector('.ai-input-form');
-
-    // NEW: Compact input elements
-    const compactInputOverlay = document.querySelector('.compact-input-overlay');
     const compactInput = document.querySelector('#compact-input');
     const compactInputForm = document.querySelector('.compact-input-form');
+    const chatOverlay = document.querySelector('.chat-overlay');
+    const chatViewContainer = document.querySelector('.chat-view-container');
 
     // --- 1. Welcome Screen Logic ---
     enterOsBtn.addEventListener('click', () => {
-        // Hide the welcome screen
         welcomeOverlay.classList.add('hidden');
-        // Trigger the OS homepage animations
         setTimeout(() => background.classList.add('loaded'), 100);
         setTimeout(() => topDock.classList.add('loaded'), 400);
         setTimeout(() => bottomBar.classList.add('loaded'), 600);
     });
 
-    // --- 2. Progressive Command Center Logic ---
+    // --- 2. In-Place Input Logic ---
     const openCompactInput = () => {
         document.body.classList.add('compact-active');
-        // Add a small delay to ensure the element is visible before focusing
-        setTimeout(() => {
-            compactInput.focus();
-            compactInput.select(); // This ensures immediate typing capability
-        }, 100);
-    };
-
-    const expandToFullChat = () => {
-        document.body.classList.remove('compact-active');
-        document.body.classList.add('command-active');
-        commandCenterInput.focus();
+        setTimeout(() => compactInput.focus(), 100);
     };
 
     const closeAllInputs = () => {
         document.body.classList.remove('compact-active');
-        document.body.classList.remove('command-active');
+        document.body.classList.remove('chat-active');
+        compactInput.value = ''; // Clear input on close
+        compactInput.style.height = 'auto'; // Reset height
     };
 
-    // Open compact input when center console is clicked
-    centerConsole.addEventListener('click', openCompactInput);
-
-    // Expand to full chat when user starts typing more (after content gets longer)
+    // Open the input when the center console is clicked
+    centerConsole.addEventListener('click', (e) => {
+        // Only open if the user clicks the avatar or the ask-bar, not the active input itself
+        if (!e.target.closest('.compact-input-overlay')) {
+            openCompactInput();
+        }
+    });
+    
+    // Auto-resize the textarea as user types
     compactInput.addEventListener('input', () => {
-        // Auto-resize the compact textarea
         compactInput.style.height = 'auto';
-        const newHeight = Math.min(compactInput.scrollHeight, 80);
-        compactInput.style.height = `${newHeight}px`;
-        
-        // If content gets too long, expand to full chat
-        if (compactInput.scrollHeight > 60) {
-            const content = compactInput.value;
-            expandToFullChat();
-            // Transfer content to full input
-            setTimeout(() => {
-                commandCenterInput.value = content;
-                commandCenterInput.style.height = 'auto';
-                commandCenterInput.style.height = `${commandCenterInput.scrollHeight}px`;
-                commandCenterInput.focus();
-                // Set cursor to end
-                commandCenterInput.setSelectionRange(commandCenterInput.value.length, commandCenterInput.value.length);
-            }, 200);
-        }
+        compactInput.style.height = `${compactInput.scrollHeight}px`;
     });
 
-    // Also expand when Enter is pressed with Shift (new line)
-    compactInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && e.shiftKey) {
-            e.preventDefault();
-            const content = compactInput.value;
-            expandToFullChat();
-            setTimeout(() => {
-                commandCenterInput.value = content + '\n';
-                commandCenterInput.style.height = 'auto';
-                commandCenterInput.style.height = `${commandCenterInput.scrollHeight}px`;
-                commandCenterInput.focus();
-                commandCenterInput.setSelectionRange(commandCenterInput.value.length, commandCenterInput.value.length);
-            }, 200);
-        }
-    });
-
-    // Close when clicking outside
-    compactInputOverlay.addEventListener('click', (e) => {
-        if (e.target === compactInputOverlay) {
-            closeAllInputs();
-        }
-    });
-
-    commandCenterOverlay.addEventListener('click', (e) => {
-        if (e.target === commandCenterOverlay) {
-            closeAllInputs();
-        }
-    });
-
-    // Close when Escape is pressed
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            if (document.body.classList.contains('command-active') || 
-                document.body.classList.contains('compact-active')) {
-                closeAllInputs();
-            }
-        }
-    });
-
-    // --- 3. Auto-Expanding Textarea Logic (for both inputs) ---
-    const setupAutoExpand = (textarea) => {
-        textarea.addEventListener('input', () => {
-            textarea.style.height = 'auto';
-            textarea.style.height = `${textarea.scrollHeight}px`;
-        });
-    };
-
-    setupAutoExpand(commandCenterInput);
-    // Note: compactInput auto-expand is handled above with expansion logic
-
-    // --- 4. AI Form Submission Logic (for both forms) ---
+    // --- 3. AI Form Submission Logic ---
     const handleAISubmission = async (input) => {
         const prompt = input.value.trim();
-        if (prompt) {
-            // Clear the input and reset its height
-            input.value = '';
-            input.style.height = 'auto';
-            
-            // Ensure we're in full chat mode for the conversation
-            if (!document.body.classList.contains('command-active')) {
-                expandToFullChat();
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-            
-            // Call the AI
-            await os.askAI(prompt);
-        }
-    };
+        if (!prompt) return;
 
-    // Handle submissions from both forms
-    aiInputForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        await handleAISubmission(commandCenterInput);
-    });
+        // Reveal the chat history view
+        document.body.classList.add('chat-active');
+            
+        // Clear the input and reset its height for the next message
+        input.value = '';
+        input.style.height = 'auto';
+            
+        // Call the AI
+        await os.askAI(prompt);
+    };
 
     compactInputForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         await handleAISubmission(compactInput);
     });
 
-    // --- 5. Enhanced UX: Auto-focus management ---
-    // When compact input loses focus and is empty, close it
+    // --- 4. Closing Logic ---
+    // Close when clicking the background overlay
+    chatOverlay.addEventListener('click', closeAllInputs);
+
+    // Close when Escape is pressed
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllInputs();
+        }
+    });
+
+    // When the input loses focus (blur) and is empty, close it
     compactInput.addEventListener('blur', () => {
+        // Use a tiny delay to allow form submission to happen before closing
         setTimeout(() => {
-            if (compactInput.value.trim() === '' && document.body.classList.contains('compact-active')) {
+            if (compactInput.value.trim() === '' && !document.body.classList.contains('chat-active')) {
                 closeAllInputs();
             }
-        }, 150); // Small delay to prevent immediate closing during form submission
-    });
-
-    // Prevent closing when clicking inside the compact input
-    compactInputOverlay.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
-
-    // Prevent closing when clicking inside the command center
-    document.querySelector('.command-center').addEventListener('click', (e) => {
-        e.stopPropagation();
+        }, 150);
     });
 });

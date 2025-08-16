@@ -22,8 +22,8 @@ body {
 .background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
 .background-image.loaded { opacity: 1; transform: scale(1); }
 
-/* --- Top Dock (FIXED: Restored original theme) --- */
-.top-dock { position: relative; align-self: center; margin-top: 16px; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 16px; background-color: rgba(240, 240, 240, 0.5); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); opacity: 0; transform: translateY(-50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
+/* --- Top Dock --- */
+.top-dock { position: relative; align-self: center; margin-top: 16px; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 8px 16px; background-color: rgba(240, 240, 240, 0.5); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border-radius: 50px; border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); opacity: 0; transform: translateY(-50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out, filter 0.3s ease; }
 .top-dock.loaded { opacity: 1; transform: translateY(0); }
 .top-dock .icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .top-dock .icon:hover { transform: scale(1.15); }
@@ -37,11 +37,50 @@ body {
 .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .user-group .avatar:not(:first-child) { margin-left: -12px; }
 
-/* --- Center Console (FIXED: Restored original theme) --- */
-.center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: opacity 0.2s ease, transform 0.2s ease; }
+/* --- Center Console & In-Place Input --- */
+.center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
 .main-user-avatar { width: 48px; height: 48px; background-color: rgba(240, 240, 240, 0.5); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 50%; padding: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .main-user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.ask-bar { padding: 10px 24px; min-width: 250px; text-align: center; background-color: rgba(224, 226, 229, 0.9); border-radius: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #6c757d; font-size: 15px; font-weight: 600; }
+
+/* State 1: The initial 'Ask something' button */
+.ask-bar { 
+    padding: 10px 24px; 
+    min-width: 180px; 
+    text-align: center; 
+    background-color: rgba(224, 226, 229, 0.9); 
+    border-radius: 50px; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    color: #6c757d; 
+    font-size: 15px; 
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* State 2: The active, expanding input that appears in the same place */
+.compact-input-overlay {
+    position: absolute;
+    left: 50%;
+    /* FIXED: Precisely position the input where the ask-bar was. */
+    /* The avatar is 48px high + 8px gap = 56px from the top of the container. */
+    top: 56px; 
+    width: 320px; /* Wider than the collapsed ask-bar */
+    z-index: 1;
+    background-color: rgba(224, 226, 229, 0.9);
+    border-radius: 28px; /* Adjusted for a modern look */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    /* FIXED: Adjusted transform to only handle horizontal centering */
+    transform: translateX(-50%) scale(0.9);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.compact-input-form { display: flex; align-items: center; padding: 8px 8px 8px 20px; gap: 12px; }
+.compact-input-form textarea { flex-grow: 1; border: none; background: transparent; padding: 0; font-size: 15px; font-family: var(--font-body); font-weight: 600; outline: none; color: #333; resize: none; line-height: 1.4; min-height: 22px; max-height: 120px; overflow-y: auto; }
+.compact-input-form textarea::placeholder { color: #6c757d; }
+.compact-input-form button { background: #007aff; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background-color 0.2s ease; flex-shrink: 0; }
+.compact-input-form button:hover { background-color: #0056b3; }
 
 /* --- Welcome Screen --- */
 .welcome-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; background-image: var(--background-image-url); background-size: cover; background-position: center; transition: opacity 0.5s ease-out, visibility 0.5s; }
@@ -53,183 +92,84 @@ body {
 .welcome-content button:hover { transform: scale(1.05); background-color: white; }
 
 /* ====================================================== */
-/* Progressive Expansion - Compact Input State            */
+/* Chat History & Overlay (Simplified)                     */
 /* ====================================================== */
-.compact-input-overlay {
-    position: fixed;
-    left: 50%;
-    bottom: 80px; /* Above the ask-bar */
-    transform: translateX(-50%);
-    z-index: 800;
-    
-    /* Match the exact ask-bar styling */
-    min-width: 280px;
-    background-color: rgba(224, 226, 229, 0.9);
-    border-radius: 50px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(20px) scale(0.9);
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.compact-input-overlay.active {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0) scale(1);
-}
-
-.compact-input-form {
-    display: flex;
-    align-items: center;
-    padding: 10px 24px;
-    gap: 12px;
-}
-
-.compact-input-form textarea {
-    flex-grow: 1;
-    border: none;
-    background: transparent;
-    padding: 0;
-    font-size: 15px;
-    font-family: var(--font-body);
-    font-weight: 600;
-    outline: none;
-    color: #6c757d;
-    resize: none;
-    line-height: 1.4;
-    min-height: 20px;
-    max-height: 80px;
-    overflow-y: auto;
-    text-align: center;
-}
-
-.compact-input-form textarea::placeholder {
-    color: #6c757d;
-    text-align: center;
-}
-
-.compact-input-form button {
-    background: #007aff;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: #fff;
-    transition: background-color 0.2s ease;
-    flex-shrink: 0;
-}
-
-.compact-input-form button:hover {
-    background-color: #0056b3;
-}
-
-/* ====================================================== */
-/* AI Command Center (Updated for smooth transitions)     */
-/* ====================================================== */
-.command-center-overlay { 
+.chat-overlay { 
     position: fixed; 
     inset: 0; 
-    z-index: 900; 
-    display: flex; 
-    flex-direction: column-reverse; 
-    align-items: center; 
-    padding-bottom: 24px; 
-    background-color: rgba(0, 0, 0, 0.2); 
-    backdrop-filter: blur(10px); 
-    -webkit-backdrop-filter: blur(10px); 
+    z-index: 5; /* Below the bottom bar */
+    background-color: rgba(0, 0, 0, 0.1); 
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px); 
     opacity: 0; 
     visibility: hidden; 
     pointer-events: none; 
     transition: opacity 0.4s ease, visibility 0.4s; 
 }
-
-/* --- Chat History --- */
-.ai-message-list-container { width: 100%; max-width: 600px; max-height: 50vh; overflow-y: hidden; display: flex; flex-direction: column-reverse; }
-.ai-message-list { overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+.chat-view-container {
+    position: absolute;
+    bottom: 120px; /* Position above the bottom bar */
+    left: 0;
+    right: 0;
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s;
+    pointer-events: none; /* Allow clicks to pass through container */
+}
+.chat-view-container > * {
+    pointer-events: auto; /* Re-enable pointer events for children */
+}
+.ai-message-list-container { width: 100%; max-width: 600px; max-height: calc(90vh - 250px); overflow-y: auto; display: flex; flex-direction: column-reverse; }
+.ai-message-list { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .ai-message { display: flex; max-width: 85%; }
 .ai-message.from-user { align-self: flex-end; justify-content: flex-end; }
 .ai-message.from-ai { align-self: flex-start; }
 .message-bubble { padding: 12px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.5; word-wrap: break-word; }
 .ai-message.from-user .message-bubble { background-color: #007aff; color: white; border-bottom-right-radius: 4px; }
 .ai-message.from-ai .message-bubble { background-color: #fff; color: #1c1c1e; border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.ai-typing-indicator { display: flex; gap: 4px; padding: 12px 18px; border-radius: 18px; background-color: #fff; margin: 0 0 16px 24px; align-self: flex-start; }
+
+.ai-typing-indicator { display: flex; gap: 4px; padding: 12px 18px; border-radius: 18px; background-color: #fff; align-self: center; width: fit-content; margin-left: -480px; /* Aligns with AI bubbles */ }
 .ai-typing-indicator.hidden { display: none; }
 .ai-typing-indicator .dot { width: 8px; height: 8px; background-color: #aaa; border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
 .ai-typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
 .ai-typing-indicator .dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typing { 0%, 60%, 100% { transform: scale(0.8); opacity: 0.5; } 30% { transform: scale(1.1); opacity: 1; } }
 
-/* --- Full Input Box with smooth entry animation --- */
-.command-center { 
-    width: 100%; 
-    max-width: 600px; 
-    background-color: #fff; 
-    border-radius: 24px; 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2); 
-    border: 1px solid rgba(200, 200, 200, 0.5); 
-    display: flex; 
-    flex-direction: column; 
-    overflow: hidden; 
-    margin-top: 16px; 
-    transform: translateY(30px) scale(0.95);
+/* ====================================================== */
+/* State Management Classes                               */
+/* ====================================================== */
+
+/* State when user clicks to type */
+body.compact-active .ask-bar {
     opacity: 0;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.ai-input-form { display: flex; align-items: flex-start; padding: 12px; }
-#command-center-input { flex-grow: 1; border: none; background: transparent; padding: 10px; font-size: 1rem; font-family: var(--font-body); outline: none; color: #333; resize: none; line-height: 1.5; max-height: 200px; }
-.ai-input-form button { background: #007aff; border: none; border-radius: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background-color 0.2s ease; margin-top: 4px; flex-shrink: 0; }
-.ai-input-form button:hover { background-color: #0056b3; }
-
-/* ====================================================== */
-/* Progressive State Management                           */
-/* ====================================================== */
-
-/* State 1: Compact input active */
-body.compact-active .center-console {
-    opacity: 0.3;
-    transform: translateX(-50%) scale(0.95);
     pointer-events: none;
+    transform: scale(0.9);
 }
-
 body.compact-active .compact-input-overlay {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateX(-50%) scale(1);
 }
 
-/* State 2: Full command center active */
-body.command-active .center-console {
-    opacity: 0;
-    transform: translateX(-50%) scale(0.9);
-    pointer-events: none;
-}
-
-body.command-active .compact-input-overlay {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(-20px) scale(1.1);
-    transition: all 0.3s ease;
-}
-
-body.command-active .command-center-overlay {
+/* State when a conversation is active */
+body.chat-active .chat-overlay {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
+    pointer-events: auto; /* Allow clicking overlay to close */
 }
-
-body.command-active .command-center {
-    transform: translateY(0) scale(1);
+body.chat-active .chat-view-container {
     opacity: 1;
-    transition-delay: 0.1s;
+    visibility: visible;
+    transform: translateY(0);
+}
+body.chat-active .top-dock {
+    opacity: 0.5;
+    filter: blur(2px);
 }
