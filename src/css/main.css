@@ -22,7 +22,7 @@ body {
 .background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
 .background-image.loaded { opacity: 1; transform: scale(1); }
 
-/* --- NEW: Top Center Menu Button --- */
+/* --- Top Center Menu Button --- */
 .top-center-menu {
     position: absolute;
     top: 16px;
@@ -101,7 +101,16 @@ body {
 .close-app-store-btn:hover { background: rgba(0, 0, 0, 0.15); }
 .close-app-store-btn svg { width: 20px; height: 20px; }
 .app-list { flex-grow: 1; overflow-y: auto; padding: 16px 24px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-.app-item { display: flex; align-items: center; gap: 16px; padding: 12px; background-color: transparent; border-radius: 12px; transition: background-color 0.2s ease; }
+.app-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px;
+    background-color: transparent;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+    cursor: pointer; /* EDITED: Added cursor pointer */
+}
 .app-item:hover { background-color: rgba(255, 255, 255, 0.3); }
 .app-item .app-icon { width: 40px; height: 40px; object-fit: contain; }
 .app-item .app-name { flex-grow: 1; font-size: 1rem; font-weight: 600; color: #333; }

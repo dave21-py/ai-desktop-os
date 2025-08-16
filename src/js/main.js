@@ -2,31 +2,31 @@ document.addEventListener('DOMContentLoaded', () => {
     const os = new WarmwindOS();
     os.boot();
 
-    // --- App Data ---
+    // --- App Data (EDITED: Added URL for each app) ---
     const appDatabase = [
-        { name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg' },
-        { name: 'Canva', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Canva_icon_2021.svg' },
-        { name: 'ChatGPT', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg' },
-        { name: 'Google Chrome', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg' },
-        { name: 'DuckDuckGo', icon: 'https://upload.wikimedia.org/wikipedia/en/9/90/DuckDuckGo_logo.svg' },
-        { name: 'Gmail', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg' },
-        { name: 'Google Calendar', icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg' },
-        { name: 'Google Drive', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg' },
-        { name: 'Google Sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg' },
-        { name: 'Google Slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg' },
-        { name: 'Outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg' },
-        { name: 'Spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg' }
+        { name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg', url: 'https://www.amazon.com' },
+        { name: 'Canva', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Canva_icon_2021.svg', url: 'https://www.canva.com' },
+        { name: 'ChatGPT', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg', url: 'https://chat.openai.com' },
+        { name: 'Google Chrome', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg', url: 'https://www.google.com/chrome/' },
+        { name: 'DuckDuckGo', icon: 'https://upload.wikimedia.org/wikipedia/en/9/90/DuckDuckGo_logo.svg', url: 'https://duckduckgo.com' },
+        { name: 'Gmail', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg', url: 'https://mail.google.com' },
+        { name: 'Google Calendar', icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg', url: 'https://calendar.google.com' },
+        { name: 'Google Drive', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg', url: 'https://drive.google.com' },
+        { name: 'Google Sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', url: 'https://docs.google.com/spreadsheets/' },
+        { name: 'Google Slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg', url: 'https://docs.google.com/presentation/' },
+        { name: 'Outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
+        { name: 'Spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' }
     ];
     
     // --- UI Element Selectors ---
     const welcomeOverlay = document.querySelector('.welcome-overlay');
-    const enterOsBtn = document.querySelector('#enter-os-btn'); // Corrected selector
+    const enterOsBtn = document.querySelector('#enter-os-btn');
     const background = document.querySelector('.background-image');
     const bottomBar = document.querySelector('.bottom-bar');
     
     // App Store selectors
-    const topCenterMenu = document.querySelector('.top-center-menu'); // For animation
-    const openAppStoreBtn = document.querySelector('#open-app-store-btn'); // New trigger
+    const topCenterMenu = document.querySelector('.top-center-menu');
+    const openAppStoreBtn = document.querySelector('#open-app-store-btn');
     const appStoreWindow = document.querySelector('.app-store-window');
     const closeAppStoreBtn = document.querySelector('.close-app-store-btn');
     const appListContainer = document.querySelector('.app-list');
@@ -40,9 +40,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. App Store Logic ---
     const renderApps = (appsToRender = appDatabase) => {
-        appListContainer.innerHTML = ''; // Clear previous list
+        appListContainer.innerHTML = '';
         const appItemsHTML = appsToRender.map(app => `
-            <div class="app-item">
+            <!-- EDITED: Added a data-url attribute to store the link -->
+            <div class="app-item" data-url="${app.url}">
                 <img src="${app.icon}" alt="${app.name}" class="app-icon">
                 <span class="app-name">${app.name}</span>
                 <button class="add-app-btn" aria-label="Add ${app.name}">
@@ -62,13 +63,30 @@ document.addEventListener('DOMContentLoaded', () => {
         renderApps(filteredApps);
     });
 
+    // --- NEW: App Store Click Handling ---
+    appListContainer.addEventListener('click', (e) => {
+        // First, check if the "add" button was clicked. If so, do nothing for now.
+        if (e.target.closest('.add-app-btn')) {
+            console.log('Add button clicked. (Functionality to be added later)');
+            return; // Stop the function here
+        }
+
+        // Otherwise, find the parent app item that was clicked
+        const appItem = e.target.closest('.app-item');
+        if (appItem) {
+            const url = appItem.dataset.url; // Get the URL from our data-url attribute
+            if (url) {
+                window.open(url, '_blank'); // Open the URL in a new tab
+            }
+        }
+    });
+
     // --- 2. Welcome Screen & Homepage Animation ---
     enterOsBtn.addEventListener('click', () => {
         welcomeOverlay.classList.add('hidden');
         setTimeout(() => background.classList.add('loaded'), 100);
-        setTimeout(() => topCenterMenu.classList.add('loaded'), 500); // Animate the new button
+        setTimeout(() => topCenterMenu.classList.add('loaded'), 500);
         setTimeout(() => bottomBar.classList.add('loaded'), 600);
-        // App store does NOT open automatically
     });
 
     // --- 3. Homepage Triggers ---
@@ -111,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             if (appStoreWindow.classList.contains('visible')) {
-                closeAppStore(); // Prioritize closing the app store
+                closeAppStore();
             } else {
                 closeAllInputs();
             }
@@ -126,5 +144,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // --- Initial Render ---
-    renderApps(); // Populate the app store on load
+    renderApps();
 });
