@@ -142,24 +142,27 @@ class WarmwindOS {
         windowEl.style.left = `${Math.max(40, centerX)}px`;
         windowEl.style.top = `${Math.max(40, centerY)}px`;
     
-        // Update dashboard with current data
-        this.updateDashboardData(windowEl);
-    
-        // Auto-refresh every second
-        const refreshInterval = setInterval(() => {
-            if (document.body.contains(windowEl)) {
-                this.updateDashboardData(windowEl);
-            } else {
-                clearInterval(refreshInterval);
-            }
-        }, 1000);
-    
+        // Append to DOM first
         this.ui.desktop.appendChild(windowEl);
+    
+        // Update dashboard data immediately after appending to DOM
+        setTimeout(() => {
+            this.updateDashboardData(windowEl);
+            
+            // Auto-refresh every second
+            const refreshInterval = setInterval(() => {
+                if (document.body.contains(windowEl)) {
+                    this.updateDashboardData(windowEl);
+                } else {
+                    clearInterval(refreshInterval);
+                }
+            }, 1000);
+        }, 100);
+    
         this.state.openWindows.push({ 
             id: windowId, 
             element: windowEl, 
-            isDashboard: true,
-            refreshInterval: refreshInterval
+            isDashboard: true
         });
     
         this._createDockIcon({ 
@@ -337,6 +340,14 @@ class WarmwindOS {
             return; 
         }
         
+        // ================== FIX START ==================
+        // Add special handling for the native dashboard app
+        if (appId === 'dashboard') {
+            this.openDashboard();
+            return; // Stop execution to prevent the generic window from opening
+        }
+        // =================== FIX END ===================
+
         if (appData.launchMode === 'new-tab') { 
             // Create temporary link and simulate click (bypasses CSP)
             const link = document.createElement('a');
