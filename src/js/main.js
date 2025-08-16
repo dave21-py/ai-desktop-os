@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const os = new WarmwindOS();
-    os.boot();
-
-    // --- App Data (EDITED: Added URL for each app) ---
+    
+    // --- App Data ---
+    // FIXED: Moved this variable declaration to the top so it exists before being used.
     const appDatabase = [
         { name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg', url: 'https://www.amazon.com' },
         { name: 'Canva', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Canva_icon_2021.svg', url: 'https://www.canva.com' },
@@ -17,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
         { name: 'Spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' }
     ];
+
+    // Now we can safely create the OS instance using the database
+    const os = new WarmwindOS(appDatabase);
+    os.boot();
     
     // --- UI Element Selectors ---
     const welcomeOverlay = document.querySelector('.welcome-overlay');
@@ -24,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const background = document.querySelector('.background-image');
     const bottomBar = document.querySelector('.bottom-bar');
     
-    // App Store selectors
     const topCenterMenu = document.querySelector('.top-center-menu');
     const openAppStoreBtn = document.querySelector('#open-app-store-btn');
     const appStoreWindow = document.querySelector('.app-store-window');
@@ -32,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const appListContainer = document.querySelector('.app-list');
     const appSearchInput = document.querySelector('#app-search-input');
 
-    // Core chat elements
     const centerConsole = document.querySelector('.center-console');
     const compactInput = document.querySelector('#compact-input');
     const compactInputForm = document.querySelector('.compact-input-form');
@@ -42,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderApps = (appsToRender = appDatabase) => {
         appListContainer.innerHTML = '';
         const appItemsHTML = appsToRender.map(app => `
-            <!-- EDITED: Added a data-url attribute to store the link -->
             <div class="app-item" data-url="${app.url}">
                 <img src="${app.icon}" alt="${app.name}" class="app-icon">
                 <span class="app-name">${app.name}</span>
@@ -63,20 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
         renderApps(filteredApps);
     });
 
-    // --- NEW: App Store Click Handling ---
     appListContainer.addEventListener('click', (e) => {
-        // First, check if the "add" button was clicked. If so, do nothing for now.
         if (e.target.closest('.add-app-btn')) {
-            console.log('Add button clicked. (Functionality to be added later)');
-            return; // Stop the function here
+            console.log('Add button clicked.');
+            return;
         }
-
-        // Otherwise, find the parent app item that was clicked
         const appItem = e.target.closest('.app-item');
         if (appItem) {
-            const url = appItem.dataset.url; // Get the URL from our data-url attribute
+            const url = appItem.dataset.url;
             if (url) {
-                window.open(url, '_blank'); // Open the URL in a new tab
+                window.open(url, '_blank');
             }
         }
     });
