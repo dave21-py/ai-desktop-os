@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' }
     ];
+    
+    // --- Wallpaper Data & State ---
+    const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png'];
+    const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png'];
+    let currentWallpaper = '';
 
     // --- State ---
     let dockedApps = [];
@@ -38,18 +43,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // THEME LOGIC
     // ======================================================
 
-    const setTheme = (theme) => {
-        if (theme === 'dark') {
-            document.body.classList.add('dark-theme');
+    const setWallpaper = (wallpaperFile) => {
+        const backgroundElement = document.querySelector('.background-image');
+        backgroundElement.style.setProperty('--background-image-url', `url('../assets/wallpapers/${wallpaperFile}')`);
+        currentWallpaper = wallpaperFile;
+        // Save the choice based on the current theme
+        const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+        if (currentTheme === 'dark') {
+            localStorage.setItem('warmwindOS.darkWallpaper', wallpaperFile);
         } else {
-            document.body.classList.remove('dark-theme');
+            localStorage.setItem('warmwindOS.lightWallpaper', wallpaperFile);
         }
-        localStorage.setItem('warmwindOS.theme', theme);
     };
-
+    
+    const setTheme = (theme) => {
+        const isDark = theme === 'dark';
+        document.body.classList.toggle('dark-theme', isDark);
+        localStorage.setItem('warmwindOS.theme', theme);
+    
+        // Now, load the appropriate wallpaper for the new theme
+        const wallpaperKey = isDark ? 'warmwindOS.darkWallpaper' : 'warmwindOS.lightWallpaper';
+        const defaultWallpaper = isDark ? darkWallpapers[0] : lightWallpapers[0];
+        const savedWallpaper = localStorage.getItem(wallpaperKey) || defaultWallpaper;
+        setWallpaper(savedWallpaper);
+    };
+    
     const loadTheme = () => {
         const savedTheme = localStorage.getItem('warmwindOS.theme') || 'light';
         setTheme(savedTheme);
+    };
+
+    const cycleWallpaper = () => {
+        const isDark = document.body.classList.contains('dark-theme');
+        const wallpaperList = isDark ? darkWallpapers : lightWallpapers;
+        
+        const currentIndex = wallpaperList.indexOf(currentWallpaper);
+        const nextIndex = (currentIndex + 1) % wallpaperList.length; // Loop back to the start
+        
+        const newWallpaper = wallpaperList[nextIndex];
+        setWallpaper(newWallpaper);
+        return `Sure, how about this one?`; // Return a message for the AI
     };
 
     // ======================================================
@@ -121,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {

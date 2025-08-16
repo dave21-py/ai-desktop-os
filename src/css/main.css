@@ -2,7 +2,7 @@
 :root {
     --font-body: 'Nunito Sans', sans-serif;
     --font-welcome: 'Lobster', cursive; 
-    --background-image-url: url('../assets/wallpapers/walllpaper1.png');
+    --background-image-url: url('../assets/wallpapers/wallpaper1.png');
 
     /* Light Theme Colors */
     --primary-bg: rgba(240, 240, 240, 0.5);

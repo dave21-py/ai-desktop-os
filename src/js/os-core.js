@@ -2,7 +2,7 @@ class WarmwindOS {
     constructor(apps = [], controls = {}) {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
         this.apps = apps;
-        this.controls = controls; // Now stores { addAppToDock, removeAppFromDock, openAppStore, setTheme }
+        this.controls = controls; // Now stores all our control functions
         this.state = { conversationHistory: [] };
         this.ui = {};
     }
@@ -25,7 +25,7 @@ class WarmwindOS {
     _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
         
-        // --- NEW Command: Set Theme ---
+        // --- Command: Set Theme ---
         const darkThemeKeywords = ['dark mode', 'dark theme', 'night mode'];
         const lightThemeKeywords = ['light mode', 'light theme', 'day mode'];
     
@@ -41,6 +41,16 @@ class WarmwindOS {
             if (this.controls.setTheme) {
                 this.controls.setTheme('light');
                 this._addMessageToChat('ai', 'Switching to light mode.');
+                return true;
+            }
+        }
+    
+        // --- NEW Command: Cycle Wallpaper ---
+        const wallpaperKeywords = ['wallpaper', 'background', 'scene'];
+        if (wallpaperKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            if (this.controls.cycleWallpaper) {
+                const message = this.controls.cycleWallpaper();
+                this._addMessageToChat('ai', message);
                 return true;
             }
         }
@@ -95,7 +105,7 @@ class WarmwindOS {
             }
         }
     
-        return false; // This was not a recognized command
+        return false;
     }
 
     async askAI(prompt) {
