@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Google Sheets', id: 'sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', url: 'https://docs.google.com/spreadsheets/' },
         { name: 'Google Slides', id: 'slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg', url: 'https://docs.google.com/presentation/' },
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
+        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://youtube-clone-orcin.vercel.app' },
+        { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
@@ -278,6 +279,19 @@ document.addEventListener('DOMContentLoaded', () => {
     closeNotesBtn.addEventListener('click', closeNotes);
     notesTextarea.addEventListener('input', saveNotes); // Auto-save on typing
 
+    // --- NEW: AI Trip Planner Listeners ---
+os.ui.closePlannerBtn.addEventListener('click', () => {
+    os.closePlanner();
+});
+
+os.ui.plannerForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const prompt = os.ui.plannerInput.value.trim();
+    if (prompt) {
+        os.generateTripPlan(prompt);
+    }
+});
+
         // --- Welcome Screen & Homepage Animation ---
         enterOsBtn.addEventListener('click', () => {
             welcomeOverlay.classList.add('hidden');
@@ -327,7 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (dockItem) {
             const appToLaunch = appDatabase.find(app => app.id === dockItem.dataset.appId);
             if (appToLaunch) {
-                window.open(appToLaunch.url, '_blank');
+                // NEW: Check for a special action first
+                if (appToLaunch.action === 'openPlanner') {
+                    os.openPlanner();
+                } else if (appToLaunch.url) { // Fallback to opening a URL
+                    window.open(appToLaunch.url, '_blank');
+                }
             }
         }
     });
@@ -379,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeAll = () => {
         appStoreWindow.classList.remove('visible');
+        os.closePlanner(); // ADD THIS LINE
         document.body.classList.remove('compact-active');
         document.body.classList.remove('chat-active');
         compactInput.value = '';

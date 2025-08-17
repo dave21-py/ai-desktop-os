@@ -47,6 +47,47 @@
         </div>
     </div>
 
+        <!-- AI TRIP PLANNER WINDOW -->
+        <div class="planner-window">
+            <div class="planner-content">
+                <div class="planner-header">
+                    <h3>AI Trip Planner</h3>
+                    <button class="close-planner-btn" aria-label="Close Planner">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                    </button>
+                </div>
+    
+                <div class="planner-body">
+                    <!-- Initial state: shows a prompt to the user -->
+                    <div class="planner-initial-state" id="planner-initial-view">
+                        <svg class="planner-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M22 13v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7v2H4v16h16v-7h2m-5-3.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m-3.56-5.4l-.1.1L17 7.82l-5.6 5.6L10 14l.58-1.42l5.6-5.6l-3.62-3.62z"/></svg>
+                        <h2>Plan Your Next Adventure</h2>
+                        <p>Tell me where you want to go and for how long. I'll generate a custom itinerary for you.</p>
+                    </div>
+                    
+                    <!-- Loading state: shows a spinner -->
+                    <div class="planner-loading-state hidden" id="planner-loading-view">
+                        <div class="planner-spinner"></div>
+                        <p>Crafting your perfect trip...</p>
+                    </div>
+                    
+                    <!-- Results state: where the plan will be rendered -->
+                    <div class="planner-results-state hidden" id="planner-results-view">
+                        <!-- The generated plan will be inserted here by JavaScript -->
+                    </div>
+                </div>
+    
+                <div class="planner-footer">
+                    <form class="planner-form" id="planner-form">
+                        <input type="text" id="planner-input" placeholder="e.g., A relaxing 5-day trip to Bali" autocomplete="off">
+                        <button type="submit" aria-label="Generate Plan">
+                            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     <div class="chat-overlay hidden"></div>
 
     <main class="os-container">

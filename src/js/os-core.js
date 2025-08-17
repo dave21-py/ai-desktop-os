@@ -41,9 +41,17 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         this.ui.audioPlayer = document.getElementById('music-player');
         this.ui.visualizer = document.getElementById('audio-visualizer');
         this.ui.focusTimerDisplay = document.getElementById('focus-timer');
-this.ui.timerMinutes = document.getElementById('timer-minutes');
-this.ui.timerSeconds = document.getElementById('timer-seconds');
-this.ui.timerNotification = document.getElementById('timer-notification');
+        this.ui.timerMinutes = document.getElementById('timer-minutes');
+        this.ui.timerSeconds = document.getElementById('timer-seconds');
+        this.ui.timerNotification = document.getElementById('timer-notification');
+        // Planner UI
+this.ui.plannerWindow = document.querySelector('.planner-window');
+this.ui.closePlannerBtn = document.querySelector('.close-planner-btn');
+this.ui.plannerForm = document.getElementById('planner-form');
+this.ui.plannerInput = document.getElementById('planner-input');
+this.ui.plannerInitialView = document.getElementById('planner-initial-view');
+this.ui.plannerLoadingView = document.getElementById('planner-loading-view');
+this.ui.plannerResultsView = document.getElementById('planner-results-view');
     }
 
         // ======================================================
@@ -262,6 +270,102 @@ _handleTimerCompletion() {
     }
 }
 
+// ======================================================
+// AI TRIP PLANNER LOGIC
+// ======================================================
+
+openPlanner() {
+    this.ui.plannerWindow.classList.add('visible');
+}
+
+closePlanner() {
+    this.ui.plannerWindow.classList.remove('visible');
+    this._resetPlannerView(); // Clear the view when closing
+}
+
+_resetPlannerView() {
+    this.ui.plannerInitialView.classList.remove('hidden');
+    this.ui.plannerLoadingView.classList.add('hidden');
+    this.ui.plannerResultsView.classList.add('hidden');
+    this.ui.plannerResultsView.innerHTML = '';
+    this.ui.plannerInput.value = '';
+}
+
+async generateTripPlan(prompt) {
+    if (!prompt) return;
+
+    // 1. Switch to loading state
+    this.ui.plannerInitialView.classList.add('hidden');
+    this.ui.plannerLoadingView.classList.remove('hidden');
+    this.ui.plannerResultsView.classList.add('hidden');
+
+    // 2. Construct the detailed prompt for the AI
+    const detailedPrompt = `
+        You are a helpful travel assistant. Based on the user's request, generate a travel itinerary.
+        Your response MUST be a single, valid JSON object and nothing else. Do not include any text before or after the JSON.
+
+        The JSON object must have a key "itinerary" which is an array of day objects.
+        Each day object must contain:
+        - A "day" number (e.g., 1)
+        - A "title" string (e.g., "Day 1: Arrival and Ancient Wonders")
+        - An "activities" array, where each activity is an object with a "title" string and a "description" string.
+
+        User's request: "${prompt}"
+    `;
+    
+    try {
+        // 3. Get the raw response from the AI
+        const rawResponse = await this._getGeminiResponse(detailedPrompt);
+        // Clean the response to ensure it's just a JSON object
+        const jsonString = rawResponse.match(/```json\n([\s\S]*?)\n```/)?.[1] || rawResponse;
+        
+        // 4. Parse the JSON
+        const data = JSON.parse(jsonString);
+
+        // 5. Render the results
+        this._renderPlannerResults(data);
+
+    } catch (error) {
+        console.error("Failed to generate or parse trip plan:", error);
+        this._addMessageToChat('ai', "Sorry, I couldn't generate a plan. The format might have been a bit unusual. Could you try rephrasing your request?");
+        this._resetPlannerView(); // Go back to the start on error
+    } finally {
+         // 6. Switch to the results view
+        this.ui.plannerLoadingView.classList.add('hidden');
+        this.ui.plannerResultsView.classList.remove('hidden');
+    }
+}
+
+_renderPlannerResults(data) {
+    this.ui.plannerResultsView.innerHTML = ''; // Clear previous results
+
+    if (!data.itinerary || data.itinerary.length === 0) {
+        throw new Error("Invalid itinerary data received from AI.");
+    }
+
+    data.itinerary.forEach(dayData => {
+        const dayColumn = document.createElement('div');
+        dayColumn.className = 'day-column';
+
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'day-header';
+        dayHeader.innerHTML = `<h4>Day ${dayData.day}: ${dayData.title}</h4>`;
+        dayColumn.appendChild(dayHeader);
+
+        dayData.activities.forEach(activityData => {
+            const activityCard = document.createElement('div');
+            activityCard.className = 'activity-card';
+            activityCard.innerHTML = `
+                <h5>${activityData.title}</h5>
+                <p>${activityData.description}</p>
+            `;
+            dayColumn.appendChild(activityCard);
+        });
+
+        this.ui.plannerResultsView.appendChild(dayColumn);
+    });
+}
+
     async deliverGreeting() {
         const delay = ms => new Promise(res => setTimeout(res, ms));
         if (this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove('hidden');
@@ -284,6 +388,13 @@ _handleTimerCompletion() {
 
     async _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
+
+        const plannerKeywords = ['plan a trip', 'trip planner', 'travel plan', 'planner'];
+        if (plannerKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.openPlanner();
+            this._addMessageToChat('ai', 'Opening the trip planner. What adventure is on your mind?');
+            return true;
+        }
 
         const muteKeywords = ['mute music', 'mute', 'silence'];
         if (muteKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {

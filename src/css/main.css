@@ -396,3 +396,221 @@ body.dark-theme .app-item:hover {
     opacity: 0.3;
   }
 }
+
+/* ====================================================== */
+/* AI Trip Planner                                        */
+/* ====================================================== */
+.planner-window {
+    position: fixed;
+    inset: 0;
+    z-index: 955; /* Just above the app store */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s ease, visibility 0.4s;
+}
+
+.planner-window.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.planner-content {
+    width: 90%;
+    height: 85%;
+    max-width: 900px;
+    max-height: 700px;
+    background-color: var(--primary-bg);
+    backdrop-filter: blur(25px) saturate(1.5);
+    -webkit-backdrop-filter: blur(25px) saturate(1.5);
+    border-radius: 24px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.planner-window.visible .planner-content {
+    transform: scale(1);
+}
+
+.planner-header {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.planner-header h3 {
+    font-size: 1.1rem;
+    color: var(--primary-text);
+}
+
+.close-planner-btn {
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+.close-planner-btn:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.planner-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 24px;
+    position: relative;
+}
+
+.planner-body .hidden {
+    display: none;
+}
+
+/* --- Planner States --- */
+.planner-initial-state, .planner-loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: var(--secondary-text);
+}
+.planner-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+.planner-initial-state h2 {
+    font-size: 1.5rem;
+    color: var(--primary-text);
+    margin-bottom: 8px;
+}
+.planner-initial-state p {
+    max-width: 350px;
+    line-height: 1.6;
+}
+
+/* Spinner Animation */
+.planner-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border-color);
+    border-top-color: var(--accent-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* --- Planner Results --- */
+.planner-results-state {
+    display: flex;
+    gap: 20px;
+    height: 100%;
+}
+.day-column {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.day-header {
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent-color);
+}
+.day-header h4 {
+    font-size: 1.2rem;
+    color: var(--primary-text);
+    margin: 0;
+}
+.activity-card {
+    background: var(--input-bg);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+}
+.activity-card h5 {
+    font-size: 1rem;
+    color: var(--primary-text);
+    margin: 0 0 4px;
+}
+.activity-card p {
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* --- Planner Footer & Form --- */
+.planner-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+    background-color: var(--secondary-bg);
+}
+
+.planner-form {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+#planner-input {
+    flex-grow: 1;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: none;
+    background-color: var(--input-bg);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    outline: none;
+    transition: all 0.2s ease;
+    color: var(--primary-text);
+}
+
+#planner-input:focus {
+    background-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.5);
+}
+
+.planner-form button {
+    background: var(--accent-color);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--accent-text-color);
+    transition: background-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.planner-form button:hover {
+    background-color: #0056b3;
+}
