@@ -14,6 +14,11 @@ class WarmwindOS {
                     { title: "Midnight Stroll", artist: "Lofi Girl", file: "track3.mp3" }
                     // Add more songs here
                 ];
+                // --- NEW: Focus Timer State ---
+this.timerInterval = null;
+this.timerSecondsRemaining = 0;
+this.isFocusModeActive = false;
+this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.currentTrackIndex = 0;
                 this.isAudioContextInitialized = false;
                 this.audioElement = null;
@@ -35,6 +40,10 @@ class WarmwindOS {
         this.ui.aiTypingIndicator = document.querySelector('.ai-typing-indicator');
         this.ui.audioPlayer = document.getElementById('music-player');
         this.ui.visualizer = document.getElementById('audio-visualizer');
+        this.ui.focusTimerDisplay = document.getElementById('focus-timer');
+this.ui.timerMinutes = document.getElementById('timer-minutes');
+this.ui.timerSeconds = document.getElementById('timer-seconds');
+this.ui.timerNotification = document.getElementById('timer-notification');
     }
 
         // ======================================================
@@ -184,6 +193,75 @@ class WarmwindOS {
         this.animationFrameId = requestAnimationFrame(() => this._drawVisualizer());
     }
 
+    // ======================================================
+// FOCUS TIMER LOGIC
+// ======================================================
+
+_startTimer(minutes, sessionType) {
+    if (this.isFocusModeActive) {
+        this._addMessageToChat('ai', "A focus session is already in progress.");
+        return;
+    }
+
+    this.timerSecondsRemaining = minutes * 60;
+    this.currentSessionType = sessionType;
+    this.isFocusModeActive = true;
+
+    this._updateTimerDisplay();
+    this.ui.focusTimerDisplay.classList.add('visible');
+
+    this.timerInterval = setInterval(() => this._tick(), 1000);
+
+    const friendlyType = sessionType === 'work' ? 'focus session' : 'break';
+    this._addMessageToChat('ai', `Alright, starting a ${minutes}-minute ${friendlyType}. You've got this!`);
+}
+
+_stopTimer() {
+    if (!this.isFocusModeActive) return;
+
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.isFocusModeActive = false;
+    this.ui.focusTimerDisplay.classList.remove('visible');
+    this._addMessageToChat('ai', "Focus session cancelled. Ready when you are.");
+    if (this.controls.startListening) this.controls.startListening();
+}
+
+_tick() {
+    this.timerSecondsRemaining--;
+    this._updateTimerDisplay();
+
+    if (this.timerSecondsRemaining <= 0) {
+        this._handleTimerCompletion();
+    }
+}
+
+_updateTimerDisplay() {
+    const minutes = Math.floor(this.timerSecondsRemaining / 60);
+    const seconds = this.timerSecondsRemaining % 60;
+    this.ui.timerMinutes.textContent = String(minutes).padStart(2, '0');
+    this.ui.timerSeconds.textContent = String(seconds).padStart(2, '0');
+}
+
+_handleTimerCompletion() {
+    clearInterval(this.timerInterval);
+    this.timerInterval = null;
+    this.isFocusModeActive = false;
+    this.ui.focusTimerDisplay.classList.remove('visible');
+    if (this.ui.timerNotification) this.ui.timerNotification.play();
+    if (this.controls.startListening) this.controls.startListening();
+
+    if (this.currentSessionType === 'work') {
+        const message = "Session complete! Great work. Time for a 5-minute break.";
+        const actions = [{ label: 'Start 5-min break', payload: 'start a 5 minute break' }];
+        this._addMessageToChat('ai', message, actions);
+    } else { // It was a break
+        const message = "Break's over! Ready for another focus session?";
+        const actions = [{ label: 'Start 25-min session', payload: 'start a 25 minute focus session' }];
+        this._addMessageToChat('ai', message, actions);
+    }
+}
+
     async deliverGreeting() {
         const delay = ms => new Promise(res => setTimeout(res, ms));
         if (this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove('hidden');
@@ -226,7 +304,7 @@ class WarmwindOS {
             return true;
         }
 
-        const pauseKeywords = ['pause music', 'stop the music', 'pause', 'stop'];
+        const pauseKeywords = ['pause music', 'stop the music', 'pause'];
         if (pauseKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
             this.pauseMusic();
             return true;
@@ -243,6 +321,25 @@ class WarmwindOS {
             this.changeMusic('previous');
             return true;
         }
+
+            // --- Focus Timer Commands ---
+    const stopTimerKeywords = ['stop the timer', 'cancel timer', 'stop focus', 'cancel focus'];
+    if (stopTimerKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+        this._stopTimer();
+        return true;
+    }
+
+    const timerKeywords = ['timer', 'focus session', 'pomodoro', 'break'];
+    if (timerKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+        // Regex to find a number in the prompt (e.g., "start a 10 minute timer")
+        const durationMatch = prompt.match(/\d+/); 
+        const minutes = durationMatch ? parseInt(durationMatch[0], 10) : 25; // Default to 25 mins
+        
+        const sessionType = lowerCasePrompt.includes('break') ? 'break' : 'work';
+        
+        this._startTimer(minutes, sessionType);
+        return true;
+    }
         
         // --- NEW Command: Help & Onboarding ---
         const helpKeywords = ['help', 'what can you do', 'show commands', 'commands'];
