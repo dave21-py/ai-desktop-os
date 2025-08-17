@@ -614,3 +614,133 @@ body.dark-theme .app-item:hover {
 .planner-form button:hover {
     background-color: #0056b3;
 }
+
+/* ====================================================== */
+/* App Window System                                      */
+/* ====================================================== */
+.app-window-container {
+    position: absolute;
+    /* Inset to avoid covering the dock and bottom bar */
+    inset: 65px 20px 120px 20px;
+    pointer-events: none; /* Allows clicks to go through to the background */
+}
+
+.app-window {
+    position: absolute;
+    top: 50px;
+    left: 80px;
+    width: 80vw;
+    height: 70vh;
+    max-width: 1024px;
+    max-height: 720px;
+    
+    background-color: var(--primary-bg);
+    backdrop-filter: blur(25px) saturate(1.5);
+    -webkit-backdrop-filter: blur(25px) saturate(1.5);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Important for keeping iframe corners rounded */
+    
+    /* Allow user resizing! */
+    resize: both;
+    min-width: 320px;
+    min-height: 240px;
+    
+    pointer-events: auto; /* Re-enable pointer events for the window */
+    
+    /* Animation state */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.app-window.open {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.app-window.active {
+    /* A higher z-index brings the active window to the front */
+    z-index: 100; 
+}
+
+/* --- Window Title Bar --- */
+/* --- Window Title Bar --- */
+.window-title-bar {
+    display: flex;
+    justify-content: space-between; /* Pushes title left and controls right */
+    align-items: center;
+    padding: 0 8px 0 16px; /* More padding on the left for the title */
+    height: 40px;
+    background-color: rgba(0,0,0,0.05);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    cursor: grab;
+    user-select: none;
+}
+
+.window-title-bar:active {
+    cursor: grabbing;
+}
+
+.window-title {
+    flex-grow: 1;
+    text-align: left; /* Align title to the left */
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.window-controls {
+    flex-shrink: 0;
+}
+
+/* Hide the unused buttons */
+.window-control-btn.minimize,
+.window-control-btn.maximize {
+    display: none;
+}
+
+/* High-quality Close Button Style */
+.window-control-btn.close {
+    background: transparent;
+    border: none;
+    border-radius: 8px; /* Slightly rounded for the hover effect */
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.window-control-btn.close:hover {
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+}
+
+.window-control-btn.close svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* --- Window Content --- */
+.window-content {
+    flex-grow: 1;
+    background-color: #fff; /* A solid background for the content */
+}
+
+.window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}

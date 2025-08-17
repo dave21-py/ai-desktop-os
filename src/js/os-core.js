@@ -28,11 +28,117 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.analyser = null;
                 this.sourceNode = null;
                 this.animationFrameId = null;
+                this.zIndexCounter = 100; // Manages which window is on top
     }
 
     boot() {
         this._initUI();
         console.log("AI OS Core Booted Successfully.");
+    }
+
+    launchApp(app) {
+        if (!app) return;
+    
+        // 1. Handle special internal actions like the Trip Planner
+        if (app.action && typeof this[app.action] === 'function') {
+            this[app.action]();
+        } 
+        // 2. Handle apps that should open in a new OS window
+        else if (app.openInWindow && app.url) {
+            this._createAppWindow(app);
+        } 
+        // 3. Default to opening in a new browser tab
+        else if (app.url) {
+            window.open(app.url, '_blank');
+            this._addMessageToChat('ai', `Opening ${app.name} in a new tab for you.`);
+        }
+    }
+
+    _createAppWindow(app) {
+        this.zIndexCounter++;
+    
+        // --- Create Window Element ---
+        const win = document.createElement('div');
+        win.className = 'app-window';
+        win.style.zIndex = this.zIndexCounter;
+        
+        // --- Create Title Bar ---
+        const titleBar = document.createElement('div');
+        titleBar.className = 'window-title-bar';
+        titleBar.innerHTML = `
+        <div class="window-title">${app.name}</div>
+        <div class="window-controls">
+            <button class="window-control-btn close" aria-label="Close Window">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+            </button>
+        </div>
+    `;
+        
+        // --- Create Content Area with iFrame ---
+        const content = document.createElement('div');
+        content.className = 'window-content';
+        const iframe = document.createElement('iframe');
+        iframe.src = app.url;
+        iframe.title = app.name;
+        content.appendChild(iframe);
+        
+        win.appendChild(titleBar);
+        win.appendChild(content);
+        
+        // --- Add to DOM ---
+        this.ui.appWindowContainer.appendChild(win);
+        
+        // Trigger open animation
+        setTimeout(() => win.classList.add('open'), 10);
+    
+        // --- Event Handlers ---
+        this._makeWindowDraggable(win, titleBar);
+        
+        const closeBtn = win.querySelector('.window-control-btn.close');
+        closeBtn.addEventListener('click', () => this._closeAppWindow(win));
+        
+        win.addEventListener('mousedown', () => this._focusWindow(win));
+        
+        this._focusWindow(win); // Focus on creation
+    }
+    
+    _closeAppWindow(win) {
+        win.classList.remove('open'); // Trigger close animation
+        setTimeout(() => {
+            win.remove();
+        }, 300); // Wait for animation to finish
+    }
+    
+    _focusWindow(win) {
+        this.zIndexCounter++;
+        win.style.zIndex = this.zIndexCounter;
+        
+        // Remove active class from all other windows
+        document.querySelectorAll('.app-window.active').forEach(activeWin => {
+            if (activeWin !== win) activeWin.classList.remove('active');
+        });
+        win.classList.add('active');
+    }
+    
+    _makeWindowDraggable(win, titleBar) {
+        let offsetX, offsetY;
+    
+        const onMouseMove = (e) => {
+            win.style.left = `${e.clientX - offsetX}px`;
+            win.style.top = `${e.clientY - offsetY}px`;
+        };
+    
+        const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+    
+        titleBar.addEventListener('mousedown', (e) => {
+            offsetX = e.clientX - win.offsetLeft;
+            offsetY = e.clientY - win.offsetTop;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
     }
 
     _initUI() {
@@ -52,6 +158,7 @@ this.ui.plannerInput = document.getElementById('planner-input');
 this.ui.plannerInitialView = document.getElementById('planner-initial-view');
 this.ui.plannerLoadingView = document.getElementById('planner-loading-view');
 this.ui.plannerResultsView = document.getElementById('planner-results-view');
+this.ui.appWindowContainer = document.getElementById('app-window-container');
     }
 
         // ======================================================
@@ -526,9 +633,15 @@ _renderPlannerResults(data) {
         }
         
         const openKeywords = ['open', 'launch', 'go to', 'navigate to'];
-        if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
-            for (const app of this.apps) { if (lowerCasePrompt.includes(app.name.toLowerCase())) { window.open(app.url, '_blank'); this._addMessageToChat('ai', `Opening ${app.name} for you...`); return true; } }
+if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
+    for (const app of this.apps) {
+        if (lowerCasePrompt.includes(app.name.toLowerCase())) {
+            this.launchApp(app);
+            // The launchApp function will decide HOW to open it
+            return true; 
         }
+    }
+}
 
         const addKeywords = ['add', 'pin', 'dock'];
         if (addKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {

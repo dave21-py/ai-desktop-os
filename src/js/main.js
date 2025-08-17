@@ -15,11 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://youtube-clone-orcin.vercel.app' },
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' }
+        {name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
+        {name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true}
     ];
     
         // --- NEW: Speech Recognition ---
@@ -323,9 +320,12 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
         }
 
         const appItem = e.target.closest('.app-item');
-        if (appItem) {
-            window.open(appItem.dataset.url, '_blank');
-        }
+if (appItem) {
+    // We need to find the full app object from the database using its URL to get all properties
+    const appUrl = appItem.dataset.url;
+    const appToLaunch = appDatabase.find(app => app.url === appUrl);
+    os.launchApp(appToLaunch);
+}
     });
 
     appDock.addEventListener('click', (e) => {
@@ -340,14 +340,7 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
 
         if (dockItem) {
             const appToLaunch = appDatabase.find(app => app.id === dockItem.dataset.appId);
-            if (appToLaunch) {
-                // NEW: Check for a special action first
-                if (appToLaunch.action === 'openPlanner') {
-                    os.openPlanner();
-                } else if (appToLaunch.url) { // Fallback to opening a URL
-                    window.open(appToLaunch.url, '_blank');
-                }
-            }
+            os.launchApp(appToLaunch);
         }
     });
 
