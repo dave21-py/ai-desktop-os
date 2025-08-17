@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let recognition;
         let isListening = false;
     // --- Wallpaper Data & State ---
-    const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png'];
-    const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png'];
+    const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png', 'wallpaper6.jpg', 'wallpaper9.jpg'];
+    const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png', 'wallpaper5.jpg', 'wallpaper7.jpg', 'wallpaper8.jpg'];
     let currentWallpaper = '';
 
     // --- State ---
