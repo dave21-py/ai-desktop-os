@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Element Selectors ---
     const appDock = document.querySelector('.app-dock');
+    const notesSidebar = document.querySelector('.notes-sidebar'); // ADD THIS
+    const closeNotesBtn = document.querySelector('.close-notes-btn'); // ADD THIS
+    const notesTextarea = document.querySelector('#notes-textarea'); // ADD THIS
     const welcomeOverlay = document.querySelector('.welcome-overlay');
     const enterOsBtn = document.querySelector('#enter-os-btn');
     const background = document.querySelector('.background-image');
@@ -88,6 +91,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================
     // CORE LOGIC (Dock & App Store)
     // ======================================================
+
+        // ======================================================
+    // NOTES LOGIC
+    // ======================================================
+    
+    const openNotes = () => notesSidebar.classList.add('open');
+    const closeNotes = () => notesSidebar.classList.remove('open');
+    
+    const saveNotes = () => {
+        localStorage.setItem('warmwindOS.notes', notesTextarea.value);
+    };
+
+    const loadNotes = () => {
+        notesTextarea.value = localStorage.getItem('warmwindOS.notes') || '';
+    };
+
+    const updateNotes = (newText, append = false) => {
+        openNotes();
+        if (append) {
+            notesTextarea.value += `\n- ${newText}`;
+        } else {
+            notesTextarea.value = newText;
+        }
+        saveNotes();
+    };
 
     const openAppStore = () => appStoreWindow.classList.add('visible');
     
@@ -154,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -180,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================
     // EVENT LISTENERS
     // ======================================================
+
+    closeNotesBtn.addEventListener('click', closeNotes);
+    notesTextarea.addEventListener('input', saveNotes); // Auto-save on typing
 
         // --- Welcome Screen & Homepage Animation ---
         enterOsBtn.addEventListener('click', () => {
@@ -302,4 +333,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Load ---
     loadDockState();
     loadTheme(); // ADD THIS LINE
+    loadNotes();
 });

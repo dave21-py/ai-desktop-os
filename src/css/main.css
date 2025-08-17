@@ -168,6 +168,81 @@ body {
 .app-item .add-app-btn.added .check-icon { opacity: 1; color: white; }
 
 /* ====================================================== */
+/* NEW: AI Notes Sidebar Styles                           */
+/* ====================================================== */
+.notes-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    z-index: 960; /* Above the app store, below the welcome screen */
+    
+    background-color: var(--primary-bg);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+
+    display: flex;
+    flex-direction: column;
+
+    transform: translateX(100%); /* Start hidden off-screen */
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.notes-sidebar.open {
+    transform: translateX(0); /* Slide into view */
+}
+
+.notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+.notes-header h2 {
+    font-size: 1.1rem;
+    color: var(--primary-text);
+}
+
+.close-notes-btn {
+    background: transparent;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--secondary-text);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.close-notes-btn:hover {
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+}
+.close-notes-btn svg { width: 18px; height: 18px; }
+
+#notes-textarea {
+    flex-grow: 1;
+    width: 100%;
+    padding: 20px;
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--primary-text);
+}
+
+/* ====================================================== */
 /* NEW: AI Quick Actions Styles                           */
 /* ====================================================== */
 .quick-actions-container {
