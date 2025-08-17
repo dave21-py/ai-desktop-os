@@ -7,6 +7,22 @@ class WarmwindOS {
             conversationHistory: []
         };
         this.ui = {};
+                // --- NEW: Music Player State ---
+                this.musicLibrary = [
+                    { title: "Lost in the City Lights", artist: "Cool Cat", file: "track1.mp3" },
+                    { title: "Ocean Drive", artist: "Synthwave Kid", file: "track2.mp3" },
+                    { title: "Midnight Stroll", artist: "Lofi Girl", file: "track3.mp3" }
+                    // Add more songs here
+                ];
+                this.currentTrackIndex = 0;
+                this.isAudioContextInitialized = false;
+                this.audioElement = null;
+                this.visualizerCanvas = null;
+                this.visualizerCtx = null;
+                this.audioContext = null;
+                this.analyser = null;
+                this.sourceNode = null;
+                this.animationFrameId = null;
     }
 
     boot() {
@@ -17,6 +33,127 @@ class WarmwindOS {
     _initUI() {
         this.ui.aiMessageList = document.querySelector('.ai-message-list');
         this.ui.aiTypingIndicator = document.querySelector('.ai-typing-indicator');
+        this.ui.audioPlayer = document.getElementById('music-player');
+        this.ui.visualizer = document.getElementById('audio-visualizer');
+    }
+
+        // ======================================================
+    // MUSIC & VISUALIZER LOGIC
+    // ======================================================
+
+    _initAudioContext() {
+        if (this.isAudioContextInitialized) return;
+        
+        // Use existing AudioContext or create a new one
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.analyser = this.audioContext.createAnalyser();
+        
+        // Connect the audio element to the analyser
+        if (!this.sourceNode) {
+             this.sourceNode = this.audioContext.createMediaElementSource(this.ui.audioPlayer);
+        }
+       
+        this.sourceNode.connect(this.analyser);
+        this.analyser.connect(this.audioContext.destination);
+
+        this.analyser.fftSize = 256;
+        this.isAudioContextInitialized = true;
+    }
+
+    _setupVisualizerCanvas() {
+        this.visualizerCanvas = this.ui.visualizer;
+        this.visualizerCtx = this.visualizerCanvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        const rect = this.visualizerCanvas.getBoundingClientRect();
+        this.visualizerCanvas.width = rect.width * dpr;
+        this.visualizerCanvas.height = rect.height * dpr;
+        this.visualizerCtx.scale(dpr, dpr);
+    }
+
+    playMusic() {
+        // Resume AudioContext if it was suspended (browser policy)
+        if (this.audioContext && this.audioContext.state === 'suspended') {
+            this.audioContext.resume();
+        }
+
+        if (!this.isAudioContextInitialized) {
+            this._initAudioContext();
+        }
+
+        const currentTrack = this.musicLibrary[this.currentTrackIndex];
+        this.ui.audioPlayer.src = `assets/music/${currentTrack.file}`;
+        
+        this.ui.audioPlayer.play().then(() => {
+            this._addMessageToChat('ai', `Now playing: **${currentTrack.title}** by ${currentTrack.artist}.`);
+            this.ui.visualizer.classList.add('visible');
+            this._startVisualizer();
+        }).catch(error => {
+            console.error("Playback failed:", error);
+            this._addMessageToChat('ai', "I couldn't start the music. Please interact with the page first.");
+        });
+    }
+
+    pauseMusic() {
+        this.ui.audioPlayer.pause();
+        this._addMessageToChat('ai', 'Music paused.');
+        this.ui.visualizer.classList.remove('visible');
+        this._stopVisualizer();
+    }
+
+    changeMusic(direction = 'next') {
+        if (direction === 'next') {
+            this.currentTrackIndex = (this.currentTrackIndex + 1) % this.musicLibrary.length;
+        } else { // 'previous'
+            this.currentTrackIndex = (this.currentTrackIndex - 1 + this.musicLibrary.length) % this.musicLibrary.length;
+        }
+        this.playMusic();
+    }
+
+    _startVisualizer() {
+        if (!this.animationFrameId) {
+            this._setupVisualizerCanvas(); // Recalculate size in case of resize
+            this.animationFrameId = requestAnimationFrame(() => this._drawVisualizer());
+        }
+    }
+    
+    _stopVisualizer() {
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+    }
+
+    _drawVisualizer() {
+        if (!this.analyser) return;
+
+        const bufferLength = this.analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        this.analyser.getByteFrequencyData(dataArray);
+
+        const { width, height } = this.visualizerCanvas;
+        const ctx = this.visualizerCtx;
+        
+        ctx.clearRect(0, 0, width, height);
+
+        const barWidth = (width / bufferLength) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < bufferLength; i++) {
+            const barHeight = (dataArray[i] / 255) * height * 0.8;
+            
+            // Create a glowing effect with a gradient
+            const gradient = ctx.createLinearGradient(0, height - barHeight, 0, height);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+            gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, height - barHeight, barWidth, barHeight);
+            
+            x += barWidth + 1;
+        }
+        
+        this.animationFrameId = requestAnimationFrame(() => this._drawVisualizer());
     }
 
     async deliverGreeting() {
@@ -40,6 +177,31 @@ class WarmwindOS {
 
     async _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
+
+                // --- Music Commands ---
+                const playKeywords = ['play music', 'play a song', 'start music'];
+                if (playKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+                    this.playMusic();
+                    return true;
+                }
+        
+                const pauseKeywords = ['pause music', 'stop the music', 'pause'];
+                if (pauseKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+                    this.pauseMusic();
+                    return true;
+                }
+        
+                const nextKeywords = ['next song', 'change the music', 'skip song', 'next music'];
+                if (nextKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+                    this.changeMusic('next');
+                    return true;
+                }
+                
+                const prevKeywords = ['previous song', 'last song', 'go back'];
+                if (prevKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+                    this.changeMusic('previous');
+                    return true;
+                }
         
         // --- NEW Command: Help & Onboarding ---
         const helpKeywords = ['help', 'what can you do', 'show commands', 'commands'];

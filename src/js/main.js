@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://www.spotify.com' }
     ];
     
+        // --- NEW: Speech Recognition ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
     // --- Wallpaper Data & State ---
     const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png'];
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png'];
@@ -204,6 +207,42 @@ document.addEventListener('DOMContentLoaded', () => {
             appListContainer.insertAdjacentHTML('beforeend', appItemHTML);
         });
     };
+
+        // ======================================================
+    // SPEECH RECOGNITION LOGIC
+    // ======================================================
+    const setupSpeechRecognition = () => {
+        if (!SpeechRecognition) {
+            console.warn("Speech Recognition API is not supported in this browser.");
+            return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = true; // Keep listening even after a pause
+        recognition.interimResults = false; // We only want the final result
+        recognition.lang = 'en-US';
+
+        recognition.onresult = (event) => {
+            const last = event.results.length - 1;
+            const command = event.results[last][0].transcript.trim();
+
+            console.log('Voice Command Received:', command);
+            
+            // Feed the recognized command directly to the OS core
+            document.body.classList.add('chat-active');
+            os.askAI(command);
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error:', event.error);
+        };
+
+        recognition.onend = () => {
+            console.log('Speech recognition service disconnected. Restarting...');
+            // Automatically restart listening
+            setTimeout(() => recognition.start(), 500); 
+        };
+    };
     
     // ======================================================
     // EVENT LISTENERS
@@ -215,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Welcome Screen & Homepage Animation ---
         enterOsBtn.addEventListener('click', () => {
             welcomeOverlay.classList.add('hidden');
+            if (recognition) recognition.start();
             setTimeout(() => background.classList.add('loaded'), 100);
             
             // Animate the dock if it has items in it from the start
@@ -329,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 150);
     });
+    setupSpeechRecognition();
     
     // --- Initial Load ---
     loadDockState();
