@@ -70,20 +70,31 @@ class WarmwindOS {
         this.visualizerCtx.scale(dpr, dpr);
     }
 
-    playMusic() {
-        // Resume AudioContext if it was suspended (browser policy)
-        if (this.audioContext && this.audioContext.state === 'suspended') {
+    playMusic(forcePlay = false) {
+        // If music is already playing AND we are NOT forcing a new track, then exit.
+        if (!forcePlay && this.ui.audioPlayer && !this.ui.audioPlayer.paused) {
+            this._addMessageToChat('ai', "Music is already playing.");
+            return;
+        }
+
+        // Initialize audio context on first user interaction
+        if (!this.isAudioContextInitialized) {
+            this._initAudioContext();
+        } else if (this.audioContext.state === 'suspended') {
             this.audioContext.resume();
         }
 
-        if (!this.isAudioContextInitialized) {
-            this._initAudioContext();
-        }
-
         const currentTrack = this.musicLibrary[this.currentTrackIndex];
-        this.ui.audioPlayer.src = `assets/music/${currentTrack.file}`;
+        const newTrackSrc = `assets/music/${currentTrack.file}`;
+
+        const isTrackLoaded = this.ui.audioPlayer.src.endsWith(newTrackSrc);
+
+        if (!isTrackLoaded) {
+            this.ui.audioPlayer.src = newTrackSrc;
+        }
         
         this.ui.audioPlayer.play().then(() => {
+            if (this.controls.stopListening) this.controls.stopListening();
             this._addMessageToChat('ai', `Now playing: **${currentTrack.title}** by ${currentTrack.artist}.`);
             this.ui.visualizer.classList.add('visible');
             this._startVisualizer();
@@ -98,6 +109,7 @@ class WarmwindOS {
         this._addMessageToChat('ai', 'Music paused.');
         this.ui.visualizer.classList.remove('visible');
         this._stopVisualizer();
+        if (this.controls.startListening) this.controls.startListening();
     }
 
     changeMusic(direction = 'next') {
@@ -106,7 +118,23 @@ class WarmwindOS {
         } else { // 'previous'
             this.currentTrackIndex = (this.currentTrackIndex - 1 + this.musicLibrary.length) % this.musicLibrary.length;
         }
-        this.playMusic();
+        this.playMusic(true); // Force the player to change the song
+    }
+
+    muteMusic() {
+        if (this.ui.audioPlayer) {
+            this.ui.audioPlayer.muted = true;
+            this._addMessageToChat('ai', 'Music has been muted.');
+            if (this.controls.startListening) this.controls.startListening();
+        }
+    }
+
+    unmuteMusic() {
+        if (this.ui.audioPlayer) {
+            this.ui.audioPlayer.muted = false;
+            this._addMessageToChat('ai', 'Music has been unmuted.');
+            if (this.controls.stopListening) this.controls.stopListening();
+        }
     }
 
     _startVisualizer() {
@@ -173,35 +201,48 @@ class WarmwindOS {
 
         await delay(800);
         this._addMessageToChat('ai', "What's on your mind today?");
+        if (this.controls.startListening) this.controls.startListening();
     }
 
     async _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
 
-                // --- Music Commands ---
-                const playKeywords = ['play music', 'play a song', 'start music'];
-                if (playKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-                    this.playMusic();
-                    return true;
-                }
+        const muteKeywords = ['mute music', 'mute', 'silence'];
+        if (muteKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.muteMusic();
+            return true;
+        }
+
+        const unmuteKeywords = ['unmute music', 'unmute', 'turn sound on'];
+        if (unmuteKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.unmuteMusic();
+            return true;
+        }
+
+                        // --- Music Commands ---
+        const playKeywords = ['play music', 'play a song', 'start music', 'resume music', 'resume', 'unpause'];
+        if (playKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.playMusic();
+            return true;
+        }
+
+        const pauseKeywords = ['pause music', 'stop the music', 'pause', 'stop'];
+        if (pauseKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.pauseMusic();
+            return true;
+        }
+
+        const nextKeywords = ['next song', 'change the music', 'skip song', 'next music', 'another one'];
+        if (nextKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.changeMusic('next');
+            return true;
+        }
         
-                const pauseKeywords = ['pause music', 'stop the music', 'pause'];
-                if (pauseKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-                    this.pauseMusic();
-                    return true;
-                }
-        
-                const nextKeywords = ['next song', 'change the music', 'skip song', 'next music'];
-                if (nextKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-                    this.changeMusic('next');
-                    return true;
-                }
-                
-                const prevKeywords = ['previous song', 'last song', 'go back'];
-                if (prevKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
-                    this.changeMusic('previous');
-                    return true;
-                }
+        const prevKeywords = ['previous song', 'last song', 'go back', 'play the last one'];
+        if (prevKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
+            this.changeMusic('previous');
+            return true;
+        }
         
         // --- NEW Command: Help & Onboarding ---
         const helpKeywords = ['help', 'what can you do', 'show commands', 'commands'];

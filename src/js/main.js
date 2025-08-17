@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- NEW: Speech Recognition ---
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
+        let isListening = false;
     // --- Wallpaper Data & State ---
     const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png'];
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png'];
@@ -184,8 +185,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return `I couldn't find that app in your dock.`;
     };
 
+    const startListening = () => {
+        if (recognition && !isListening) {
+            console.log("Starting voice recognition.");
+            recognition.start();
+            isListening = true;
+        }
+    };
+    
+    const stopListening = () => {
+        if (recognition && isListening) {
+            console.log("Stopping voice recognition.");
+            recognition.stop();
+            isListening = false;
+        }
+    };
+
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -238,9 +255,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         recognition.onend = () => {
-            console.log('Speech recognition service disconnected. Restarting...');
-            // Automatically restart listening
-            setTimeout(() => recognition.start(), 500); 
+            // Only restart if it's supposed to be active.
+            if (isListening) {
+                console.log('Speech recognition service disconnected unexpectedly. Restarting...');
+                // Add a small delay to avoid rapid-fire restarts on error
+                setTimeout(() => recognition.start(), 500);
+            } else {
+                console.log('Speech recognition service stopped intentionally.');
+            }
         };
     };
     
@@ -254,7 +276,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Welcome Screen & Homepage Animation ---
         enterOsBtn.addEventListener('click', () => {
             welcomeOverlay.classList.add('hidden');
-            if (recognition) recognition.start();
             setTimeout(() => background.classList.add('loaded'), 100);
             
             // Animate the dock if it has items in it from the start
