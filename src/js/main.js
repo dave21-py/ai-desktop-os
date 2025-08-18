@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png', 'wallpaper5.jpg', 'wallpaper7.jpg', 'wallpaper8.jpg'];
     let currentWallpaper = '';
 
-    let minimizedApps = new Map(); // Use a Map to avoid duplicates
+    let runningApps = new Set(); // Tracks the IDs of all open windowed apps
 
     // --- State ---
     let dockedApps = [];
@@ -141,25 +141,40 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderDock = () => {
+        const appsToShow = new Map(); // Use a Map to automatically handle duplicates
+    
+        // First, add all permanently docked apps
+        dockedApps.forEach(app => appsToShow.set(app.id, app));
+    
+        // Then, add all currently running apps
+        runningApps.forEach(appId => {
+            if (!appsToShow.has(appId)) {
+                const app = appDatabase.find(a => a.id === appId);
+                if (app) appsToShow.set(appId, app);
+            }
+        });
+    
         appDock.innerHTML = '';
-        if (dockedApps.length > 0) {
-            dockedApps.forEach(app => {
+        if (appsToShow.size > 0) {
+            appsToShow.forEach(app => {
                 const dockItem = document.createElement('div');
                 dockItem.className = 'dock-item';
-// If the app is minimized, give it a special class for styling
-if (minimizedApps.has(app.id)) {
-    dockItem.classList.add('minimized');
-}
                 dockItem.dataset.appId = app.id;
+    
+                // Add an 'active' class if the app is currently running
+                if (runningApps.has(app.id)) {
+                    dockItem.classList.add('active');
+                }
+    
                 dockItem.innerHTML = `
                     <img src="${app.icon}" alt="${app.name}" title="${app.name}">
                     <button class="remove-dock-item" aria-label="Remove ${app.name}">
-                        <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                         <svg width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
                     </button>
                 `;
                 appDock.appendChild(dockItem);
             });
-            // Note: We don't add the .visible class here. The OS launch animation will handle that.
+            appDock.classList.add('visible');
         } else {
             appDock.classList.remove('visible');
         }
@@ -195,10 +210,19 @@ if (minimizedApps.has(app.id)) {
     };
 
     const addMinimizedAppToDock = (app) => {
-        if (!minimizedApps.has(app.id)) {
-            minimizedApps.set(app.id, app);
-            renderDock(); // Re-render the dock to show the new state
-        }
+        // This function doesn't need to do anything with state,
+        // it just ensures the dock's UI is up-to-date.
+        renderDock();
+    };
+
+    const appOpened = (appId) => {
+        runningApps.add(appId);
+        renderDock(); // Re-render the dock to show the running app
+    };
+    
+    const appClosed = (appId) => {
+        runningApps.delete(appId);
+        renderDock(); // Re-render the dock to remove the running app
     };
 
     const startListening = () => {
@@ -218,7 +242,7 @@ if (minimizedApps.has(app.id)) {
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening, addMinimizedAppToDock });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening,appOpened, appClosed, addMinimizedAppToDock});
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -347,28 +371,22 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
             }
         });
 
-    appDock.addEventListener('click', (e) => {
-        const removeButton = e.target.closest('.remove-dock-item');
-        const dockItem = e.target.closest('.dock-item');
-
-        if (removeButton) {
-            e.stopPropagation();
-            removeAppFromDock(dockItem.dataset.appId);
-            return;
-        }
-
-        if (dockItem) {
-            const appId = dockItem.dataset.appId;
-            const appToLaunch = appDatabase.find(app => app.id === appId);
-            os.launchApp(appToLaunch); // The smart launcher handles everything.
+        appDock.addEventListener('click', (e) => {
+            const removeButton = e.target.closest('.remove-dock-item');
+            const dockItem = e.target.closest('.dock-item');
         
-            // Logic for cleaning up the minimized indicator dot
-            if (minimizedApps.has(appId)) {
-                minimizedApps.delete(appId);
-                renderDock();
+            if (removeButton && dockItem) {
+                e.stopPropagation();
+                removeAppFromDock(dockItem.dataset.appId);
+                return;
             }
-        }
-    });
+        
+            if (dockItem) {
+                const appId = dockItem.dataset.appId;
+                const appToLaunch = appDatabase.find(app => app.id === appId);
+                os.launchApp(appToLaunch); // The smart launcher handles everything.
+            }
+        });
 
         // --- NEW: Handle clicks on AI Quick Action buttons ---
         const messageList = document.querySelector('.ai-message-list');

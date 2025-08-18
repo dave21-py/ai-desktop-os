@@ -112,7 +112,7 @@ body {
 }
 
 /* At the end of the App Dock Styles section */
-.dock-item.minimized::after {
+.dock-item.active::after {
     content: '';
     position: absolute;
     bottom: -6px;
@@ -631,6 +631,11 @@ body.dark-theme .app-item:hover {
 /* ====================================================== */
 /* App Window System                                      */
 /* ====================================================== */
+/* NEW RULE: This is the key fix for the phantom event bug */
+.app-window.minimized iframe {
+    pointer-events: none;
+    user-select: none;
+}
 .app-window-container {
     position: absolute;
     /* Inset to avoid covering the dock and bottom bar */
@@ -664,17 +669,21 @@ body.dark-theme .app-item:hover {
     min-width: 320px;
     min-height: 240px;
     
-    pointer-events: auto; /* Re-enable pointer events for the window */
+    /* CHANGE 1: By default, the window should NOT capture clicks when invisible */
+    pointer-events: none;
     
     /* Animation state */
     opacity: 0;
     transform: scale(0.95);
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    /* ADDED transition for pointer-events to prevent flicker */
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), pointer-events 0.3s;
 }
 
 .app-window.open {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1);
+    /* CHANGE 2: Re-enable clicks ONLY when the window is open and visible */
+    pointer-events: auto;
 }
 
 .app-window.active {

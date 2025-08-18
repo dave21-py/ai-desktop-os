@@ -67,6 +67,7 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
     _createAppWindow(app) {
         this.zIndexCounter++;
         this.openWindows.add(app.id);
+        if (this.controls.appOpened) this.controls.appOpened(app.id);
     
         // --- Create Window Element ---
         const win = document.createElement('div');
@@ -124,6 +125,7 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         const appId = win.dataset.appId;
 if (appId) {
     this.openWindows.delete(appId);
+    if (this.controls.appClosed) this.controls.appClosed(appId);
 }
         win.classList.remove('open'); // Trigger close animation
         setTimeout(() => {
@@ -135,21 +137,32 @@ if (appId) {
     }
 
     _minimizeAppWindow(win, app) {
-        win.classList.remove('open'); // Use the same animation to hide
-        win.dataset.minimized = 'true'; // Mark as minimized
-        this.controls.addMinimizedAppToDock(app); // Tell main.js to show it in the dock
-        // ADD THIS CHECK (we check for size 1 because the window is still in the set)
-    if (this.openWindows.size === 1 && this.controls.startListening) {
-        this.controls.startListening();
-    }
+        win.classList.remove('open', 'active'); // Hide and deactivate the window
+        win.dataset.minimized = 'true';
+        win.classList.add('minimized'); // <-- ADD THIS LINE
+        if (this.controls.addMinimizedAppToDock) { // Call the control function to update the dock
+             this.controls.addMinimizedAppToDock(app);
+        }
+    
+        // Check if any OTHER windows are still open
+        const anyVisibleWindows = document.querySelector('.app-window.open');
+        if (!anyVisibleWindows && this.controls.startListening) {
+            // Only start listening if no other windows are visible
+            this.controls.startListening();
+        }
     }
     
     _restoreAppWindow(appId) {
         const win = document.querySelector(`.app-window[data-app-id="${appId}"]`);
-        if (win && win.dataset.minimized === 'true') {
-            win.classList.add('open'); // Animate back into view
+        if (win) {
+            // If it was minimized, unmark it and animate it open
+            if (win.dataset.minimized === 'true') {
+                delete win.dataset.minimized;
+                win.classList.remove('minimized'); // <-- ADD THIS LINE
+                win.classList.add('open');
+            }
+            // Always bring the window to the front
             this._focusWindow(win);
-            delete win.dataset.minimized; // Unmark
         }
     }
     
