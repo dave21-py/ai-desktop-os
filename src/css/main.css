@@ -645,13 +645,7 @@ body.dark-theme .app-item:hover {
 
 .app-window {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95);
-    width: 80vw;
-    height: 70vh;
-    max-width: 1024px;
-    max-height: 720px;
+    /* REMOVED: top, left, width, height, resize, etc. JS now controls these. */
     
     background-color: var(--primary-bg);
     backdrop-filter: blur(25px) saturate(1.5);
@@ -664,28 +658,23 @@ body.dark-theme .app-item:hover {
     flex-direction: column;
     overflow: hidden; /* Important for keeping iframe corners rounded */
     
-    /* Allow user resizing! */
-    resize: both;
-    min-width: 320px;
-    min-height: 240px;
-    
-    /* CHANGE 1: By default, the window should NOT capture clicks when invisible */
     pointer-events: none;
     
     /* Animation state */
     opacity: 0;
-    transform: scale(0.95);
-    /* ADDED transition for pointer-events to prevent flicker */
-    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), pointer-events 0.3s;
+    transform: scale(0.98); /* Start slightly smaller for a nice pop-in effect */
+    transform-origin: center; /* Ensures scaling happens from the center */
+
+    /* The new, powerful transition for smooth tiling! */
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .app-window.open {
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    /* CHANGE 2: Re-enable clicks ONLY when the window is open and visible */
+    transform: scale(1); /* We only need to control the scale now */
     pointer-events: auto;
 }
-
+ 
 .app-window.active {
     /* A higher z-index brings the active window to the front */
     z-index: 100; 
@@ -702,12 +691,8 @@ body.dark-theme .app-item:hover {
     background-color: rgba(0,0,0,0.05);
     border-bottom: 1px solid var(--border-color);
     flex-shrink: 0;
-    cursor: grab;
+    cursor: default;
     user-select: none;
-}
-
-.window-title-bar:active {
-    cursor: grabbing;
 }
 
 .window-title {

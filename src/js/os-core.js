@@ -108,7 +108,7 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         setTimeout(() => win.classList.add('open'), 10);
     
         // --- Event Handlers ---
-        this._makeWindowDraggable(win, titleBar);
+
         
         const closeBtn = win.querySelector('.window-control-btn.close');
         closeBtn.addEventListener('click', () => this._closeAppWindow(win));
@@ -119,52 +119,54 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         win.addEventListener('mousedown', () => this._focusWindow(win));
         
         this._focusWindow(win); // Focus on creation
+        this._tileWindows();
     }
     
-    _closeAppWindow(win) {
-        const appId = win.dataset.appId;
-if (appId) {
-    this.openWindows.delete(appId);
-    if (this.controls.appClosed) this.controls.appClosed(appId);
-}
-        win.classList.remove('open'); // Trigger close animation
-        setTimeout(() => {
-            win.remove();
-            if (this.openWindows.size === 0 && this.controls.startListening) {
-                this.controls.startListening();
-            }
-        }, 300); // Wait for animation to finish
+    // CORRECTED CODE
+_closeAppWindow(win) {
+    const appId = win.dataset.appId;
+    if (appId) {
+        this.openWindows.delete(appId);
+        if (this.controls.appClosed) this.controls.appClosed(appId);
     }
-
-    _minimizeAppWindow(win, app) {
-        win.classList.remove('open', 'active'); // Hide and deactivate the window
-        win.dataset.minimized = 'true';
-        win.classList.add('minimized'); // <-- ADD THIS LINE
-        if (this.controls.addMinimizedAppToDock) { // Call the control function to update the dock
-             this.controls.addMinimizedAppToDock(app);
-        }
-    
-        // Check if any OTHER windows are still open
-        const anyVisibleWindows = document.querySelector('.app-window.open');
-        if (!anyVisibleWindows && this.controls.startListening) {
-            // Only start listening if no other windows are visible
+    win.classList.remove('open'); // Trigger close animation
+    setTimeout(() => {
+        win.remove();
+        this._tileWindows(); // <-- MOVED a call here, after the window is removed
+        if (this.openWindows.size === 0 && this.controls.startListening) {
             this.controls.startListening();
         }
+    }, 300); // Wait for animation to finish
+}
+
+    // CORRECTED CODE
+_minimizeAppWindow(win, app) {
+    win.classList.remove('open', 'active');
+    win.dataset.minimized = 'true';
+    win.classList.add('minimized');
+    if (this.controls.addMinimizedAppToDock) {
+         this.controls.addMinimizedAppToDock(app);
     }
+
+    const anyVisibleWindows = document.querySelector('.app-window.open');
+    if (!anyVisibleWindows && this.controls.startListening) {
+        this.controls.startListening();
+    }
+    this._tileWindows(); // <-- MOVED here, to run every time
+}
     
-    _restoreAppWindow(appId) {
-        const win = document.querySelector(`.app-window[data-app-id="${appId}"]`);
-        if (win) {
-            // If it was minimized, unmark it and animate it open
-            if (win.dataset.minimized === 'true') {
-                delete win.dataset.minimized;
-                win.classList.remove('minimized'); // <-- ADD THIS LINE
-                win.classList.add('open');
-            }
-            // Always bring the window to the front
-            this._focusWindow(win);
+    // TIDIED CODE
+_restoreAppWindow(appId) {
+    const win = document.querySelector(`.app-window[data-app-id="${appId}"]`);
+    if (win) {
+        if (win.dataset.minimized === 'true') {
+            delete win.dataset.minimized;
+            win.classList.remove('minimized');
+            win.classList.add('open');
         }
+        this._focusWindow(win); // This method already calls _tileWindows() for us
     }
+}
     
     _focusWindow(win) {
         if (this.controls.stopListening) this.controls.stopListening(); // ADD THIS LINE
@@ -176,28 +178,63 @@ if (appId) {
             if (activeWin !== win) activeWin.classList.remove('active');
         });
         win.classList.add('active');
+        this._tileWindows();
     }
-    
-    _makeWindowDraggable(win, titleBar) {
-        let offsetX, offsetY;
-    
-        const onMouseMove = (e) => {
-            win.style.left = `${e.clientX - offsetX}px`;
-            win.style.top = `${e.clientY - offsetY}px`;
-        };
-    
-        const onMouseUp = () => {
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-        };
-    
-        titleBar.addEventListener('mousedown', (e) => {
-            offsetX = e.clientX - win.offsetLeft;
-            offsetY = e.clientY - win.offsetTop;
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
+
+    // ADD THIS NEW METHOD
+_tileWindows() {
+    const PADDING = 10; // Space between windows and around the edges
+    const PRIMARY_PANE_WIDTH_RATIO = 0.65; // Main window takes up 65% of the space
+
+    const container = this.ui.appWindowContainer;
+    const visibleWindows = Array.from(container.querySelectorAll('.app-window:not(.minimized)'));
+
+    if (visibleWindows.length === 0) return;
+
+    // --- CASE 1: Only one window is open ---
+    if (visibleWindows.length === 1) {
+        const win = visibleWindows[0];
+        win.style.left = `${PADDING}px`;
+        win.style.top = `${PADDING}px`;
+        win.style.width = `calc(100% - ${2 * PADDING}px)`;
+        win.style.height = `calc(100% - ${2 * PADDING}px)`;
+        win.style.transform = 'none'; // Override any previous transform
+        return;
     }
+
+    // --- CASE 2: Multiple windows are open ---
+    let primary = visibleWindows.find(win => win.classList.contains('active'));
+    if (!primary) {
+        // If no window is active, make the last one opened the primary one
+        primary = visibleWindows[visibleWindows.length - 1];
+        primary.classList.add('active');
+    }
+    const secondaries = visibleWindows.filter(win => win !== primary);
+
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+
+    // Position the primary window
+    const primaryWidth = (containerWidth * PRIMARY_PANE_WIDTH_RATIO) - (1.5 * PADDING);
+    primary.style.left = `${PADDING}px`;
+    primary.style.top = `${PADDING}px`;
+    primary.style.width = `${primaryWidth}px`;
+    primary.style.height = `calc(100% - ${2 * PADDING}px)`;
+    primary.style.transform = 'none';
+
+    // Position the secondary windows
+    const secondaryPaneLeft = primaryWidth + (2 * PADDING);
+    const secondaryWidth = containerWidth - secondaryPaneLeft - PADDING;
+    const secondaryHeight = (containerHeight - (secondaries.length + 1) * PADDING) / secondaries.length;
+
+    secondaries.forEach((win, index) => {
+        win.style.left = `${secondaryPaneLeft}px`;
+        win.style.top = `${PADDING + index * (secondaryHeight + PADDING)}px`;
+        win.style.width = `${secondaryWidth}px`;
+        win.style.height = `${secondaryHeight}px`;
+        win.style.transform = 'none';
+    });
+}
 
     _initUI() {
         this.ui.aiMessageList = document.querySelector('.ai-message-list');
