@@ -29,6 +29,7 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.sourceNode = null;
                 this.animationFrameId = null;
                 this.zIndexCounter = 100; // Manages which window is on top
+                this.openWindows = new Set(); // Tracks all open app IDs
     }
 
     boot() {
@@ -39,13 +40,22 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
     launchApp(app) {
         if (!app) return;
     
-        // 1. Handle special internal actions like the Trip Planner
+        // 1. Handle special internal actions (like Trip Planner)
         if (app.action && typeof this[app.action] === 'function') {
             this[app.action]();
-        } 
-        // 2. Handle apps that should open in a new OS window
-        else if (app.openInWindow && app.url) {
-            this._createAppWindow(app);
+            return; // Stop here
+        }
+    
+        // 2. Handle all windowed apps (new or existing)
+        if (app.openInWindow && app.url) {
+            // If window already exists, restore and focus it.
+            if (this.openWindows.has(app.id)) {
+                this._restoreAppWindow(app.id);
+            } 
+            // Otherwise, create a new one.
+            else {
+                this._createAppWindow(app);
+            }
         } 
         // 3. Default to opening in a new browser tab
         else if (app.url) {
@@ -56,10 +66,12 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
 
     _createAppWindow(app) {
         this.zIndexCounter++;
+        this.openWindows.add(app.id);
     
         // --- Create Window Element ---
         const win = document.createElement('div');
         win.className = 'app-window';
+        win.dataset.appId = app.id;
         win.style.zIndex = this.zIndexCounter;
         
         // --- Create Title Bar ---
@@ -67,7 +79,10 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         titleBar.className = 'window-title-bar';
         titleBar.innerHTML = `
         <div class="window-title">${app.name}</div>
-        <div class="window-controls">
+                <div class="window-controls">
+            <button class="window-control-btn minimize" aria-label="Minimize Window">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
+            </button>
             <button class="window-control-btn close" aria-label="Close Window">
                 <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
             </button>
@@ -96,6 +111,9 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
         
         const closeBtn = win.querySelector('.window-control-btn.close');
         closeBtn.addEventListener('click', () => this._closeAppWindow(win));
+
+        const minimizeBtn = win.querySelector('.window-control-btn.minimize');
+        minimizeBtn.addEventListener('click', () => this._minimizeAppWindow(win, app));
         
         win.addEventListener('mousedown', () => this._focusWindow(win));
         
@@ -103,13 +121,40 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
     }
     
     _closeAppWindow(win) {
+        const appId = win.dataset.appId;
+if (appId) {
+    this.openWindows.delete(appId);
+}
         win.classList.remove('open'); // Trigger close animation
         setTimeout(() => {
             win.remove();
+            if (this.openWindows.size === 0 && this.controls.startListening) {
+                this.controls.startListening();
+            }
         }, 300); // Wait for animation to finish
+    }
+
+    _minimizeAppWindow(win, app) {
+        win.classList.remove('open'); // Use the same animation to hide
+        win.dataset.minimized = 'true'; // Mark as minimized
+        this.controls.addMinimizedAppToDock(app); // Tell main.js to show it in the dock
+        // ADD THIS CHECK (we check for size 1 because the window is still in the set)
+    if (this.openWindows.size === 1 && this.controls.startListening) {
+        this.controls.startListening();
+    }
+    }
+    
+    _restoreAppWindow(appId) {
+        const win = document.querySelector(`.app-window[data-app-id="${appId}"]`);
+        if (win && win.dataset.minimized === 'true') {
+            win.classList.add('open'); // Animate back into view
+            this._focusWindow(win);
+            delete win.dataset.minimized; // Unmark
+        }
     }
     
     _focusWindow(win) {
+        if (this.controls.stopListening) this.controls.stopListening(); // ADD THIS LINE
         this.zIndexCounter++;
         win.style.zIndex = this.zIndexCounter;
         

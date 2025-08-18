@@ -111,6 +111,19 @@ body {
     transform: scale(1);
 }
 
+/* At the end of the App Dock Styles section */
+.dock-item.minimized::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background-color: var(--primary-text);
+    border-radius: 50%;
+}
+
 /* --- Bottom Bar --- */
 .bottom-bar { position: relative; width: 100%; z-index: 10; display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 40px; opacity: 0; transform: translateY(50px); transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease-out; }
 .bottom-bar.loaded { opacity: 1; transform: translateY(0); }
@@ -627,8 +640,9 @@ body.dark-theme .app-item:hover {
 
 .app-window {
     position: absolute;
-    top: 50px;
-    left: 80px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
     width: 80vw;
     height: 70vh;
     max-width: 1024px;
@@ -660,7 +674,7 @@ body.dark-theme .app-item:hover {
 
 .app-window.open {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .app-window.active {
@@ -700,19 +714,15 @@ body.dark-theme .app-item:hover {
 
 .window-controls {
     flex-shrink: 0;
-}
-
-/* Hide the unused buttons */
-.window-control-btn.minimize,
-.window-control-btn.maximize {
-    display: none;
+    display: flex; /* ADD THIS */
+    gap: 4px;      /* ADD THIS */
 }
 
 /* High-quality Close Button Style */
-.window-control-btn.close {
+.window-control-btn {
     background: transparent;
     border: none;
-    border-radius: 8px; /* Slightly rounded for the hover effect */
+    border-radius: 8px;
     width: 28px;
     height: 28px;
     display: flex;
@@ -721,16 +731,17 @@ body.dark-theme .app-item:hover {
     color: var(--secondary-text);
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
+    padding: 0;
 }
 
-.window-control-btn.close:hover {
+.window-control-btn:hover {
     background-color: var(--input-bg);
     color: var(--primary-text);
 }
 
-.window-control-btn.close svg {
-    width: 18px;
-    height: 18px;
+.window-control-btn svg {
+    width: 16px; /* Slightly smaller for a cleaner look */
+    height: 16px;
 }
 
 /* --- Window Content --- */

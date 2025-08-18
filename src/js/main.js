@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Google Sheets', id: 'sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', url: 'https://docs.google.com/spreadsheets/' },
         { name: 'Google Slides', id: 'slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg', url: 'https://docs.google.com/presentation/' },
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://youtube-clone-orcin.vercel.app' },
+        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true},
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
         {name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
         {name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true}
@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png', 'wallpaper6.jpg', 'wallpaper9.jpg'];
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png', 'wallpaper5.jpg', 'wallpaper7.jpg', 'wallpaper8.jpg'];
     let currentWallpaper = '';
+
+    let minimizedApps = new Map(); // Use a Map to avoid duplicates
 
     // --- State ---
     let dockedApps = [];
@@ -144,6 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
             dockedApps.forEach(app => {
                 const dockItem = document.createElement('div');
                 dockItem.className = 'dock-item';
+// If the app is minimized, give it a special class for styling
+if (minimizedApps.has(app.id)) {
+    dockItem.classList.add('minimized');
+}
                 dockItem.dataset.appId = app.id;
                 dockItem.innerHTML = `
                     <img src="${app.icon}" alt="${app.name}" title="${app.name}">
@@ -188,6 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return `I couldn't find that app in your dock.`;
     };
 
+    const addMinimizedAppToDock = (app) => {
+        if (!minimizedApps.has(app.id)) {
+            minimizedApps.set(app.id, app);
+            renderDock(); // Re-render the dock to show the new state
+        }
+    };
+
     const startListening = () => {
         if (recognition && !isListening) {
             console.log("Starting voice recognition.");
@@ -205,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening });
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening, addMinimizedAppToDock });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -215,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appsToRender.forEach(app => {
             const isAdded = dockedAppIds.has(app.id);
             const appItemHTML = `
-                <div class="app-item" data-url="${app.url}">
+                <div class="app-item" data-app-id="${app.id}">
                     <img src="${app.icon}" alt="${app.name}" class="app-icon">
                     <span class="app-name">${app.name}</span>
                     <button class="add-app-btn ${isAdded ? 'added' : ''}" data-app-id="${app.id}" aria-label="${isAdded ? 'Added' : `Add ${app.name}`}">
@@ -312,21 +325,27 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
             }, 1000); // 1 second delay to feel deliberate
         });
     
-    appListContainer.addEventListener('click', (e) => {
-        const addButton = e.target.closest('.add-app-btn');
-        if (addButton && !addButton.classList.contains('added')) {
-            addAppToDock(addButton.dataset.appId);
-            return;
-        }
-
-        const appItem = e.target.closest('.app-item');
-if (appItem) {
-    // We need to find the full app object from the database using its URL to get all properties
-    const appUrl = appItem.dataset.url;
-    const appToLaunch = appDatabase.find(app => app.url === appUrl);
-    os.launchApp(appToLaunch);
-}
-    });
+        appListContainer.addEventListener('click', (e) => {
+            const addButton = e.target.closest('.add-app-btn');
+            const appItem = e.target.closest('.app-item');
+        
+            // Case 1: User clicked the 'add' button specifically
+            if (addButton && !addButton.classList.contains('added')) {
+                addAppToDock(addButton.dataset.appId);
+                return; // Stop here to prevent launching
+            }
+        
+            // Case 2: User clicked anywhere on the app row to launch it
+            if (appItem) {
+                // Find the app ID from the app item's data attribute
+                const appId = appItem.dataset.appId;
+                const appToLaunch = appDatabase.find(app => app.id === appId);
+                
+                if (appToLaunch) {
+                    os.launchApp(appToLaunch);
+                }
+            }
+        });
 
     appDock.addEventListener('click', (e) => {
         const removeButton = e.target.closest('.remove-dock-item');
@@ -339,8 +358,15 @@ if (appItem) {
         }
 
         if (dockItem) {
-            const appToLaunch = appDatabase.find(app => app.id === dockItem.dataset.appId);
-            os.launchApp(appToLaunch);
+            const appId = dockItem.dataset.appId;
+            const appToLaunch = appDatabase.find(app => app.id === appId);
+            os.launchApp(appToLaunch); // The smart launcher handles everything.
+        
+            // Logic for cleaning up the minimized indicator dot
+            if (minimizedApps.has(appId)) {
+                minimizedApps.delete(appId);
+                renderDock();
+            }
         }
     });
 
