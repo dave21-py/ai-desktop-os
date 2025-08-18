@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- App Data ---
     const appDatabase = [
+        // Keep your existing apps
         { name: 'Amazon', id: 'amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg', url: 'https://www.amazon.com' },
         { name: 'Canva', id: 'canva', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Canva_icon_2021.svg', url: 'https://www.canva.com' },
         { name: 'ChatGPT', id: 'chatgpt', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg', url: 'https://chat.openai.com' },
@@ -16,7 +17,24 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true},
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
         {name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
-        {name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true}
+        {name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true},
+        {
+            name: 'Excalidraw',
+            id: 'excalidraw',
+            icon: 'https://excalidraw.com/apple-touch-icon.png',
+            url: 'https://excalidraw.com',
+            openInWindow: true,
+            category: 'Design'
+        },
+        {
+            name: 'Photopea',
+            id: 'photopea',
+            icon: 'https://www.photopea.com/promo/icon512.png',
+            url: 'https://www.photopea.com',
+            openInWindow: true,
+            category: 'Design',
+            allowFullscreen: true
+        },
     ];
     
         // --- NEW: Speech Recognition ---
