@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         let recognition;
         let isListening = false;
+        let hasShownSearchSuggestion = false; // ADD THIS LINE
     // --- Wallpaper Data & State ---
     const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png', 'wallpaper6.jpg', 'wallpaper9.jpg'];
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png', 'wallpaper5.jpg', 'wallpaper7.jpg', 'wallpaper8.jpg'];
@@ -70,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactInputForm = document.querySelector('.compact-input-form');
     const chatOverlay = document.querySelector('.chat-overlay');
     const voiceModeBtn = document.querySelector('#voice-mode-btn'); // ADD THIS LINE
+    const webSearchBtn = document.querySelector('#web-search-btn');
+const webSearchSuggestion = document.querySelector('#web-search-suggestion');
     // Add these to your UI selectors
 const clockDisplay = document.querySelector('#clock-display');
 const dateDisplay = document.querySelector('#date-display');
@@ -485,15 +488,50 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
         compactInput.style.height = 'auto';
         compactInput.style.height = `${compactInput.scrollHeight}px`;
     });
+
+    webSearchBtn.addEventListener('click', () => {
+        const isActive = os.toggleWebSearchMode();
+        
+        webSearchBtn.classList.toggle('active', isActive);
+    
+        if (isActive) {
+            compactInput.placeholder = 'Search the web...';
+            // Show the suggestion bubble only once per session
+            if (!hasShownSearchSuggestion) {
+                webSearchSuggestion.classList.remove('hidden');
+                webSearchSuggestion.classList.add('visible');
+                hasShownSearchSuggestion = true;
+                
+                // Hide it after a few seconds
+                setTimeout(() => {
+                    webSearchSuggestion.classList.remove('visible');
+                }, 4000); // 4 seconds
+            }
+        } else {
+            compactInput.placeholder = 'Ask something...';
+            webSearchSuggestion.classList.remove('visible'); // Hide if they toggle off
+        }
+    });
     
     compactInputForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const prompt = compactInput.value.trim();
         if (!prompt) return;
-        document.body.classList.add('chat-active');
-        compactInput.value = '';
-        compactInput.style.height = 'auto';
-        await os.askAI(prompt);
+    
+        // CORRECTED LOGIC: Check which mode is active
+        if (os.state.isWebSearchModeActive) {
+            // --- WEB SEARCH MODE ---
+            os.performWebSearch(prompt);
+            compactInput.value = '';
+            compactInput.style.height = 'auto';
+            compactInput.focus(); // Keep the input focused for another search
+        } else {
+            // --- AI CHAT MODE (The original behavior) ---
+            document.body.classList.add('chat-active');
+            compactInput.value = '';
+            compactInput.style.height = 'auto';
+            await os.askAI(prompt);
+        }
     });
 
     // NEW, SAFER FUNCTION
@@ -514,16 +552,6 @@ const closeAll = () => {
     chatOverlay.addEventListener('click', closeAll);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeAll();
-    });
-    compactInput.addEventListener('blur', () => {
-        setTimeout(() => {
-            // This new logic is much safer. It closes the input bar if you click away,
-            // but ONLY if the input is empty AND you are not actively using voice mode.
-            // Most importantly, it no longer closes the entire chat view.
-            if (compactInput.value.trim() === '' && !isListening) {
-                closeCompactInput(); 
-            }
-        }, 150);
     });
     voiceModeBtn.addEventListener('click', () => {
         if (isListening) {

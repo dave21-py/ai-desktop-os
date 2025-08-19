@@ -6,7 +6,8 @@ class WarmwindOS {
         this.controls = controls; // Stores all our control functions
         this.state = {
             conversationHistory: [],
-            currentWeather: null // ADD THIS
+            currentWeather: null, // ADD THIS
+            isWebSearchModeActive: false // ADD THIS LINE
         };
         this.ui = {};
                 // --- NEW: Music Player State ---
@@ -33,6 +34,22 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.zIndexCounter = 100; // Manages which window is on top
                 this.openWindows = new Set(); // Tracks all open app IDs
     }
+
+    // ADD THESE TWO NEW FUNCTIONS
+
+toggleWebSearchMode() {
+    this.state.isWebSearchModeActive = !this.state.isWebSearchModeActive;
+    console.log(`Web Search Mode: ${this.state.isWebSearchModeActive ? 'ON' : 'OFF'}`);
+    return this.state.isWebSearchModeActive;
+}
+
+performWebSearch(prompt) {
+    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(prompt)}`;
+    window.open(searchUrl, '_blank');
+    // We add a message directly to the chat without calling the AI
+    this._addMessageToChat('user', prompt);
+    this._addMessageToChat('ai', `I've opened a Google search for "${prompt}" in a new tab.`);
+}
 
 
     // ADD THIS NEW FUNCTION INSIDE THE WarmwindOS CLASS
