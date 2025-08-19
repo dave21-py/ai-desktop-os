@@ -142,6 +142,48 @@ body {
 .compact-input-form textarea::placeholder { color: var(--secondary-text); }
 .compact-input-form button { background: var(--accent-color); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-text-color); transition: background-color 0.2s ease; flex-shrink: 0; }
 .compact-input-form button:hover { background-color: #0056b3; }
+/* --- Welcome Screen --- */ /* <-- This is just for location reference */
+
+/* ADD THIS NEW CODE BELOW THE .compact-input-form button:hover RULE */
+
+.compact-input-form .voice-mode-btn {
+    background: transparent;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--secondary-text);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.compact-input-form .voice-mode-btn:hover {
+    background-color: var(--input-bg);
+    color: var(--primary-text);
+}
+
+/* Style for when the button is actively recording */
+.compact-input-form .voice-mode-btn.recording {
+    background-color: #ff453a; /* A clear 'recording' red */
+    color: white;
+    animation: pulse-animation 1.5s infinite;
+}
+
+@keyframes pulse-animation {
+    0% {
+        box-shadow: 0 0 0 0 rgba(255, 69, 58, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(255, 69, 58, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(255, 69, 58, 0);
+    }
+}
 
 /* --- Welcome Screen --- */
 .welcome-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: center; align-items: center; background-image: var(--background-image-url); background-size: cover; background-position: center; transition: opacity 0.5s ease-out, visibility 0.5s; }

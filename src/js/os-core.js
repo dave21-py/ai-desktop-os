@@ -133,9 +133,6 @@ _closeAppWindow(win) {
     setTimeout(() => {
         win.remove();
         this._tileWindows(); // <-- MOVED a call here, after the window is removed
-        if (this.openWindows.size === 0 && this.controls.startListening) {
-            this.controls.startListening();
-        }
     }, 300); // Wait for animation to finish
 }
 
@@ -148,10 +145,7 @@ _minimizeAppWindow(win, app) {
          this.controls.addMinimizedAppToDock(app);
     }
 
-    const anyVisibleWindows = document.querySelector('.app-window.open');
-    if (!anyVisibleWindows && this.controls.startListening) {
-        this.controls.startListening();
-    }
+    
     this._tileWindows(); // <-- MOVED here, to run every time
 }
     
@@ -169,7 +163,6 @@ _restoreAppWindow(appId) {
 }
     
     _focusWindow(win) {
-        if (this.controls.stopListening) this.controls.stopListening(); // ADD THIS LINE
         this.zIndexCounter++;
         win.style.zIndex = this.zIndexCounter;
         
@@ -313,7 +306,6 @@ this.ui.appWindowContainer = document.getElementById('app-window-container');
         }
         
         this.ui.audioPlayer.play().then(() => {
-            if (this.controls.stopListening) this.controls.stopListening();
             this._addMessageToChat('ai', `Now playing: **${currentTrack.title}** by ${currentTrack.artist}.`);
             this.ui.visualizer.classList.add('visible');
             this._startVisualizer();
@@ -328,7 +320,6 @@ this.ui.appWindowContainer = document.getElementById('app-window-container');
         this._addMessageToChat('ai', 'Music paused.');
         this.ui.visualizer.classList.remove('visible');
         this._stopVisualizer();
-        if (this.controls.startListening) this.controls.startListening();
     }
 
     changeMusic(direction = 'next') {
@@ -344,7 +335,6 @@ this.ui.appWindowContainer = document.getElementById('app-window-container');
         if (this.ui.audioPlayer) {
             this.ui.audioPlayer.muted = true;
             this._addMessageToChat('ai', 'Music has been muted.');
-            if (this.controls.startListening) this.controls.startListening();
         }
     }
 
@@ -352,7 +342,6 @@ this.ui.appWindowContainer = document.getElementById('app-window-container');
         if (this.ui.audioPlayer) {
             this.ui.audioPlayer.muted = false;
             this._addMessageToChat('ai', 'Music has been unmuted.');
-            if (this.controls.stopListening) this.controls.stopListening();
         }
     }
 
@@ -434,7 +423,6 @@ _stopTimer() {
     this.isFocusModeActive = false;
     this.ui.focusTimerDisplay.classList.remove('visible');
     this._addMessageToChat('ai', "Focus session cancelled. Ready when you are.");
-    if (this.controls.startListening) this.controls.startListening();
 }
 
 _tick() {
@@ -459,7 +447,6 @@ _handleTimerCompletion() {
     this.isFocusModeActive = false;
     this.ui.focusTimerDisplay.classList.remove('visible');
     if (this.ui.timerNotification) this.ui.timerNotification.play();
-    if (this.controls.startListening) this.controls.startListening();
 
     if (this.currentSessionType === 'work') {
         const message = "Session complete! Great work. Time for a 5-minute break.";
@@ -585,7 +572,6 @@ _renderPlannerResults(data) {
 
         await delay(800);
         this._addMessageToChat('ai', "What's on your mind today?");
-        if (this.controls.startListening) this.controls.startListening();
     }
 
     async _handleCommand(prompt) {

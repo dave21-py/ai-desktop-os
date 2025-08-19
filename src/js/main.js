@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactInput = document.querySelector('#compact-input');
     const compactInputForm = document.querySelector('.compact-input-form');
     const chatOverlay = document.querySelector('.chat-overlay');
+    const voiceModeBtn = document.querySelector('#voice-mode-btn'); // ADD THIS LINE
 
         // ======================================================
     // THEME LOGIC
@@ -245,19 +246,23 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const startListening = () => {
-        if (recognition && !isListening) {
+        if (!recognition || isListening) return;
+        try {
             console.log("Starting voice recognition.");
-            recognition.start();
             isListening = true;
+            voiceModeBtn.classList.add('recording');
+            recognition.start();
+        } catch (error) {
+            console.error("Could not start recognition:", error);
+            isListening = false;
+            voiceModeBtn.classList.remove('recording');
         }
     };
     
     const stopListening = () => {
-        if (recognition && isListening) {
-            console.log("Stopping voice recognition.");
-            recognition.stop();
-            isListening = false;
-        }
+        if (!recognition || !isListening) return;
+        console.log("Stopping voice recognition.");
+        recognition.stop(); // onend event will handle isListening and class removal
     };
 
     // Initialize OS Core, passing all necessary control functions for the AI
@@ -290,37 +295,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const setupSpeechRecognition = () => {
         if (!SpeechRecognition) {
             console.warn("Speech Recognition API is not supported in this browser.");
+            if (voiceModeBtn) voiceModeBtn.style.display = 'none'; // Hide button if not supported
             return;
         }
-
+    
         recognition = new SpeechRecognition();
-        recognition.continuous = true; // Keep listening even after a pause
-        recognition.interimResults = false; // We only want the final result
+        recognition.continuous = false; // IMPORTANT: Only listen for a single utterance
+        recognition.interimResults = false;
         recognition.lang = 'en-US';
-
+    
         recognition.onresult = (event) => {
-            const last = event.results.length - 1;
-            const command = event.results[last][0].transcript.trim();
-
+            const command = event.results[0][0].transcript.trim();
             console.log('Voice Command Received:', command);
-            
-            // Feed the recognized command directly to the OS core
-            document.body.classList.add('chat-active');
-            os.askAI(command);
+    
+            if (command) {
+                document.body.classList.add('chat-active');
+                os.askAI(command);
+            }
         };
-
+    
         recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
         };
-
+        
+        // This event now correctly handles all ways the recognition can end
         recognition.onend = () => {
-            // Only restart if it's supposed to be active.
+            // Check if still listening, as stopListening might have been called manually
             if (isListening) {
-                console.log('Speech recognition service disconnected unexpectedly. Restarting...');
-                // Add a small delay to avoid rapid-fire restarts on error
-                setTimeout(() => recognition.start(), 500);
-            } else {
-                console.log('Speech recognition service stopped intentionally.');
+                console.log('Speech recognition service ended.');
+                isListening = false;
+                voiceModeBtn.classList.remove('recording');
             }
         };
     };
@@ -470,6 +474,13 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
                 closeAll();
             }
         }, 150);
+    });
+    voiceModeBtn.addEventListener('click', () => {
+        if (isListening) {
+            stopListening();
+        } else {
+            startListening();
+        }
     });
     setupSpeechRecognition();
     
