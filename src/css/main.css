@@ -32,6 +32,52 @@ body {
 
 /* --- Main OS Container --- */
 .os-container { position: relative; width: 95vw; height: 90vh; max-width: 1600px; max-height: 900px; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
+/* --- NEW: System Widget (Clock & Weather) --- */
+.system-widget {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--primary-text);
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+.system-widget.loaded {
+    opacity: 1;
+}
+.system-widget .clock {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+.system-widget .date {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+.system-widget .weather {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-top: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 0.9rem;
+}
+.system-widget .weather svg {
+    width: 18px;
+    height: 18px;
+    opacity: 0.9;
+}
 .background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
 .background-image.loaded { opacity: 1; transform: scale(1); }
 

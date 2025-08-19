@@ -1,10 +1,12 @@
 class WarmwindOS {
     constructor(apps = [], controls = {}) {
         this.GEMINI_API_KEY = typeof GEMINI_API_KEY !== 'undefined' ? GEMINI_API_KEY : '';
+        this.OPENWEATHER_API_KEY = typeof OPENWEATHER_API_KEY !== 'undefined' ? OPENWEATHER_API_KEY : ''; // ADD THIS
         this.apps = apps;
         this.controls = controls; // Stores all our control functions
         this.state = {
-            conversationHistory: []
+            conversationHistory: [],
+            currentWeather: null // ADD THIS
         };
         this.ui = {};
                 // --- NEW: Music Player State ---
@@ -31,6 +33,34 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.zIndexCounter = 100; // Manages which window is on top
                 this.openWindows = new Set(); // Tracks all open app IDs
     }
+
+
+    // ADD THIS NEW FUNCTION INSIDE THE WarmwindOS CLASS
+async getWeather(lat, lon) {
+    if (!this.OPENWEATHER_API_KEY) {
+        console.warn("OpenWeather API key is missing.");
+        return null;
+    }
+    const API_URL = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${this.OPENWEATHER_API_KEY}&units=metric`;
+    
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        const weatherInfo = {
+            temp: Math.round(data.main.temp),
+            description: data.weather[0].description,
+            icon: data.weather[0].icon,
+        };
+        
+        this.state.currentWeather = weatherInfo; // IMPORTANT: Save for the AI
+        return weatherInfo;
+
+    } catch (error) {
+        console.error("Error fetching weather from OpenWeather:", error);
+        return null;
+    }
+}
 
     boot() {
         this._initUI();
@@ -574,8 +604,59 @@ _renderPlannerResults(data) {
         this._addMessageToChat('ai', "What's on your mind today?");
     }
 
+    // ADD THIS NEW FUNCTION INSIDE THE WarmwindOS CLASS
+async _handleSearchCommand(prompt) {
+    const lowerCasePrompt = prompt.toLowerCase();
+    
+    // Wikipedia Search
+    if (lowerCasePrompt.includes('wikipedia')) {
+        const searchTerm = lowerCasePrompt.split('wikipedia for').pop().trim();
+        if (!searchTerm) return false;
+
+        this._addMessageToChat('ai', `Searching Wikipedia for "${searchTerm}"...`);
+        try {
+            const WIKI_URL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&redirects=1&origin=*&titles=${encodeURIComponent(searchTerm)}`;
+            const response = await fetch(WIKI_URL);
+            const data = await response.json();
+            const page = Object.values(data.query.pages)[0];
+            
+            if (page.extract) {
+                const summary = page.extract.split('. ').slice(0, 2).join('. ') + '.';
+                const pageUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`;
+                const actions = [{ label: `Open full article for "${page.title}"`, payload: `open ${pageUrl}` }];
+                this._addMessageToChat('ai', summary, actions);
+            } else {
+                this._addMessageToChat('ai', `Sorry, I couldn't find a Wikipedia article for "${searchTerm}".`);
+            }
+        } catch (error) {
+            this._addMessageToChat('ai', "There was an error searching Wikipedia.");
+        }
+        return true;
+    }
+    
+    // Simple Web Search (handles Google, YouTube, etc.)
+    const searchKeywords = ['search for', 'google', 'look up'];
+    for (const keyword of searchKeywords) {
+        if (lowerCasePrompt.startsWith(keyword)) {
+            const searchTerm = prompt.substring(keyword.length).trim();
+            if (!searchTerm) return false;
+            
+            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
+            window.open(searchUrl, '_blank');
+            this._addMessageToChat('ai', `I've opened a Google search for "${searchTerm}" in a new tab for you.`);
+            return true;
+        }
+    }
+
+    return false;
+}
+
     async _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
+
+        if (await this._handleSearchCommand(prompt)) {
+            return true;
+        }
 
         const plannerKeywords = ['plan a trip', 'trip planner', 'travel plan', 'planner'];
         if (plannerKeywords.some(keyword => lowerCasePrompt.includes(keyword))) {
@@ -768,7 +849,20 @@ if (openKeywords.some(keyword => lowerCasePrompt.startsWith(keyword))) {
             throw new Error("API key is missing.");
         }
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
-        const requestBody = { "contents": [{ "parts": [{ "text": prompt }] }] };
+        // Create a system context message
+let systemPrompt = "You are a helpful AI assistant for an operating system called VibeOS.";
+if (this.state.currentWeather) {
+    systemPrompt += ` The user's current weather is ${this.state.currentWeather.temp}°C and ${this.state.currentWeather.description}.`;
+}
+
+// Now, construct the request body with this context
+const requestBody = {
+    "contents": [
+        { "role": "user", "parts": [{ "text": systemPrompt }] },
+        { "role": "model", "parts": [{ "text": "Understood. I am VibeOS's assistant." }] },
+        { "role": "user", "parts": [{ "text": prompt }] }
+    ]
+};
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

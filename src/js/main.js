@@ -70,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactInputForm = document.querySelector('.compact-input-form');
     const chatOverlay = document.querySelector('.chat-overlay');
     const voiceModeBtn = document.querySelector('#voice-mode-btn'); // ADD THIS LINE
+    // Add these to your UI selectors
+const clockDisplay = document.querySelector('#clock-display');
+const dateDisplay = document.querySelector('#date-display');
+const weatherDisplay = document.querySelector('#weather-display');
+const systemWidget = document.querySelector('.system-widget');
 
         // ======================================================
     // THEME LOGIC
@@ -104,6 +109,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTheme = localStorage.getItem('warmwindOS.theme') || 'light';
         setTheme(savedTheme);
     };
+
+    // ADD THESE TWO NEW FUNCTIONS
+
+function updateClock() {
+    const now = new Date();
+    const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+    const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+
+    clockDisplay.textContent = now.toLocaleTimeString([], timeOptions);
+    dateDisplay.textContent = now.toLocaleDateString([], dateOptions);
+}
+
+async function fetchWeather() {
+    try {
+        // We use a free IP-based location API to find the user's city
+        const locResponse = await fetch('http://ip-api.com/json/?fields=lat,lon,city');
+        const locData = await locResponse.json();
+        const { lat, lon, city } = locData;
+
+        // Then we ask our OS core to get the weather for that location
+        const weatherData = await os.getWeather(lat, lon);
+
+        if (weatherData) {
+            weatherDisplay.innerHTML = `
+                <img src="https://openweathermap.org/img/wn/${weatherData.icon}.png" alt="${weatherData.description}" width="24" height="24">
+                <span>${weatherData.temp}°C in ${city}</span>
+            `;
+        }
+    } catch (error) {
+        console.error("Could not fetch weather:", error);
+    }
+}
 
     const cycleWallpaper = () => {
         const isDark = document.body.classList.contains('dark-theme');
@@ -495,7 +532,11 @@ const closeAll = () => {
     setupSpeechRecognition();
     
     // --- Initial Load ---
-    loadDockState();
-    loadTheme(); // ADD THIS LINE
-    loadNotes();
+loadDockState();
+loadTheme();
+loadNotes();
+updateClock();
+setInterval(updateClock, 1000); // Update clock every second
+fetchWeather();
+setTimeout(() => systemWidget.classList.add('loaded'), 800); // Fade in the widget
 });
