@@ -123,13 +123,15 @@ function updateClock() {
 
 async function fetchWeather() {
     try {
-        // We use a free IP-based location API to find the user's city
-        const locResponse = await fetch('http://ip-api.com/json/?fields=lat,lon,city');
+        // CORRECT: Using the secure (https) location provider
+        const locResponse = await fetch('https://ipapi.co/json/');
+        if (!locResponse.ok) {
+            throw new Error(`Location fetch failed with status: ${locResponse.status}`);
+        }
         const locData = await locResponse.json();
-        const { lat, lon, city } = locData;
+        const { latitude, longitude, city } = locData;
 
-        // Then we ask our OS core to get the weather for that location
-        const weatherData = await os.getWeather(lat, lon);
+        const weatherData = await os.getWeather(latitude, longitude);
 
         if (weatherData) {
             weatherDisplay.innerHTML = `
@@ -139,6 +141,7 @@ async function fetchWeather() {
         }
     } catch (error) {
         console.error("Could not fetch weather:", error);
+        weatherDisplay.innerHTML = `<span>Weather unavailable</span>`;
     }
 }
 
