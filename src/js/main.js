@@ -456,22 +456,32 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
         await os.askAI(prompt);
     });
 
-    const closeAll = () => {
-        appStoreWindow.classList.remove('visible');
-        os.closePlanner(); // ADD THIS LINE
-        document.body.classList.remove('compact-active');
-        document.body.classList.remove('chat-active');
-        compactInput.value = '';
-        compactInput.style.height = 'auto';
-    };
+    // NEW, SAFER FUNCTION
+const closeCompactInput = () => {
+    document.body.classList.remove('compact-active');
+    // We don't clear the input here, in case the user is just clicking away temporarily
+};
+
+// MODIFIED closeAll FUNCTION
+const closeAll = () => {
+    appStoreWindow.classList.remove('visible');
+    os.closePlanner();
+    closeCompactInput(); // Use the new function
+    document.body.classList.remove('chat-active');
+    compactInput.value = ''; // Now we clear the input when everything closes
+    compactInput.style.height = 'auto';
+};
     chatOverlay.addEventListener('click', closeAll);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeAll();
     });
     compactInput.addEventListener('blur', () => {
         setTimeout(() => {
-            if (compactInput.value.trim() === '' && !document.body.classList.contains('chat-active')) {
-                closeAll();
+            // This new logic is much safer. It closes the input bar if you click away,
+            // but ONLY if the input is empty AND you are not actively using voice mode.
+            // Most importantly, it no longer closes the entire chat view.
+            if (compactInput.value.trim() === '' && !isListening) {
+                closeCompactInput(); 
             }
         }, 150);
     });
