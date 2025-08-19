@@ -488,6 +488,17 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
         compactInput.style.height = 'auto';
         compactInput.style.height = `${compactInput.scrollHeight}px`;
     });
+    // ADD THIS NEW EVENT LISTENER FOR THE ENTER KEY
+compactInput.addEventListener('keydown', (event) => {
+    // Check if the Enter key was pressed WITHOUT the Shift key
+    if (event.key === 'Enter' && !event.shiftKey) {
+        // Prevent the default action (which is to add a new line)
+        event.preventDefault();
+
+        // Programmatically click the submit button to trigger our existing logic
+        compactInputForm.querySelector('button[type="submit"]').click();
+    }
+});
 
     webSearchBtn.addEventListener('click', () => {
         const isActive = os.toggleWebSearchMode();
