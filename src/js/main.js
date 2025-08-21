@@ -186,6 +186,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             compactInput.placeholder = `Search ${provider.name}...`;
         }
         searchProviderMenu.classList.remove('visible');
+        searchProviderBtn.parentElement.classList.remove('tooltip-visible');
     };
     
     const renderSearchProviders = () => {
@@ -551,6 +552,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     searchProviderBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         searchProviderMenu.classList.toggle('visible');
+        searchProviderBtn.parentElement.classList.toggle('tooltip-visible');
     });
 
     searchProviderMenu.addEventListener('click', (e) => {
@@ -568,6 +570,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.search-provider-selector')) {
             searchProviderMenu.classList.remove('visible');
+            searchProviderBtn.parentElement.classList.remove('tooltip-visible');
         }
     });
 

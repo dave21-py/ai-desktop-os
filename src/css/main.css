@@ -239,7 +239,7 @@ body {
     z-index: 101; /* Ensure it's above the menu */
 }
 
-.search-provider-selector[data-tooltip]:hover::after {
+.search-provider-selector.tooltip-visible[data-tooltip]::after {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0); /* Animate upwards */
