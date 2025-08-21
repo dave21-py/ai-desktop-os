@@ -219,7 +219,7 @@ body {
 .search-provider-selector[data-tooltip]::after {
     content: attr(data-tooltip); /* Pulls text from the HTML attribute */
     position: absolute;
-    bottom: calc(100% + 10px); /* Position above the provider menu */
+    bottom: calc(100% + 55px); /* Position above the provider menu */
     left: 50%;
     transform: translateX(-50%) translateY(5px); /* Start slightly lower for animation */
     
