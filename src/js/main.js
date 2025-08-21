@@ -1,5 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     
+    // NEW searchProviders array with updated AI icon and Google prefix
+const searchProviders = [
+    { id: 'ai', name: 'VibeOS AI', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', prefix: 'ai:', isAI: true },
+    { id: 'google', name: 'Google', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', prefix: 'search:', searchUrl: 'https://www.google.com/search?q=' },
+    { id: 'youtube', name: 'YouTube', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg', prefix: 'yt:', searchUrl: 'https://www.youtube.com/results?search_query=' },
+    { id: 'wikipedia', name: 'Wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg', prefix: 'wiki:', searchUrl: 'https://en.wikipedia.org/w/index.php?search=' },
+    { id: 'amazon', name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', prefix: 'amazon:', searchUrl: 'https://www.amazon.com/s?k=' }
+];
+
     // --- App Data ---
     const appDatabase = [
         // Keep your existing apps
@@ -16,9 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
         { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true},
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
-        {name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
-        {name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true},
-        {name: 'Y2Mate', id: 'ytmate', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Youtube-to-mp3.png', url: 'https://y2mate.nu/C1Gx/'},
+        { name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
+        { name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true},
+        { name: 'Y2Mate', id: 'ytmate', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Youtube-to-mp3.png', url: 'https://y2mate.nu/C1Gx/'},
         {
             name: 'Excalidraw',
             id: 'excalidraw',
@@ -38,11 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
         },
     ];
     
-        // --- NEW: Speech Recognition ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition;
-        let isListening = false;
-        let hasShownSearchSuggestion = false; // ADD THIS LINE
+    // --- Speech Recognition ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let isListening = false;
+
     // --- Wallpaper Data & State ---
     const lightWallpapers = ['wallpaper1.png', 'wallpaper2.png', 'wallpaper6.jpg', 'wallpaper9.jpg'];
     const darkWallpapers = ['wallpaper3.png', 'wallpaper4.png', 'wallpaper5.jpg', 'wallpaper7.jpg', 'wallpaper8.jpg'];
@@ -52,12 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State ---
     let dockedApps = [];
+    // NEW currentSearchProvider variable defaulting to AI
+let currentSearchProvider = searchProviders[0]; // Default to AI
 
     // --- UI Element Selectors ---
     const appDock = document.querySelector('.app-dock');
-    const notesSidebar = document.querySelector('.notes-sidebar'); // ADD THIS
-    const closeNotesBtn = document.querySelector('.close-notes-btn'); // ADD THIS
-    const notesTextarea = document.querySelector('#notes-textarea'); // ADD THIS
+    const notesSidebar = document.querySelector('.notes-sidebar');
+    const closeNotesBtn = document.querySelector('.close-notes-btn');
+    const notesTextarea = document.querySelector('#notes-textarea');
     const welcomeOverlay = document.querySelector('.welcome-overlay');
     const enterOsBtn = document.querySelector('#enter-os-btn');
     const background = document.querySelector('.background-image');
@@ -70,16 +81,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const compactInput = document.querySelector('#compact-input');
     const compactInputForm = document.querySelector('.compact-input-form');
     const chatOverlay = document.querySelector('.chat-overlay');
-    const voiceModeBtn = document.querySelector('#voice-mode-btn'); // ADD THIS LINE
-    const webSearchBtn = document.querySelector('#web-search-btn');
-const webSearchSuggestion = document.querySelector('#web-search-suggestion');
-    // Add these to your UI selectors
-const clockDisplay = document.querySelector('#clock-display');
-const dateDisplay = document.querySelector('#date-display');
-const weatherDisplay = document.querySelector('#weather-display');
-const systemWidget = document.querySelector('.system-widget');
+    const voiceModeBtn = document.querySelector('#voice-mode-btn');
+    const clockDisplay = document.querySelector('#clock-display');
+    const dateDisplay = document.querySelector('#date-display');
+    const weatherDisplay = document.querySelector('#weather-display');
+    const systemWidget = document.querySelector('.system-widget');
+    // New Search Provider Selectors
+    const searchProviderBtn = document.querySelector('#search-provider-btn');
+    const searchProviderIcon = document.querySelector('#search-provider-icon');
+    const searchProviderMenu = document.querySelector('#search-provider-menu');
 
-        // ======================================================
+
+    // ======================================================
     // THEME LOGIC
     // ======================================================
 
@@ -113,58 +126,82 @@ const systemWidget = document.querySelector('.system-widget');
         setTheme(savedTheme);
     };
 
-    // ADD THESE TWO NEW FUNCTIONS
+    function updateClock() {
+        const now = new Date();
+        const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
+        const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
 
-function updateClock() {
-    const now = new Date();
-    const timeOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
-    const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
-
-    clockDisplay.textContent = now.toLocaleTimeString([], timeOptions);
-    dateDisplay.textContent = now.toLocaleDateString([], dateOptions);
-}
-
-async function fetchWeather() {
-    try {
-        // CORRECT: Using the secure (https) location provider
-        const locResponse = await fetch('https://ipapi.co/json/');
-        if (!locResponse.ok) {
-            throw new Error(`Location fetch failed with status: ${locResponse.status}`);
-        }
-        const locData = await locResponse.json();
-        const { latitude, longitude, city } = locData;
-
-        const weatherData = await os.getWeather(latitude, longitude);
-
-        if (weatherData) {
-            weatherDisplay.innerHTML = `
-                <img src="https://openweathermap.org/img/wn/${weatherData.icon}.png" alt="${weatherData.description}" width="24" height="24">
-                <span>${weatherData.temp}°C in ${city}</span>
-            `;
-        }
-    } catch (error) {
-        console.error("Could not fetch weather:", error);
-        weatherDisplay.innerHTML = `<span>Weather unavailable</span>`;
+        clockDisplay.textContent = now.toLocaleTimeString([], timeOptions);
+        dateDisplay.textContent = now.toLocaleDateString([], dateOptions);
     }
-}
+
+    async function fetchWeather() {
+        try {
+            const locResponse = await fetch('https://ipapi.co/json/');
+            if (!locResponse.ok) {
+                throw new Error(`Location fetch failed with status: ${locResponse.status}`);
+            }
+            const locData = await locResponse.json();
+            const { latitude, longitude, city } = locData;
+
+            const weatherData = await os.getWeather(latitude, longitude);
+
+            if (weatherData) {
+                weatherDisplay.innerHTML = `
+                    <img src="https://openweathermap.org/img/wn/${weatherData.icon}.png" alt="${weatherData.description}" width="24" height="24">
+                    <span>${weatherData.temp}°C in ${city}</span>
+                `;
+            }
+        } catch (error) {
+            console.error("Could not fetch weather:", error);
+            weatherDisplay.innerHTML = `<span>Weather unavailable</span>`;
+        }
+    }
 
     const cycleWallpaper = () => {
         const isDark = document.body.classList.contains('dark-theme');
         const wallpaperList = isDark ? darkWallpapers : lightWallpapers;
         
         const currentIndex = wallpaperList.indexOf(currentWallpaper);
-        const nextIndex = (currentIndex + 1) % wallpaperList.length; // Loop back to the start
+        const nextIndex = (currentIndex + 1) % wallpaperList.length;
         
         const newWallpaper = wallpaperList[nextIndex];
         setWallpaper(newWallpaper);
-        return `Sure, how about this one?`; // Return a message for the AI
+        return `Sure, how about this one?`;
     };
 
     // ======================================================
-    // CORE LOGIC (Dock & App Store)
+    // SEARCH PROVIDER LOGIC
     // ======================================================
-
-        // ======================================================
+    
+    const updateSearchProvider = (provider) => {
+        currentSearchProvider = provider;
+        searchProviderIcon.src = provider.icon;
+        searchProviderIcon.alt = `Search with ${provider.name}`;
+        searchProviderBtn.setAttribute('aria-label', `Current provider: ${provider.name}. Click to change.`);
+        
+        if (provider.isAI) {
+            compactInput.placeholder = 'Ask something...';
+        } else {
+            compactInput.placeholder = `Search ${provider.name}...`;
+        }
+        searchProviderMenu.classList.remove('visible');
+    };
+    
+    const renderSearchProviders = () => {
+        searchProviderMenu.innerHTML = '';
+        searchProviders.forEach(provider => {
+            const option = document.createElement('button');
+            option.className = 'provider-option';
+            option.dataset.providerId = provider.id;
+            option.setAttribute('title', `Switch to ${provider.name}`);
+            option.setAttribute('aria-label', `Switch to ${provider.name}`);
+            option.innerHTML = `<img src="${provider.icon}" alt="${provider.name}">`;
+            searchProviderMenu.appendChild(option);
+        });
+    };
+    
+    // ======================================================
     // NOTES LOGIC
     // ======================================================
     
@@ -189,6 +226,9 @@ async function fetchWeather() {
         saveNotes();
     };
 
+    // ======================================================
+    // CORE LOGIC (Dock & App Store)
+    // ======================================================
     const openAppStore = () => appStoreWindow.classList.add('visible');
     
     const saveDockState = () => {
@@ -204,12 +244,8 @@ async function fetchWeather() {
     };
 
     const renderDock = () => {
-        const appsToShow = new Map(); // Use a Map to automatically handle duplicates
-    
-        // First, add all permanently docked apps
+        const appsToShow = new Map();
         dockedApps.forEach(app => appsToShow.set(app.id, app));
-    
-        // Then, add all currently running apps
         runningApps.forEach(appId => {
             if (!appsToShow.has(appId)) {
                 const app = appDatabase.find(a => a.id === appId);
@@ -224,7 +260,6 @@ async function fetchWeather() {
                 dockItem.className = 'dock-item';
                 dockItem.dataset.appId = app.id;
     
-                // Add an 'active' class if the app is currently running
                 if (runningApps.has(app.id)) {
                     dockItem.classList.add('active');
                 }
@@ -251,7 +286,6 @@ async function fetchWeather() {
                 saveDockState();
                 renderDock();
                 renderApps();
-                // If the dock wasn't visible before, make it visible now.
                 setTimeout(() => appDock.classList.add('visible'), 50);
                 return `${appToAdd.name} has been added to your dock.`;
             }
@@ -273,25 +307,22 @@ async function fetchWeather() {
     };
 
     const addMinimizedAppToDock = (app) => {
-        // This function doesn't need to do anything with state,
-        // it just ensures the dock's UI is up-to-date.
         renderDock();
     };
 
     const appOpened = (appId) => {
         runningApps.add(appId);
-        renderDock(); // Re-render the dock to show the running app
+        renderDock();
     };
     
     const appClosed = (appId) => {
         runningApps.delete(appId);
-        renderDock(); // Re-render the dock to remove the running app
+        renderDock();
     };
 
     const startListening = () => {
         if (!recognition || isListening) return;
         try {
-            console.log("Starting voice recognition.");
             isListening = true;
             voiceModeBtn.classList.add('recording');
             recognition.start();
@@ -304,12 +335,10 @@ async function fetchWeather() {
     
     const stopListening = () => {
         if (!recognition || !isListening) return;
-        console.log("Stopping voice recognition.");
-        recognition.stop(); // onend event will handle isListening and class removal
+        recognition.stop();
     };
 
-    // Initialize OS Core, passing all necessary control functions for the AI
-    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening,appOpened, appClosed, addMinimizedAppToDock});
+    const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening, appOpened, appClosed, addMinimizedAppToDock });
     os.boot();
 
     const renderApps = (appsToRender = appDatabase) => {
@@ -332,40 +361,32 @@ async function fetchWeather() {
         });
     };
 
-        // ======================================================
+    // ======================================================
     // SPEECH RECOGNITION LOGIC
     // ======================================================
     const setupSpeechRecognition = () => {
         if (!SpeechRecognition) {
-            console.warn("Speech Recognition API is not supported in this browser.");
-            if (voiceModeBtn) voiceModeBtn.style.display = 'none'; // Hide button if not supported
+            if (voiceModeBtn) voiceModeBtn.style.display = 'none';
             return;
         }
     
         recognition = new SpeechRecognition();
-        recognition.continuous = false; // IMPORTANT: Only listen for a single utterance
+        recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = 'en-US';
     
         recognition.onresult = (event) => {
             const command = event.results[0][0].transcript.trim();
-            console.log('Voice Command Received:', command);
-    
             if (command) {
                 document.body.classList.add('chat-active');
                 os.askAI(command);
             }
         };
     
-        recognition.onerror = (event) => {
-            console.error('Speech recognition error:', event.error);
-        };
+        recognition.onerror = (event) => console.error('Speech recognition error:', event.error);
         
-        // This event now correctly handles all ways the recognition can end
         recognition.onend = () => {
-            // Check if still listening, as stopListening might have been called manually
             if (isListening) {
-                console.log('Speech recognition service ended.');
                 isListening = false;
                 voiceModeBtn.classList.remove('recording');
             }
@@ -377,97 +398,71 @@ async function fetchWeather() {
     // ======================================================
 
     closeNotesBtn.addEventListener('click', closeNotes);
-    notesTextarea.addEventListener('input', saveNotes); // Auto-save on typing
+    notesTextarea.addEventListener('input', saveNotes);
 
-    // --- NEW: AI Trip Planner Listeners ---
-os.ui.closePlannerBtn.addEventListener('click', () => {
-    os.closePlanner();
-});
+    os.ui.closePlannerBtn.addEventListener('click', () => os.closePlanner());
+    os.ui.plannerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const prompt = os.ui.plannerInput.value.trim();
+        if (prompt) os.generateTripPlan(prompt);
+    });
 
-os.ui.plannerForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const prompt = os.ui.plannerInput.value.trim();
-    if (prompt) {
-        os.generateTripPlan(prompt);
-    }
-});
+    enterOsBtn.addEventListener('click', () => {
+        welcomeOverlay.classList.add('hidden');
+        setTimeout(() => background.classList.add('loaded'), 100);
+        
+        if (dockedApps.length > 0) {
+            setTimeout(() => appDock.classList.add('visible'), 500);
+        }
+        
+        setTimeout(() => bottomBar.classList.add('loaded'), 600);
+        setTimeout(() => {
+            document.body.classList.add('chat-active', 'compact-active');
+            os.deliverGreeting(); 
+        }, 1000);
+    });
 
-        // --- Welcome Screen & Homepage Animation ---
-        enterOsBtn.addEventListener('click', () => {
-            welcomeOverlay.classList.add('hidden');
-            setTimeout(() => background.classList.add('loaded'), 100);
-            
-            // Animate the dock if it has items in it from the start
-            if (dockedApps.length > 0) {
-                setTimeout(() => appDock.classList.add('visible'), 500);
-            }
-            
-            setTimeout(() => bottomBar.classList.add('loaded'), 600);
+    appListContainer.addEventListener('click', (e) => {
+        const addButton = e.target.closest('.add-app-btn');
+        const appItem = e.target.closest('.app-item');
     
-            // --- NEW: Trigger the AI Greeting after animations ---
-            setTimeout(() => {
-                // Make the chat interface visible
-                document.body.classList.add('chat-active');
-                document.body.classList.add('compact-active');
+        if (addButton && !addButton.classList.contains('added')) {
+            addAppToDock(addButton.dataset.appId);
+            return;
+        }
     
-                // Tell the OS core to generate and display the greeting message
-                os.deliverGreeting(); 
-            }, 1000); // 1 second delay to feel deliberate
-        });
+        if (appItem) {
+            const appId = appItem.dataset.appId;
+            const appToLaunch = appDatabase.find(app => app.id === appId);
+            if (appToLaunch) os.launchApp(appToLaunch);
+        }
+    });
+
+    appDock.addEventListener('click', (e) => {
+        const removeButton = e.target.closest('.remove-dock-item');
+        const dockItem = e.target.closest('.dock-item');
     
-        appListContainer.addEventListener('click', (e) => {
-            const addButton = e.target.closest('.add-app-btn');
-            const appItem = e.target.closest('.app-item');
-        
-            // Case 1: User clicked the 'add' button specifically
-            if (addButton && !addButton.classList.contains('added')) {
-                addAppToDock(addButton.dataset.appId);
-                return; // Stop here to prevent launching
-            }
-        
-            // Case 2: User clicked anywhere on the app row to launch it
-            if (appItem) {
-                // Find the app ID from the app item's data attribute
-                const appId = appItem.dataset.appId;
-                const appToLaunch = appDatabase.find(app => app.id === appId);
-                
-                if (appToLaunch) {
-                    os.launchApp(appToLaunch);
-                }
-            }
-        });
+        if (removeButton && dockItem) {
+            e.stopPropagation();
+            removeAppFromDock(dockItem.dataset.appId);
+            return;
+        }
+    
+        if (dockItem) {
+            const appId = dockItem.dataset.appId;
+            const appToLaunch = appDatabase.find(app => app.id === appId);
+            os.launchApp(appToLaunch);
+        }
+    });
 
-        appDock.addEventListener('click', (e) => {
-            const removeButton = e.target.closest('.remove-dock-item');
-            const dockItem = e.target.closest('.dock-item');
-        
-            if (removeButton && dockItem) {
-                e.stopPropagation();
-                removeAppFromDock(dockItem.dataset.appId);
-                return;
-            }
-        
-            if (dockItem) {
-                const appId = dockItem.dataset.appId;
-                const appToLaunch = appDatabase.find(app => app.id === appId);
-                os.launchApp(appToLaunch); // The smart launcher handles everything.
-            }
-        });
-
-        // --- NEW: Handle clicks on AI Quick Action buttons ---
-        const messageList = document.querySelector('.ai-message-list');
-        messageList.addEventListener('click', (e) => {
-            const button = e.target.closest('.quick-action-btn');
-            if (button) {
-                const payload = button.dataset.payload;
-                if (payload) {
-                    // Remove the buttons after one is clicked for a cleaner UI
-                    button.parentElement.remove();
-                    // Send the payload to the AI as if the user typed it
-                    os.askAI(payload);
-                }
-            }
-        });
+    const messageList = document.querySelector('.ai-message-list');
+    messageList.addEventListener('click', (e) => {
+        const button = e.target.closest('.quick-action-btn');
+        if (button && button.dataset.payload) {
+            button.parentElement.remove();
+            os.askAI(button.dataset.payload);
+        }
+    });
     
     appSearchInput.addEventListener('input', () => {
         const searchTerm = appSearchInput.value.toLowerCase().trim();
@@ -485,42 +480,26 @@ os.ui.plannerForm.addEventListener('submit', (e) => {
     });
 
     compactInput.addEventListener('input', () => {
+        // Auto-resize textarea
         compactInput.style.height = 'auto';
         compactInput.style.height = `${compactInput.scrollHeight}px`;
-    });
-    // ADD THIS NEW EVENT LISTENER FOR THE ENTER KEY
-compactInput.addEventListener('keydown', (event) => {
-    // Check if the Enter key was pressed WITHOUT the Shift key
-    if (event.key === 'Enter' && !event.shiftKey) {
-        // Prevent the default action (which is to add a new line)
-        event.preventDefault();
-
-        // Programmatically click the submit button to trigger our existing logic
-        compactInputForm.querySelector('button[type="submit"]').click();
-    }
-});
-
-    webSearchBtn.addEventListener('click', () => {
-        const isActive = os.toggleWebSearchMode();
-        
-        webSearchBtn.classList.toggle('active', isActive);
     
-        if (isActive) {
-            compactInput.placeholder = 'Search the web...';
-            // Show the suggestion bubble only once per session
-            if (!hasShownSearchSuggestion) {
-                webSearchSuggestion.classList.remove('hidden');
-                webSearchSuggestion.classList.add('visible');
-                hasShownSearchSuggestion = true;
-                
-                // Hide it after a few seconds
-                setTimeout(() => {
-                    webSearchSuggestion.classList.remove('visible');
-                }, 4000); // 4 seconds
-            }
-        } else {
-            compactInput.placeholder = 'Ask something...';
-            webSearchSuggestion.classList.remove('visible'); // Hide if they toggle off
+        // Power-user prefix detection
+        const value = compactInput.value;
+        const word = value.split(' ')[0];
+        
+        const matchedProvider = searchProviders.find(p => p.prefix && word.toLowerCase() === p.prefix);
+    
+        if (matchedProvider) {
+            updateSearchProvider(matchedProvider);
+            compactInput.value = value.substring(word.length).trimStart();
+        }
+    });
+    
+    compactInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            compactInputForm.querySelector('button[type="submit"]').click();
         }
     });
     
@@ -529,41 +508,38 @@ compactInput.addEventListener('keydown', (event) => {
         const prompt = compactInput.value.trim();
         if (!prompt) return;
     
-        // CORRECTED LOGIC: Check which mode is active
-        if (os.state.isWebSearchModeActive) {
-            // --- WEB SEARCH MODE ---
-            os.performWebSearch(prompt);
-            compactInput.value = '';
-            compactInput.style.height = 'auto';
-            compactInput.focus(); // Keep the input focused for another search
-        } else {
-            // --- AI CHAT MODE (The original behavior) ---
+        if (currentSearchProvider.isAI) {
             document.body.classList.add('chat-active');
             compactInput.value = '';
             compactInput.style.height = 'auto';
             await os.askAI(prompt);
+        } else {
+            const url = currentSearchProvider.searchUrl + encodeURIComponent(prompt);
+            window.open(url, '_blank');
+            compactInput.value = '';
+            compactInput.style.height = 'auto';
+            compactInput.focus();
         }
     });
 
-    // NEW, SAFER FUNCTION
-const closeCompactInput = () => {
-    document.body.classList.remove('compact-active');
-    // We don't clear the input here, in case the user is just clicking away temporarily
-};
+    const closeCompactInput = () => {
+        document.body.classList.remove('compact-active');
+    };
 
-// MODIFIED closeAll FUNCTION
-const closeAll = () => {
-    appStoreWindow.classList.remove('visible');
-    os.closePlanner();
-    closeCompactInput(); // Use the new function
-    document.body.classList.remove('chat-active');
-    compactInput.value = ''; // Now we clear the input when everything closes
-    compactInput.style.height = 'auto';
-};
+    const closeAll = () => {
+        appStoreWindow.classList.remove('visible');
+        os.closePlanner();
+        closeCompactInput();
+        document.body.classList.remove('chat-active');
+        compactInput.value = '';
+        compactInput.style.height = 'auto';
+    };
+
     chatOverlay.addEventListener('click', closeAll);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeAll();
     });
+
     voiceModeBtn.addEventListener('click', () => {
         if (isListening) {
             stopListening();
@@ -571,14 +547,40 @@ const closeAll = () => {
             startListening();
         }
     });
+
+    searchProviderBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        searchProviderMenu.classList.toggle('visible');
+    });
+
+    searchProviderMenu.addEventListener('click', (e) => {
+        const button = e.target.closest('.provider-option');
+        if (button) {
+            const providerId = button.dataset.providerId;
+            const provider = searchProviders.find(p => p.id === providerId);
+            if (provider) {
+                updateSearchProvider(provider);
+                compactInput.focus();
+            }
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.search-provider-selector')) {
+            searchProviderMenu.classList.remove('visible');
+        }
+    });
+
     setupSpeechRecognition();
     
     // --- Initial Load ---
-loadDockState();
-loadTheme();
-loadNotes();
-updateClock();
-setInterval(updateClock, 1000); // Update clock every second
-fetchWeather();
-setTimeout(() => systemWidget.classList.add('loaded'), 800); // Fade in the widget
+    renderSearchProviders();
+    updateSearchProvider(currentSearchProvider);
+    loadDockState();
+    loadTheme();
+    loadNotes();
+    updateClock();
+    setInterval(updateClock, 1000);
+    fetchWeather();
+    setTimeout(() => systemWidget.classList.add('loaded'), 800);
 });

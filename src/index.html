@@ -119,9 +119,6 @@
         <!-- REMOVED: The old top-center-menu with the "Browse apps" button is gone -->
 
         <div class="chat-view-container">
-            <div id="web-search-suggestion" class="search-suggestion hidden">
-                <span>Web Search is enabled. Results will open in a new tab.</span>
-            </div>
             <div class="ai-message-list-container">
                 <div class="ai-message-list"></div>
             </div>
@@ -159,13 +156,16 @@
                 </div>
                 <div class="compact-input-overlay">
                     <form class="compact-input-form">
+                        <!-- NEW: Search Provider Selector -->
+                        <div class="search-provider-selector" data-tooltip="Search results will open in a new tab. Select a search tool.">
+    <button type="button" id="search-provider-btn" aria-label="Choose Search Provider">
+        <img id="search-provider-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20" height="20" alt="Current Search Provider">
+    </button>
+    <div class="search-provider-menu" id="search-provider-menu">
+        <!-- This will be populated by JavaScript -->
+    </div>
+</div>
                         <textarea id="compact-input" placeholder="Ask something..." rows="1"></textarea>
-                        
-                        <!-- WEB SEARCH BUTTON (WITH A GOOGLE ICON) -->
-                        <button type="button" id="web-search-btn" class="web-search-btn" aria-label="Toggle Web Search">
-                            <!-- REPLACE THE SRC WITH YOUR ICON LINK -->
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="16" height="16" alt="Web Search Icon">
-                        </button>
                     
                         <!-- VOICE BUTTON (ICON RESTORED) -->
                         <button type="button" id="voice-mode-btn" class="voice-mode-btn" aria-label="Use Voice">

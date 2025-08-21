@@ -186,8 +186,8 @@ body {
 .compact-input-form { 
     display: flex; 
     align-items: center; 
-    padding: 8px 8px 8px 20px; 
-    gap: 8px; /* Reduced gap to make space */
+    padding: 8px; /* Use symmetrical padding now */
+    gap: 8px;
 }
 .compact-input-form textarea { 
     flex-grow: 1; 
@@ -204,6 +204,122 @@ body {
     min-height: 22px; 
     max-height: 120px; 
     overflow-y: auto; 
+}
+/* --- NEW: Search Provider Styles --- */
+.search-provider-selector {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* --- NEW: Search Provider Tooltip Styles --- */
+.search-provider-selector[data-tooltip] {
+    position: relative; /* Required for tooltip positioning */
+}
+
+.search-provider-selector[data-tooltip]::after {
+    content: attr(data-tooltip); /* Pulls text from the HTML attribute */
+    position: absolute;
+    bottom: calc(100% + 10px); /* Position above the provider menu */
+    left: 50%;
+    transform: translateX(-50%) translateY(5px); /* Start slightly lower for animation */
+    
+    background-color: var(--secondary-bg);
+    color: var(--primary-text);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    white-space: nowrap; /* Prevent text from wrapping */
+    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
+    z-index: 101; /* Ensure it's above the menu */
+}
+
+.search-provider-selector[data-tooltip]:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0); /* Animate upwards */
+}
+
+#search-provider-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.2s ease;
+}
+
+#search-provider-btn:hover {
+    background-color: var(--input-bg);
+}
+
+#search-provider-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.search-provider-menu {
+    position: absolute;
+    bottom: calc(100% + 8px); /* Position above the button with a gap */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px); /* Start lower for animation */
+    
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    
+    background-color: var(--secondary-bg);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+}
+
+.search-provider-menu.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.provider-option {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 6px;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.provider-option:hover {
+    transform: scale(1.1);
+    background-color: var(--input-bg);
+}
+
+.provider-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 .compact-input-form textarea::placeholder { 
     color: var(--secondary-text); 
@@ -245,21 +361,6 @@ body {
 .compact-input-form button[type="button"]:not(.active):not(.recording):hover {
     background-color: var(--input-bg);
     color: var(--primary-text);
-}
-
-/* 5. Specific styles for the Web Search button's icon */
-.compact-input-form .web-search-btn img {
-    opacity: 0.7;
-    transition: opacity 0.2s ease;
-}
-.compact-input-form .web-search-btn:hover img,
-.compact-input-form .web-search-btn.active img {
-    opacity: 1;
-}
-
-/* 6. Active state for Web Search button */
-.compact-input-form .web-search-btn.active {
-    background-color: var(--accent-color);
 }
 
 /* 7. Recording state for Voice button */
@@ -432,29 +533,6 @@ body {
 .chat-overlay { position: fixed; inset: 0; z-index: 5; background-color: rgba(0, 0, 0, 0.1); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.4s ease, visibility 0.4s; }
 .chat-view-container { position: absolute; bottom: 120px; left: 0; right: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 16px; opacity: 0; visibility: hidden; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s; pointer-events: none; }
 .chat-view-container > * { pointer-events: auto; }
-/* ADD THESE NEW STYLES */
-.search-suggestion {
-    padding: 8px 16px;
-    border-radius: 12px;
-    background-color: var(--secondary-bg);
-    color: var(--primary-text);
-    font-size: 0.9rem;
-    font-weight: 600;
-    box-shadow: 0 4px 10px var(--shadow-color);
-    margin-bottom: 16px; /* Space it from the chat history */
-    opacity: 0;
-    transform: translateY(-20px);
-    transition: all 0.3s ease;
-}
-
-.search-suggestion.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.search-suggestion.hidden {
-    display: none;
-}
 .ai-message-list-container { width: 100%; max-width: 600px; max-height: calc(90vh - 250px); overflow-y: auto; display: flex; flex-direction: column-reverse; }
 .ai-message-list { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
 .ai-message { display: flex; max-width: 85%; }

@@ -7,7 +7,6 @@ class WarmwindOS {
         this.state = {
             conversationHistory: [],
             currentWeather: null, // ADD THIS
-            isWebSearchModeActive: false // ADD THIS LINE
         };
         this.ui = {};
                 // --- NEW: Music Player State ---
@@ -35,21 +34,6 @@ this.currentSessionType = 'work'; // Can be 'work' or 'break'
                 this.openWindows = new Set(); // Tracks all open app IDs
     }
 
-    // ADD THESE TWO NEW FUNCTIONS
-
-toggleWebSearchMode() {
-    this.state.isWebSearchModeActive = !this.state.isWebSearchModeActive;
-    console.log(`Web Search Mode: ${this.state.isWebSearchModeActive ? 'ON' : 'OFF'}`);
-    return this.state.isWebSearchModeActive;
-}
-
-performWebSearch(prompt) {
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(prompt)}`;
-    window.open(searchUrl, '_blank');
-    // We add a message directly to the chat without calling the AI
-    this._addMessageToChat('user', prompt);
-    this._addMessageToChat('ai', `I've opened a Google search for "${prompt}" in a new tab.`);
-}
 
 
     // ADD THIS NEW FUNCTION INSIDE THE WarmwindOS CLASS
@@ -622,51 +606,37 @@ _renderPlannerResults(data) {
     }
 
     // ADD THIS NEW FUNCTION INSIDE THE WarmwindOS CLASS
-async _handleSearchCommand(prompt) {
-    const lowerCasePrompt = prompt.toLowerCase();
+    async _handleSearchCommand(prompt) {
+        const lowerCasePrompt = prompt.toLowerCase();
+        
+        // Smart Wikipedia Summary Search
+        if (lowerCasePrompt.includes('wikipedia for')) {
+            const searchTerm = lowerCasePrompt.split('wikipedia for').pop().trim();
+            if (!searchTerm) return false; // Not a valid command if there's no search term
     
-    // Wikipedia Search
-    if (lowerCasePrompt.includes('wikipedia')) {
-        const searchTerm = lowerCasePrompt.split('wikipedia for').pop().trim();
-        if (!searchTerm) return false;
-
-        this._addMessageToChat('ai', `Searching Wikipedia for "${searchTerm}"...`);
-        try {
-            const WIKI_URL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&redirects=1&origin=*&titles=${encodeURIComponent(searchTerm)}`;
-            const response = await fetch(WIKI_URL);
-            const data = await response.json();
-            const page = Object.values(data.query.pages)[0];
-            
-            if (page.extract) {
-                const summary = page.extract.split('. ').slice(0, 2).join('. ') + '.';
-                const pageUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`;
-                const actions = [{ label: `Open full article for "${page.title}"`, payload: `open ${pageUrl}` }];
-                this._addMessageToChat('ai', summary, actions);
-            } else {
-                this._addMessageToChat('ai', `Sorry, I couldn't find a Wikipedia article for "${searchTerm}".`);
+            this._addMessageToChat('ai', `Searching Wikipedia for a summary of "${searchTerm}"...`);
+            try {
+                const WIKI_URL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&redirects=1&origin=*&titles=${encodeURIComponent(searchTerm)}`;
+                const response = await fetch(WIKI_URL);
+                const data = await response.json();
+                const page = Object.values(data.query.pages)[0];
+                
+                if (page.extract) {
+                    const summary = page.extract.split('. ').slice(0, 2).join('. ') + '.';
+                    const pageUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`;
+                    const actions = [{ label: `Open full article for "${page.title}"`, payload: `open ${pageUrl}` }];
+                    this._addMessageToChat('ai', summary, actions);
+                } else {
+                    this._addMessageToChat('ai', `Sorry, I couldn't find a Wikipedia article for "${searchTerm}".`);
+                }
+            } catch (error) {
+                this._addMessageToChat('ai', "There was an error while searching Wikipedia.");
             }
-        } catch (error) {
-            this._addMessageToChat('ai', "There was an error searching Wikipedia.");
+            return true; // Command was handled
         }
-        return true;
-    }
     
-    // Simple Web Search (handles Google, YouTube, etc.)
-    const searchKeywords = ['search for', 'google', 'look up'];
-    for (const keyword of searchKeywords) {
-        if (lowerCasePrompt.startsWith(keyword)) {
-            const searchTerm = prompt.substring(keyword.length).trim();
-            if (!searchTerm) return false;
-            
-            const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
-            window.open(searchUrl, '_blank');
-            this._addMessageToChat('ai', `I've opened a Google search for "${searchTerm}" in a new tab for you.`);
-            return true;
-        }
+        return false; // No relevant command was found
     }
-
-    return false;
-}
 
     async _handleCommand(prompt) {
         const lowerCasePrompt = prompt.toLowerCase();
