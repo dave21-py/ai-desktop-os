@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // NEW searchProviders array with updated AI icon and Google prefix
 const searchProviders = [
-    { id: 'ai', name: 'VibeOS AI', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', prefix: 'ai:', isAI: true },
+    { id: 'ai', name: 'VibeOS AI', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Globe_icon.svg', prefix: 'ai:', isAI: true },
     { id: 'google', name: 'Google', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', prefix: 'search:', searchUrl: 'https://www.google.com/search?q=' },
     { id: 'youtube', name: 'YouTube', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg', prefix: 'yt:', searchUrl: 'https://www.youtube.com/results?search_query=' },
     { id: 'wikipedia', name: 'Wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg', prefix: 'wiki:', searchUrl: 'https://en.wikipedia.org/w/index.php?search=' },
