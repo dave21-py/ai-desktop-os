@@ -168,49 +168,57 @@ body {
 /* --- Main OS Container --- */
 .os-container { position: relative; width: 95vw; height: 90vh; max-width: 1600px; max-height: 900px; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; }
 /* --- NEW: System Widget (Clock & Weather) --- */
+/* --- V2: System Widget (Clock & Weather) --- */
 .system-widget {
     position: absolute;
-    top: 20px;
-    right: 24px;
+    top: 24px;  /* More padding from the top */
+    right: 32px; /* More padding from the right */
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 4px;
-    font-family: var(--font-body);
-    font-weight: 600;
+    gap: 8px; /* Increased gap */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; /* Consistent font */
     color: var(--primary-text);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    text-shadow: 0 1px 5px rgba(0,0,0,0.2); /* Softer, more modern shadow */
     opacity: 0;
     transition: opacity 0.5s ease-out;
 }
+
 .system-widget.loaded {
     opacity: 1;
 }
+
 .system-widget .clock {
-    font-size: 2.5rem;
-    letter-spacing: -1px;
+    font-size: 3.5rem; /* Larger and more prominent */
+    font-weight: 700; /* Bolder */
+    letter-spacing: -1.5px;
 }
+
 .system-widget .date {
-    font-size: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600; /* Bolder */
     opacity: 0.8;
 }
+
 .system-widget .weather {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 8px; /* Increased gap */
+    padding: 6px 14px; /* More padding */
     border-radius: 20px;
     margin-top: 4px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.1); /* Darker, translucent background */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Faint border for glass effect */
+    font-size: 1rem; /* Larger font */
+    font-weight: 600;
 }
-.system-widget .weather svg {
-    width: 18px;
-    height: 18px;
+
+.system-widget .weather img { /* Targeting the weather icon specifically */
+    width: 24px;
+    height: 24px;
     opacity: 0.9;
 }
 .background-image { position: absolute; inset: 0; background-image: var(--background-image-url); background-size: cover; background-position: center; z-index: 1; opacity: 0; transform: scale(1.05); transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 1s ease-out; }
@@ -312,34 +320,111 @@ body {
 .avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .user-group .avatar:not(:first-child) { margin-left: -12px; }
 
-/* --- Center Console & In-Place Input --- */
-.center-console { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; }
-.main-user-avatar { width: 48px; height: 48px; background-color: var(--primary-bg); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border: 1px solid var(--border-color); border-radius: 50%; padding: 4px; box-shadow: 0 4px 10px var(--shadow-color); transition: background-color 0.3s ease, border-color 0.3s ease; }
-.main-user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-.ask-bar { padding: 10px 24px; min-width: 180px; text-align: center; background-color: var(--secondary-bg); border-radius: 50px; box-shadow: 0 4px 10px var(--shadow-color); color: var(--secondary-text); font-size: 15px; font-weight: 600; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.compact-input-overlay { position: absolute; left: 50%; top: 56px; width: 320px; z-index: 1; background-color: var(--secondary-bg); border-radius: 28px; box-shadow: 0 4px 10px var(--shadow-color); opacity: 0; visibility: hidden; pointer-events: none; transform: translateX(-50%) scale(0.9); transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
-.compact-input-form { 
-    display: flex; 
-    align-items: center; 
-    padding: 8px; /* Use symmetrical padding now */
+/* --- V2: Center Console & Input --- */
+.center-console {
+    position: absolute;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px; /* Increased gap */
+    cursor: pointer;
+}
+
+.main-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.main-user-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* This is the main input bar now */
+.ask-bar {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    padding: 8px;
+    width: 350px; /* START NARROWER */
+    background-color: var(--secondary-bg);
+    border-radius: 50px;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); /* Animate width change */
 }
-.compact-input-form textarea { 
-    flex-grow: 1; 
-    border: none; 
-    background: transparent; 
-    padding: 0; 
-    font-size: 15px; 
-    font-family: var(--font-body); 
-    font-weight: 600; 
-    outline: none; 
-    color: var(--primary-text); 
-    resize: none; 
-    line-height: 1.4; 
-    min-height: 22px; 
-    max-height: 120px; 
-    overflow-y: auto; 
+
+/* --- ACTIVE STATE --- */
+body.input-active .ask-bar {
+    width: 420px; /* EXPAND ON ACTIVE */
 }
+
+.ask-bar .compact-input-form {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+.ask-bar textarea {
+    flex-grow: 1;
+    border: none;
+    background: transparent;
+    padding: 4px 8px;
+    font-size: 16px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    outline: none;
+    color: var(--primary-text);
+    resize: none;
+    line-height: 1.4;
+    min-height: 24px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+/* --- HIDE BUTTONS BY DEFAULT (INACTIVE STATE) --- */
+.compact-input-form .search-provider-selector,
+.compact-input-form .voice-mode-btn,
+.compact-input-form button[type="submit"] {
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+/* --- SHOW BUTTONS IN ACTIVE STATE --- */
+body.input-active .compact-input-form .search-provider-selector,
+body.input-active .compact-input-form .voice-mode-btn,
+body.input-active .compact-input-form button[type="submit"] {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+/* Change placeholder text based on active state */
+.ask-bar textarea::placeholder {
+    transition: all 0.3s ease;
+    text-align: center; /* CENTER the text by default (inactive state) */
+}
+
+body.input-active .ask-bar textarea::placeholder {
+    text-align: left; /* ALIGN LEFT when the input is active */
+    opacity: 0; /* Hide "Ask something..." when active and wider */
+}
+
 /* --- NEW: Search Provider Styles --- */
 .search-provider-selector {
     position: relative;
@@ -662,11 +747,59 @@ body {
 .chat-view-container > * { pointer-events: auto; }
 .ai-message-list-container { width: 100%; max-width: 600px; max-height: calc(90vh - 250px); overflow-y: auto; display: flex; flex-direction: column-reverse; }
 .ai-message-list { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
-.ai-message { display: flex; max-width: 85%; }
-.message-bubble { padding: 12px 18px; border-radius: 18px; font-size: 1rem; line-height: 1.5; word-wrap: break-word; transition: background-color 0.3s ease, color 0.3s ease; }
-.ai-message.from-user .message-bubble { background-color: var(--accent-color); color: var(--accent-text-color); border-bottom-right-radius: 4px; }
-.ai-message.from-ai .message-bubble { background-color: var(--ai-bubble-bg); color: var(--ai-bubble-text); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-.ai-typing-indicator { background-color: var(--ai-bubble-bg); /* ... rest are the same */ display: flex; gap: 4px; padding: 12px 18px; border-radius: 18px; align-self: center; width: fit-content; margin-left: -480px; }
+
+/* --- V2.1: Chat Bubbles --- */
+.ai-message {
+    display: flex;
+    max-width: 80%;
+    opacity: 0;
+    transform: translateY(15px);
+    animation: bubble-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    margin-bottom: 5px; /* <-- ADD THIS LINE */
+}
+
+.message-bubble {
+    padding: 14px 20px;
+    border-radius: 25px; /* FIX: Increased roundness for a softer look */
+    font-size: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.ai-message.from-user .message-bubble {
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+    border-bottom-right-radius: 8px; /* FIX: More pronounced corner for iMessage feel */
+}
+
+.ai-message.from-ai .message-bubble {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #1d1d1f;
+    border-bottom-left-radius: 8px; /* FIX: More pronounced corner for iMessage feel */
+    border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+body.dark-theme .ai-message.from-ai .message-bubble {
+    background-color: rgba(44, 44, 46, 0.8);
+    color: var(--primary-text);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@keyframes bubble-in {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-typing-indicator {
+    background-color: var(--ai-bubble-bg);
+    display: flex;
+    gap: 4px;
+    padding: 12px 18px;
+    border-radius: 18px;
+    width: fit-content;
+    /* FIX: This is now correctly centered by its parent container, as the 'align-self' property has been removed. */
+}
 .ai-typing-indicator.hidden { display: none; }
 .ai-typing-indicator .dot { width: 8px; height: 8px; background-color: #aaa; border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
 .ai-typing-indicator .dot:nth-child(2) { animation-delay: 0.2s; }
@@ -676,11 +809,9 @@ body {
 /* ====================================================== */
 /* State Management & Dark Theme                          */
 /* ====================================================== */
-body.compact-active .ask-bar { opacity: 0; pointer-events: none; transform: scale(0.9); }
-body.compact-active .compact-input-overlay { opacity: 1; visibility: visible; pointer-events: auto; transform: translateX(-50%) scale(1); }
+/* FIX: Removed obsolete .compact-active rules that were hiding the input bar */
 body.chat-active .chat-overlay { opacity: 1; visibility: visible; pointer-events: auto; }
 body.chat-active .chat-view-container { opacity: 1; visibility: visible; transform: translateY(0); }
-
 body.dark-theme {
     --primary-bg: rgba(45, 45, 45, 0.5);
     --secondary-bg: rgba(60, 60, 60, 0.8);

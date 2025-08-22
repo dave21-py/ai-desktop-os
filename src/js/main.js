@@ -473,6 +473,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     closeNotesBtn.addEventListener('click', closeNotes);
     notesTextarea.addEventListener('input', saveNotes);
 
+    // --- V2 Input Activation Logic ---
+centerConsole.addEventListener('click', () => {
+    document.body.classList.add('input-active', 'chat-active');
+    compactInput.focus();
+});
+
+const deactivateInput = () => {
+    document.body.classList.remove('input-active', 'chat-active');
+    compactInput.blur(); // Remove focus from the textarea
+};
+
     // These will be available after os.boot() is called, which initializes `os.ui`
     // Wrap them in a check or delay if necessary, but typically boot initializes UI refs.
     if (os.ui.closePlannerBtn && os.ui.plannerForm) {
@@ -535,12 +546,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     closeAppStoreBtn.addEventListener('click', () => appStoreWindow.classList.remove('visible'));
 
-    centerConsole.addEventListener('click', (e) => {
-        if (!e.target.closest('.compact-input-overlay')) {
-            document.body.classList.add('compact-active');
-            setTimeout(() => compactInput.focus(), 100);
-        }
-    });
+    
 
     compactInput.addEventListener('input', () => {
         // Auto-resize textarea
@@ -585,20 +591,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    const closeCompactInput = () => {
-        document.body.classList.remove('compact-active');
-    };
+    
 
     const closeAll = () => {
         appStoreWindow.classList.remove('visible');
         os.closePlanner();
-        closeCompactInput();
-        document.body.classList.remove('chat-active');
-        compactInput.value = '';
-        compactInput.style.height = 'auto';
+        deactivateInput(); // This now handles closing the chat
+        // Note: We don't clear the input value here, so the user doesn't lose their text
     };
 
-    chatOverlay.addEventListener('click', closeAll);
+    chatOverlay.addEventListener('click', deactivateInput);
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeAll();
     });
