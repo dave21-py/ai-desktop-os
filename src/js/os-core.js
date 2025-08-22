@@ -68,6 +68,69 @@ async getWeather(lat, lon) {
         console.log("AI OS Core Booted Successfully.");
     }
 
+    // Inside WarmwindOS class
+openSettings() {
+    if (!this.ui.settingsWindow) return; // Safety check
+
+    this.ui.settingsWindow.classList.remove('hidden');
+    setTimeout(() => {
+         this.ui.settingsWindow.classList.add('visible');
+    }, 10); // Trigger animation
+
+    this._populateSettings();
+}
+
+_populateSettings() {
+     if (!this.ui.wallpaperOptionsContainer || !this.ui.dockedAppsList) return;
+
+     // Populate Wallpapers
+     this.ui.wallpaperOptionsContainer.innerHTML = '';
+     const isDark = document.body.classList.contains('dark-theme');
+     const wallpapers = isDark ? darkWallpapers : lightWallpapers;
+     wallpapers.forEach((wp, index) => {
+          const option = document.createElement('div');
+          option.className = 'settings-wallpaper-option';
+          option.dataset.wallpaper = wp;
+          option.style.backgroundImage = `url('../assets/wallpapers/${wp}')`;
+          if (wp === currentWallpaper) {
+              option.classList.add('active');
+          }
+          option.addEventListener('click', () => {
+               // Update active state visually
+               document.querySelectorAll('.settings-wallpaper-option').forEach(opt => opt.classList.remove('active'));
+               option.classList.add('active');
+               // Call the existing setWallpaper function
+               setWallpaper(wp);
+          });
+          this.ui.wallpaperOptionsContainer.appendChild(option);
+     });
+
+     // Populate Docked Apps
+     this.ui.dockedAppsList.innerHTML = '';
+     dockedApps.forEach(app => {
+         const listItem = document.createElement('li');
+         listItem.className = 'settings-app-item';
+         listItem.innerHTML = `
+             <img src="${app.icon}" alt="${app.name}">
+             <span>${app.name}</span>
+             <button aria-label="Remove ${app.name}" data-app-id="${app.id}">Remove</button>
+         `;
+         this.ui.dockedAppsList.appendChild(listItem);
+     });
+
+     // Add event listeners for remove buttons in settings
+     this.ui.dockedAppsList.querySelectorAll('button').forEach(btn => {
+         btn.addEventListener('click', (e) => {
+             const appId = e.target.dataset.appId;
+             if (this.controls.removeAppFromDock) {
+                 this.controls.removeAppFromDock(appId);
+                 // Re-populate the list after removal
+                 this._populateSettings();
+             }
+         });
+     });
+}
+
     launchApp(app) {
         if (!app) return;
     
@@ -278,6 +341,14 @@ this.ui.plannerInitialView = document.getElementById('planner-initial-view');
 this.ui.plannerLoadingView = document.getElementById('planner-loading-view');
 this.ui.plannerResultsView = document.getElementById('planner-results-view');
 this.ui.appWindowContainer = document.getElementById('app-window-container');
+// Inside _initUI() method
+this.ui.settingsWindow = document.getElementById('settings-window');
+this.ui.settingsNavItems = document.querySelectorAll('.settings-nav-item');
+this.ui.settingsPanes = document.querySelectorAll('.settings-pane');
+this.ui.closeSettingsBtn = document.getElementById('close-settings-btn');
+this.ui.themeOptionBtns = document.querySelectorAll('.settings-option-btn[data-theme]');
+this.ui.wallpaperOptionsContainer = document.getElementById('wallpaper-options');
+this.ui.dockedAppsList = document.getElementById('settings-docked-apps-list');
     }
 
         // ======================================================

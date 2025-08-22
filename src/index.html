@@ -13,6 +13,28 @@
 </head>
 <body>
 
+            <!-- NEW Minimalist Lockscreen -->
+    <div id="lockscreen">
+        <div class="lockscreen-background"></div>
+
+        
+
+        <!-- Main content in the center -->
+        <div class="lockscreen-main-center">
+            <div id="lockscreen-center-date">Fri, Aug 22</div>
+            <div id="lockscreen-center-time">00:45</div>
+        </div>
+
+        <!-- User info at the bottom -->
+        <div class="lockscreen-user">
+            <div class="user-avatar-container">
+                <img src="assets/icons/memo.png" alt="User Avatar">
+            </div>
+            <span class="user-name">Welcome to VibeOS!</span>
+            <p class="user-prompt">Click anywhere to Enter</p>
+        </div>
+    </div>
+
         <!-- NEW: AI-Powered Notes Sidebar -->
         <div class="notes-sidebar">
             <div class="notes-header">
@@ -23,14 +45,6 @@
             </div>
             <textarea id="notes-textarea" placeholder="Your thoughts..."></textarea>
         </div>
-
-    <div class="welcome-overlay">
-        <div class="welcome-content">
-            <h1>Welcome</h1>
-            <p>to the new AI Operating System!</p>
-            <button id="enter-os-btn">Launch OS</button>
-        </div>
-    </div>
 
     <div class="app-store-window">
         <div class="app-store-content">
@@ -90,6 +104,8 @@
 
     <div class="chat-overlay hidden"></div>
 
+
+
     <main class="os-container">
 
         <!-- ADD THIS WIDGET -->
@@ -101,6 +117,103 @@
             <span>--°C</span>
         </div>
     </div>
+
+     <!-- NEW: Settings App Window -->
+<div id="settings-window" class="settings-window hidden">
+    <div class="settings-sidebar">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button id="close-settings-btn" class="settings-close-btn" aria-label="Close Settings">
+                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+            </button>
+        </div>
+        <ul class="settings-nav">
+            <li class="settings-nav-item active" data-category="general"><span>General</span></li>
+            <li class="settings-nav-item" data-category="appearance"><span>Appearance</span></li>
+            <li class="settings-nav-item" data-category="apps"><span>Apps</span></li>
+            <li class="settings-nav-item" data-category="ai"><span>AI Assistant</span></li>
+            <li class="settings-nav-item" data-category="about"><span>About VibeOS</span></li>
+        </ul>
+    </div>
+    <div class="settings-content">
+        <div class="settings-pane active" data-category="general">
+            <h3>General Settings</h3>
+            <div class="settings-group">
+                <label for="setting-username">Your Name</label>
+                <input type="text" id="setting-username" placeholder="Enter your name">
+            </div>
+            <div class="settings-group">
+                <label for="setting-timezone">Time Zone</label>
+                <select id="setting-timezone">
+                    <option value="auto">Auto (Based on Location)</option>
+                    <option value="UTC">UTC</option>
+                    <option value="EST">Eastern Time (ET)</option>
+                    <option value="PST">Pacific Time (PT)</option>
+                    <!-- Add more timezones as needed -->
+                </select>
+            </div>
+        </div>
+        <div class="settings-pane" data-category="appearance">
+            <h3>Appearance</h3>
+            <div class="settings-group">
+                <label>Theme</label>
+                <div class="settings-options-row">
+                    <button class="settings-option-btn" data-theme="light">
+                        <span>Light</span>
+                    </button>
+                    <button class="settings-option-btn" data-theme="dark">
+                        <span>Dark</span>
+                    </button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <label>Wallpaper</label>
+                <div class="settings-options-grid" id="wallpaper-options">
+                    <!-- Wallpapers will be populated by JS -->
+                </div>
+            </div>
+        </div>
+        <div class="settings-pane" data-category="apps">
+            <h3>App Management</h3>
+            <div class="settings-group">
+                <label>Your Docked Apps</label>
+                <ul id="settings-docked-apps-list" class="settings-app-list">
+                    <!-- Docked apps will be listed here -->
+                </ul>
+            </div>
+        </div>
+        <div class="settings-pane" data-category="ai">
+            <h3>AI Assistant</h3>
+            <div class="settings-group">
+                <label for="setting-ai-name">Assistant Name</label>
+                <input type="text" id="setting-ai-name" value="VibeOS AI" disabled>
+            </div>
+            <div class="settings-group">
+                <label for="setting-ai-personality">Personality</label>
+                <select id="setting-ai-personality">
+                    <option>Helpful</option>
+                    <option>Creative</option>
+                    <option>Concise</option>
+                </select>
+            </div>
+            <div class="settings-group">
+                <label>Data Usage</label>
+                <p>Your conversations help improve the AI. Data is anonymized.</p>
+            </div>
+        </div>
+        <div class="settings-pane" data-category="about">
+            <h3>About VibeOS</h3>
+            <div class="settings-about-logo">
+                <img src="assets/icons/memo.png" alt="VibeOS Logo" width="64" height="64">
+            </div>
+            <p class="settings-about-version">Version 1.0.0</p>
+            <p class="settings-about-copyright">&copy; 2024 VibeOS Project. All rights reserved.</p>
+            <div class="settings-group">
+                <button id="setting-reset-tour" class="settings-text-btn">Restart Onboarding Tour</button>
+            </div>
+        </div>
+    </div>
+</div>
         
         <div class="background-image"></div>
 
@@ -149,7 +262,7 @@
 
             <div class="center-console">
                 <div class="main-user-avatar">
-                    <img src="assets/icons/memo.jpg" alt="Main User Avatar">
+                    <img src="assets/icons/memo.png" alt="Main User Avatar">
                 </div>
                 <div class="ask-bar">
                     <span>Ask something</span>

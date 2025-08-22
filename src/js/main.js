@@ -1,13 +1,60 @@
-document.addEventListener('DOMContentLoaded', () => {
-    
+document.addEventListener('DOMContentLoaded', async () => {
+    // --- FINAL Minimalist Lockscreen Logic ---
+    const lockscreen = document.getElementById('lockscreen');
+    const lsCenterTime = document.getElementById('lockscreen-center-time');
+    const lsCenterDate = document.getElementById('lockscreen-center-date');
+
+    const updateLockscreenClock = () => {
+        const now = new Date();
+        const centerTimeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
+        const centerDateOptions = { weekday: 'short', month: 'short', day: 'numeric' };
+
+        // Only update the elements that still exist
+        lsCenterTime.textContent = now.toLocaleTimeString('en-GB', centerTimeOptions);
+        lsCenterDate.textContent = now.toLocaleDateString('en-US', centerDateOptions);
+    };
+
+    // Initialize clock and update every second
+    updateLockscreenClock();
+    setInterval(updateLockscreenClock, 1000);
+
+    const unlockOS = () => {
+        if (!lockscreen || lockscreen.classList.contains('hidden')) return;
+
+        lockscreen.classList.add('hidden');
+        lockscreen.classList.add('unlocked'); // ADD THIS LINE BACK
+
+        setTimeout(() => {
+            background.classList.add('loaded');
+            if (dockedApps.length > 0) {
+                setTimeout(() => appDock.classList.add('visible'), 300);
+            }
+            setTimeout(() => bottomBar.classList.add('loaded'), 400);
+            setTimeout(() => {
+                document.body.classList.add('chat-active', 'compact-active');
+                os.deliverGreeting();
+            }, 800);
+            
+            setTimeout(() => {
+                lockscreen.remove();
+            }, 1000);
+
+        }, 500);
+    };
+
+    lockscreen.addEventListener('click', unlockOS);
+    // --- END: Minimalist Lockscreen Logic ---
+    // --- ORIGINAL OS INITIALIZATION LOGIC ---
+    // This part should run immediately to set up the OS, even if the intro is showing.
+
     // NEW searchProviders array with updated AI icon and Google prefix
-const searchProviders = [
-    { id: 'ai', name: 'VibeOS AI', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Globe_icon.svg', prefix: 'ai:', isAI: true },
-    { id: 'google', name: 'Google', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', prefix: 'search:', searchUrl: 'https://www.google.com/search?q=' },
-    { id: 'youtube', name: 'YouTube', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg', prefix: 'yt:', searchUrl: 'https://www.youtube.com/results?search_query=' },
-    { id: 'wikipedia', name: 'Wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg', prefix: 'wiki:', searchUrl: 'https://en.wikipedia.org/w/index.php?search=' },
-    { id: 'amazon', name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', prefix: 'amazon:', searchUrl: 'https://www.amazon.com/s?k=' }
-];
+    const searchProviders = [
+        { id: 'ai', name: 'VibeOS AI', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Globe_icon.svg', prefix: 'ai:', isAI: true },
+        { id: 'google', name: 'Google', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', prefix: 'search:', searchUrl: 'https://www.google.com/search?q=' },
+        { id: 'youtube', name: 'YouTube', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg', prefix: 'yt:', searchUrl: 'https://www.youtube.com/results?search_query=' },
+        { id: 'wikipedia', name: 'Wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/en/8/80/Wikipedia-logo-v2.svg', prefix: 'wiki:', searchUrl: 'https://en.wikipedia.org/w/index.php?search=' },
+        { id: 'amazon', name: 'Amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', prefix: 'amazon:', searchUrl: 'https://www.amazon.com/s?k=' }
+    ];
 
     // --- App Data ---
     const appDatabase = [
@@ -23,11 +70,11 @@ const searchProviders = [
         { name: 'Google Sheets', id: 'sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', url: 'https://docs.google.com/spreadsheets/' },
         { name: 'Google Slides', id: 'slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg', url: 'https://docs.google.com/presentation/' },
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true},
+        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true },
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'openPlanner' },
-        { name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true},
-        { name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true},
-        { name: 'Y2Mate', id: 'ytmate', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Youtube-to-mp3.png', url: 'https://y2mate.nu/C1Gx/'},
+        { name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true },
+        { name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true },
+        { name: 'Y2Mate', id: 'ytmate', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/20/Youtube-to-mp3.png', url: 'https://y2mate.nu/C1Gx/' },
         {
             name: 'Excalidraw',
             id: 'excalidraw',
@@ -45,8 +92,22 @@ const searchProviders = [
             category: 'Design',
             allowFullscreen: true
         },
+        {
+            name: 'SermonAudio',
+            id: 'sermonaudio',
+            icon: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Sermons_de_saint_Augustin_et_glossaire_d%27Epinal_%281%29.jpg',
+            url: 'https://www.sermonaudio.com/?welcome=1',
+            openInWindow: true,
+            allowFullscreen: true
+        },
+        {
+            name: 'Settings',
+            id: 'settings',
+            icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Gear_icon.svg', // Or your own icon
+            action: 'openSettings' // This will call a new method on the OS object
+        },
     ];
-    
+
     // --- Speech Recognition ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition;
@@ -62,15 +123,13 @@ const searchProviders = [
     // --- State ---
     let dockedApps = [];
     // NEW currentSearchProvider variable defaulting to AI
-let currentSearchProvider = searchProviders[0]; // Default to AI
+    let currentSearchProvider = searchProviders[0]; // Default to AI
 
     // --- UI Element Selectors ---
     const appDock = document.querySelector('.app-dock');
     const notesSidebar = document.querySelector('.notes-sidebar');
     const closeNotesBtn = document.querySelector('.close-notes-btn');
     const notesTextarea = document.querySelector('#notes-textarea');
-    const welcomeOverlay = document.querySelector('.welcome-overlay');
-    const enterOsBtn = document.querySelector('#enter-os-btn');
     const background = document.querySelector('.background-image');
     const bottomBar = document.querySelector('.bottom-bar');
     const appStoreWindow = document.querySelector('.app-store-window');
@@ -91,7 +150,6 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     const searchProviderIcon = document.querySelector('#search-provider-icon');
     const searchProviderMenu = document.querySelector('#search-provider-menu');
 
-
     // ======================================================
     // THEME LOGIC
     // ======================================================
@@ -108,19 +166,19 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             localStorage.setItem('warmwindOS.lightWallpaper', wallpaperFile);
         }
     };
-    
+
     const setTheme = (theme) => {
         const isDark = theme === 'dark';
         document.body.classList.toggle('dark-theme', isDark);
         localStorage.setItem('warmwindOS.theme', theme);
-    
+
         // Now, load the appropriate wallpaper for the new theme
         const wallpaperKey = isDark ? 'warmwindOS.darkWallpaper' : 'warmwindOS.lightWallpaper';
         const defaultWallpaper = isDark ? darkWallpapers[0] : lightWallpapers[0];
         const savedWallpaper = localStorage.getItem(wallpaperKey) || defaultWallpaper;
         setWallpaper(savedWallpaper);
     };
-    
+
     const loadTheme = () => {
         const savedTheme = localStorage.getItem('warmwindOS.theme') || 'light';
         setTheme(savedTheme);
@@ -147,6 +205,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             const weatherData = await os.getWeather(latitude, longitude);
 
             if (weatherData) {
+                // We only need to update the main desktop widget now
                 weatherDisplay.innerHTML = `
                     <img src="https://openweathermap.org/img/wn/${weatherData.icon}.png" alt="${weatherData.description}" width="24" height="24">
                     <span>${weatherData.temp}°C in ${city}</span>
@@ -161,10 +220,10 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     const cycleWallpaper = () => {
         const isDark = document.body.classList.contains('dark-theme');
         const wallpaperList = isDark ? darkWallpapers : lightWallpapers;
-        
+
         const currentIndex = wallpaperList.indexOf(currentWallpaper);
         const nextIndex = (currentIndex + 1) % wallpaperList.length;
-        
+
         const newWallpaper = wallpaperList[nextIndex];
         setWallpaper(newWallpaper);
         return `Sure, how about this one?`;
@@ -173,13 +232,13 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     // ======================================================
     // SEARCH PROVIDER LOGIC
     // ======================================================
-    
+
     const updateSearchProvider = (provider) => {
         currentSearchProvider = provider;
         searchProviderIcon.src = provider.icon;
         searchProviderIcon.alt = `Search with ${provider.name}`;
         searchProviderBtn.setAttribute('aria-label', `Current provider: ${provider.name}. Click to change.`);
-        
+
         if (provider.isAI) {
             compactInput.placeholder = 'Ask something...';
         } else {
@@ -188,7 +247,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
         searchProviderMenu.classList.remove('visible');
         searchProviderBtn.parentElement.classList.remove('tooltip-visible');
     };
-    
+
     const renderSearchProviders = () => {
         searchProviderMenu.innerHTML = '';
         searchProviders.forEach(provider => {
@@ -201,14 +260,14 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             searchProviderMenu.appendChild(option);
         });
     };
-    
+
     // ======================================================
     // NOTES LOGIC
     // ======================================================
-    
+
     const openNotes = () => notesSidebar.classList.add('open');
     const closeNotes = () => notesSidebar.classList.remove('open');
-    
+
     const saveNotes = () => {
         localStorage.setItem('warmwindOS.notes', notesTextarea.value);
     };
@@ -231,12 +290,12 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     // CORE LOGIC (Dock & App Store)
     // ======================================================
     const openAppStore = () => appStoreWindow.classList.add('visible');
-    
+
     const saveDockState = () => {
         const appIds = dockedApps.map(app => app.id);
         localStorage.setItem('warmwindOS.dockedApps', JSON.stringify(appIds));
     };
-    
+
     const loadDockState = () => {
         const savedAppIds = JSON.parse(localStorage.getItem('warmwindOS.dockedApps')) || [];
         dockedApps = savedAppIds.map(id => appDatabase.find(app => app.id === id)).filter(Boolean);
@@ -253,18 +312,18 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
                 if (app) appsToShow.set(appId, app);
             }
         });
-    
+
         appDock.innerHTML = '';
         if (appsToShow.size > 0) {
             appsToShow.forEach(app => {
                 const dockItem = document.createElement('div');
                 dockItem.className = 'dock-item';
                 dockItem.dataset.appId = app.id;
-    
+
                 if (runningApps.has(app.id)) {
                     dockItem.classList.add('active');
                 }
-    
+
                 dockItem.innerHTML = `
                     <img src="${app.icon}" alt="${app.name}" title="${app.name}">
                     <button class="remove-dock-item" aria-label="Remove ${app.name}">
@@ -278,7 +337,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             appDock.classList.remove('visible');
         }
     };
-    
+
     const addAppToDock = (appId) => {
         if (!dockedApps.some(app => app.id === appId)) {
             const appToAdd = appDatabase.find(app => app.id === appId);
@@ -294,7 +353,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
         const app = appDatabase.find(app => app.id === appId);
         return `${app ? app.name : 'That app'} is already in your dock.`;
     };
-    
+
     const removeAppFromDock = (appId) => {
         const appToRemove = appDatabase.find(app => app.id === appId);
         if (appToRemove && dockedApps.some(app => app.id === appId)) {
@@ -315,7 +374,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
         runningApps.add(appId);
         renderDock();
     };
-    
+
     const appClosed = (appId) => {
         runningApps.delete(appId);
         renderDock();
@@ -333,14 +392,14 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             voiceModeBtn.classList.remove('recording');
         }
     };
-    
+
     const stopListening = () => {
         if (!recognition || !isListening) return;
         recognition.stop();
     };
 
     const os = new WarmwindOS(appDatabase, { addAppToDock, removeAppFromDock, openAppStore, setTheme, cycleWallpaper, updateNotes, openNotes, startListening, stopListening, appOpened, appClosed, addMinimizedAppToDock });
-    os.boot();
+    os.boot(); // Boot the OS core immediately
 
     const renderApps = (appsToRender = appDatabase) => {
         appListContainer.innerHTML = '';
@@ -370,12 +429,12 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             if (voiceModeBtn) voiceModeBtn.style.display = 'none';
             return;
         }
-    
+
         recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = 'en-US';
-    
+
         recognition.onresult = (event) => {
             const command = event.results[0][0].transcript.trim();
             if (command) {
@@ -383,9 +442,9 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
                 os.askAI(command);
             }
         };
-    
+
         recognition.onerror = (event) => console.error('Speech recognition error:', event.error);
-        
+
         recognition.onend = () => {
             if (isListening) {
                 isListening = false;
@@ -393,45 +452,48 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             }
         };
     };
-    
+
+    // --- Initial Load (part of main OS logic) ---
+    renderSearchProviders();
+    updateSearchProvider(currentSearchProvider);
+    loadDockState();
+    loadTheme();
+    loadNotes();
+    updateClock();
+    setInterval(updateClock, 1000);
+    fetchWeather();
+    setTimeout(() => systemWidget.classList.add('loaded'), 800);
+    setupSpeechRecognition();
+    // --- END: Initial Load ---
+
     // ======================================================
-    // EVENT LISTENERS
+    // EVENT LISTENERS (part of main OS logic) ---
     // ======================================================
 
     closeNotesBtn.addEventListener('click', closeNotes);
     notesTextarea.addEventListener('input', saveNotes);
 
-    os.ui.closePlannerBtn.addEventListener('click', () => os.closePlanner());
-    os.ui.plannerForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const prompt = os.ui.plannerInput.value.trim();
-        if (prompt) os.generateTripPlan(prompt);
-    });
+    // These will be available after os.boot() is called, which initializes `os.ui`
+    // Wrap them in a check or delay if necessary, but typically boot initializes UI refs.
+    if (os.ui.closePlannerBtn && os.ui.plannerForm) {
+        os.ui.closePlannerBtn.addEventListener('click', () => os.closePlanner());
+        os.ui.plannerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const prompt = os.ui.plannerInput.value.trim();
+            if (prompt) os.generateTripPlan(prompt);
+        });
+    }
 
-    enterOsBtn.addEventListener('click', () => {
-        welcomeOverlay.classList.add('hidden');
-        setTimeout(() => background.classList.add('loaded'), 100);
-        
-        if (dockedApps.length > 0) {
-            setTimeout(() => appDock.classList.add('visible'), 500);
-        }
-        
-        setTimeout(() => bottomBar.classList.add('loaded'), 600);
-        setTimeout(() => {
-            document.body.classList.add('chat-active', 'compact-active');
-            os.deliverGreeting(); 
-        }, 1000);
-    });
-
+    // --- REMAINING EVENT LISTENERS (part of main OS logic) ---
     appListContainer.addEventListener('click', (e) => {
         const addButton = e.target.closest('.add-app-btn');
         const appItem = e.target.closest('.app-item');
-    
+
         if (addButton && !addButton.classList.contains('added')) {
             addAppToDock(addButton.dataset.appId);
             return;
         }
-    
+
         if (appItem) {
             const appId = appItem.dataset.appId;
             const appToLaunch = appDatabase.find(app => app.id === appId);
@@ -442,13 +504,13 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     appDock.addEventListener('click', (e) => {
         const removeButton = e.target.closest('.remove-dock-item');
         const dockItem = e.target.closest('.dock-item');
-    
+
         if (removeButton && dockItem) {
             e.stopPropagation();
             removeAppFromDock(dockItem.dataset.appId);
             return;
         }
-    
+
         if (dockItem) {
             const appId = dockItem.dataset.appId;
             const appToLaunch = appDatabase.find(app => app.id === appId);
@@ -464,7 +526,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
             os.askAI(button.dataset.payload);
         }
     });
-    
+
     appSearchInput.addEventListener('input', () => {
         const searchTerm = appSearchInput.value.toLowerCase().trim();
         const filteredApps = appDatabase.filter(app => app.name.toLowerCase().includes(searchTerm));
@@ -472,7 +534,7 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
     });
 
     closeAppStoreBtn.addEventListener('click', () => appStoreWindow.classList.remove('visible'));
-    
+
     centerConsole.addEventListener('click', (e) => {
         if (!e.target.closest('.compact-input-overlay')) {
             document.body.classList.add('compact-active');
@@ -484,31 +546,31 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
         // Auto-resize textarea
         compactInput.style.height = 'auto';
         compactInput.style.height = `${compactInput.scrollHeight}px`;
-    
+
         // Power-user prefix detection
         const value = compactInput.value;
         const word = value.split(' ')[0];
-        
+
         const matchedProvider = searchProviders.find(p => p.prefix && word.toLowerCase() === p.prefix);
-    
+
         if (matchedProvider) {
             updateSearchProvider(matchedProvider);
             compactInput.value = value.substring(word.length).trimStart();
         }
     });
-    
+
     compactInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             compactInputForm.querySelector('button[type="submit"]').click();
         }
     });
-    
+
     compactInputForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const prompt = compactInput.value.trim();
         if (!prompt) return;
-    
+
         if (currentSearchProvider.isAI) {
             document.body.classList.add('chat-active');
             compactInput.value = '';
@@ -574,16 +636,5 @@ let currentSearchProvider = searchProviders[0]; // Default to AI
         }
     });
 
-    setupSpeechRecognition();
-    
-    // --- Initial Load ---
-    renderSearchProviders();
-    updateSearchProvider(currentSearchProvider);
-    loadDockState();
-    loadTheme();
-    loadNotes();
-    updateClock();
-    setInterval(updateClock, 1000);
-    fetchWeather();
-    setTimeout(() => systemWidget.classList.add('loaded'), 800);
+    // --- END: REMAINING EVENT LISTENERS ---
 });
