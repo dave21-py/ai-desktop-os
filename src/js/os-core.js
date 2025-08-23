@@ -55,9 +55,6 @@ class WarmwindOS {
 
     boot() {
         this._initUI();
-        setTimeout(() => {
-            if (this.ui.activityPod) this.ui.activityPod.classList.add('visible');
-        }, 800);
         console.log("AI OS Core Booted Successfully.");
     }
 
@@ -153,7 +150,7 @@ class WarmwindOS {
         titleBar.innerHTML = `
             <div class="window-title">${app.name}</div>
             <div class="window-controls">
-                <button class="window-control-btn minimize" aria-label="Minimize Window">
+                <button class.window-control-btn minimize" aria-label="Minimize Window">
                     <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
                 </button>
                 <button class="window-control-btn close" aria-label="Close Window">
@@ -330,12 +327,17 @@ class WarmwindOS {
         this.ui.themeOptionBtns = document.querySelectorAll('.settings-option-btn[data-theme]');
         this.ui.wallpaperOptionsContainer = document.getElementById('wallpaper-options');
         this.ui.dockedAppsList = document.getElementById('settings-docked-apps-list');
-        this.ui.activityPod = document.querySelector('.activity-pod');
-        this.ui.podContent = document.getElementById('activity-pod-content');
+        
+        // New Dynamic Island UI elements
+        this.ui.activityPod = document.getElementById('activity-pod');
+        this.ui.podIconContainer = document.getElementById('pod-icon-container');
+        this.ui.podMainContent = document.getElementById('pod-main-content');
+        this.ui.podExpandedMain = document.getElementById('pod-expanded-main');
+        this.ui.podExpandedActions = document.getElementById('pod-expanded-actions');
     }
 
     // ======================================================
-    // MUSIC & ACTIVITY POD LOGIC
+    // MUSIC LOGIC
     // ======================================================
 
     _initAudioContext() {
@@ -400,10 +402,15 @@ class WarmwindOS {
         }
     }
 
-    _setupPodVisualizerCanvas() {
-        this.podVisualizerCanvas = document.getElementById('pod-canvas-visualizer');
+    // ======================================================
+    // HIGH-FIDELITY VISUALIZER LOGIC
+    // ======================================================
+
+    _setupPodVisualizerCanvas(canvasId) {
+        this.podVisualizerCanvas = document.getElementById(canvasId);
         if (!this.podVisualizerCanvas) return false;
         this.podVisualizerCtx = this.podVisualizerCanvas.getContext('2d');
+        // High-DPI scaling
         const dpr = window.devicePixelRatio || 1;
         const rect = this.podVisualizerCanvas.getBoundingClientRect();
         this.podVisualizerCanvas.width = rect.width * dpr;
@@ -412,10 +419,11 @@ class WarmwindOS {
         return true;
     }
 
-    _startPodVisualizer() {
+    _startPodVisualizer(canvasId) {
         if (this.podAnimationFrameId) cancelAnimationFrame(this.podAnimationFrameId);
-        if (this._setupPodVisualizerCanvas()) {
-            this.analyser.fftSize = 128;
+        if (this._setupPodVisualizerCanvas(canvasId)) {
+            this.analyser.fftSize = 64; // Lower resolution for fewer bars
+            this.analyser.smoothingTimeConstant = 0.8; // Smoother transitions
             this._drawPodVisualizer();
         }
     }
@@ -428,42 +436,44 @@ class WarmwindOS {
     }
 
     _drawPodVisualizer() {
-        if (!this.analyser || !this.podVisualizerCtx) return;
+        if (!this.analyser || !this.podVisualizerCtx || !this.podVisualizerCanvas) {
+            this._stopPodVisualizer();
+            return;
+        }
+
         const bufferLength = this.analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
-        this.analyser.getByteTimeDomainData(dataArray);
-        const { width, height } = this.podVisualizerCanvas;
+        this.analyser.getByteFrequencyData(dataArray);
+
         const ctx = this.podVisualizerCtx;
+        const { width, height } = this.podVisualizerCanvas.getBoundingClientRect();
         ctx.clearRect(0, 0, width, height);
-        const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, '#ff3b30');
-        gradient.addColorStop(0.2, '#ff9500');
-        gradient.addColorStop(0.4, '#ffcc00');
-        gradient.addColorStop(0.6, '#34c759');
-        gradient.addColorStop(0.8, '#007aff');
-        gradient.addColorStop(1, '#af52de');
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = gradient;
-        ctx.beginPath();
-        const sliceWidth = width * 1.0 / bufferLength;
+
+        const barWidth = (width / bufferLength) * 1.5;
         let x = 0;
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, 'rgba(10, 132, 255, 1)'); // VibeOS Blue
+        gradient.addColorStop(0.5, 'rgba(90, 200, 250, 1)'); // Lighter Blue
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 1)');   // White
+
         for (let i = 0; i < bufferLength; i++) {
-            const v = dataArray[i] / 128.0;
-            const y = v * height / 2;
-            if (i === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-            x += sliceWidth;
+            const barHeight = (dataArray[i] / 255) * height * 0.8; // Use 80% of height
+
+            ctx.fillStyle = gradient;
+            // Draw rounded rectangle for a softer, more modern look
+            ctx.beginPath();
+            ctx.roundRect(x, height - barHeight, barWidth, barHeight, [2]);
+            ctx.fill();
+
+            x += barWidth + 2; // Add spacing between bars
         }
-        ctx.lineTo(width, height / 2);
-        ctx.stroke();
+
         this.podAnimationFrameId = requestAnimationFrame(() => this._drawPodVisualizer());
     }
 
     // ======================================================
-    // FOCUS TIMER & ACTIVITY POD LOGIC
+    // FOCUS TIMER LOGIC
     // ======================================================
 
     _startTimer(minutes, sessionType) {
@@ -494,15 +504,6 @@ class WarmwindOS {
         }
     }
 
-    _updateTimerDisplay() {
-        if (!this.activePods.includes('timer')) return;
-        const minutes = Math.floor(this.timerSecondsRemaining / 60);
-        const seconds = this.timerSecondsRemaining % 60;
-        const timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        const podTimeElement = this.ui.podContent.querySelector('.pod-timer-time');
-        if (podTimeElement) podTimeElement.textContent = timeString;
-    }
-
     _handleTimerCompletion() {
         clearInterval(this.timerInterval);
         const currentSessionType = this.podData.timer?.sessionType;
@@ -519,117 +520,114 @@ class WarmwindOS {
             this._addMessageToChat('ai', message, actions);
         }
     }
-
+    
     // ======================================================
-    // MASTER ACTIVITY POD CONTROLLER
+    // MASTER ACTIVITY POD CONTROLLER (DYNAMIC ISLAND)
     // ======================================================
 
     _addActivity(type, data) {
+        // If activity exists, just update data and bring to front
         if (this.activePods.includes(type)) {
-            this.podData[type] = data;
             this.activePods = this.activePods.filter(p => p !== type);
-            this.activePods.unshift(type);
-        } else {
-            this.activePods.unshift(type);
-            this.podData[type] = data;
         }
+        this.activePods.unshift(type); // New or existing activity becomes primary
+        this.podData[type] = data;
         this._updatePodDisplay();
     }
 
     _removeActivity(type) {
         this.activePods = this.activePods.filter(p => p !== type);
         delete this.podData[type];
+        if (type === 'music') this._stopPodVisualizer(); // Stop visualizer when music stops
         this._updatePodDisplay();
     }
 
     _updatePodDisplay() {
         const pod = this.ui.activityPod;
-        const content = this.ui.podContent;
-        if (!pod || !content) return;
+        if (!pod) return;
 
+        // --- Hide Island if no activities are running ---
         if (this.activePods.length === 0) {
-            pod.className = 'activity-pod visible';
-            content.className = 'pod-content';
-            content.innerHTML = '';
-            this._stopPodVisualizer();
+            pod.className = 'activity-pod'; // Reset classes
+            pod.classList.remove('active');
             return;
         }
 
-        pod.className = 'activity-pod visible active';
+        // --- Show Island and render the primary activity ---
+        const primaryType = this.activePods[0];
+        const primaryData = this.podData[primaryType];
+        pod.className = 'activity-pod active'; // Ensure it's active
+        pod.classList.add(`${primaryType}-active`); // Add activity-specific class for sizing
 
-        if (this.activePods.length === 1) {
-            const type = this.activePods[0];
-            const data = this.podData[type];
-
-            if (type === 'music') {
-                pod.classList.add('music-active');
-                content.className = 'pod-content music';
-            } else if (type === 'timer') {
-                pod.classList.add('timer-active');
-                content.className = 'pod-content timer';
-            }
-            content.innerHTML = this._getPodContentHTML(type, data);
-            if (type === 'music') setTimeout(() => this._startPodVisualizer(), 50);
-            if (type === 'timer') this._updateTimerDisplay();
-        } else {
-            pod.classList.add('multi-activity');
-            content.className = 'pod-content multi-activity';
-            const primaryType = this.activePods[0];
-            const secondaryType = this.activePods[1];
-            content.innerHTML = `
-                <div class="pod-pill primary">
-                    ${this._getPodContentHTML(primaryType, this.podData[primaryType])}
-                </div>
-                <div class="pod-pill secondary">
-                    ${this._getPodIconHTML(secondaryType)}
-                </div>
-            `;
-
-            // CORRECTED: Attach listener to all pills for cycling
-            content.querySelectorAll('.pod-pill').forEach(pill => {
-                pill.addEventListener('click', () => {
-                    if (this.activePods.length > 1) {
-                        this.activePods.push(this.activePods.shift());
-                        this._updatePodDisplay();
-                    }
-                });
-            });
-
-            if (primaryType === 'music') setTimeout(() => this._startPodVisualizer(), 50);
-            else this._stopPodVisualizer();
-            if (primaryType === 'timer') this._updateTimerDisplay();
+        // Render content based on activity type
+        switch (primaryType) {
+            case 'music':
+                this._renderMusicPod(primaryData);
+                break;
+            case 'timer':
+                this._renderTimerPod(primaryData);
+                break;
         }
     }
 
-    _getPodContentHTML(type, data) {
-        if (type === 'music') {
-            return `
-                <div class="pod-music-details">
-                    <div class="title">${data.title}</div>
-                    <div class="artist">${data.artist}</div>
-                </div>
-                <canvas id="pod-canvas-visualizer"></canvas>
-            `;
-        }
-        if (type === 'timer') {
-            const sessionName = this.podData.timer.sessionType.charAt(0).toUpperCase() + this.podData.timer.sessionType.slice(1);
-            return `
-                <svg class="pod-timer-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg>
-                <span>${sessionName}</span>
-                <span class="pod-timer-time">--:--</span>
-            `;
-        }
-        return '';
+    _renderMusicPod(data) {
+        // Compact View
+        this.ui.podIconContainer.innerHTML = `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4V7h4V3h-6Z"/></svg>`;
+        this.ui.podMainContent.innerHTML = `<span>Now Playing</span><canvas id="pod-music-visualizer"></canvas>`;
+
+        // Expanded View
+        this.ui.podExpandedMain.className = 'music';
+        this.ui.podExpandedMain.innerHTML = `
+            <div id="pod-album-art" style="background-image: url('assets/music/album-art.png')"></div>
+            <div class="pod-track-info">
+                <div class="title">${data.title}</div>
+                <div class="artist">${data.artist}</div>
+            </div>
+        `;
+        this.ui.podExpandedActions.innerHTML = `
+            <button class="pod-action-btn" id="pod-prev-btn" aria-label="Previous Song"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+            <button class="pod-action-btn" id="pod-pause-btn" aria-label="Pause Music"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+            <button class="pod-action-btn" id="pod-next-btn" aria-label="Next Song"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+        `;
+
+        // Add event listeners for new controls
+        document.getElementById('pod-prev-btn').onclick = () => this.changeMusic('previous');
+        document.getElementById('pod-pause-btn').onclick = () => this.pauseMusic();
+        document.getElementById('pod-next-btn').onclick = () => this.changeMusic('next');
+        
+        // Start visualizers
+        this._startPodVisualizer('pod-music-visualizer');
     }
 
-    _getPodIconHTML(type) {
-        if (type === 'music') {
-            return `<svg class="pod-secondary-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4V7h4V3h-6Z"/></svg>`;
-        }
-        if (type === 'timer') {
-            return `<svg class="pod-secondary-icon" style="color: #ff9f0a;" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg>`;
-        }
-        return '';
+    _renderTimerPod(data) {
+        // Compact View
+        this.ui.podIconContainer.innerHTML = `<svg style="color: #ff9f0a;" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg>`;
+        this.ui.podMainContent.innerHTML = `<span>${data.sessionType === 'work' ? 'Focus Session' : 'Break Time'}</span>`;
+
+        // Expanded View
+        this.ui.podExpandedMain.className = 'timer';
+        this.ui.podExpandedMain.innerHTML = `<span id="pod-timer-countdown">--:--</span>`;
+        this.ui.podExpandedActions.innerHTML = `
+            <button class="pod-action-btn" id="pod-stop-timer-btn" aria-label="Stop Timer"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12L19 6.41z"/></svg></button>
+        `;
+
+        // Add event listeners
+        document.getElementById('pod-stop-timer-btn').onclick = () => this._stopTimer();
+
+        // Initial update of the countdown
+        this._updateTimerDisplay();
+    }
+
+
+    _updateTimerDisplay() {
+        if (!this.activePods.includes('timer')) return;
+        const minutes = Math.floor(this.timerSecondsRemaining / 60);
+        const seconds = this.timerSecondsRemaining % 60;
+        const timeString = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        // Update the expanded view countdown if it exists
+        const podTimeElement = document.getElementById('pod-timer-countdown');
+        if (podTimeElement) podTimeElement.textContent = timeString;
     }
 
     // ======================================================

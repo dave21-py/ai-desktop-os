@@ -222,12 +222,32 @@
 
         <!-- MOVED & REPURPOSED: The dock now lives at the top -->
         <!-- In index.html, REPLACE the entire app-dock-container div -->
+<!-- REPLACE with this new structure -->
 <div class="top-bar-container">
-    <div class="activity-pod">
-        <div class="pod-content" id="activity-pod-content">
-            <!-- Dynamic content will be injected here -->
+    <!-- VIBEOS DYNAMIC ISLAND / ACTIVITY POD -->
+    <div class="activity-pod" id="activity-pod">
+        <!-- COMPACT VIEW (Always Visible When Active) -->
+        <div class="pod-compact-view">
+            <div class="pod-icon-container" id="pod-icon-container">
+                <!-- Icon will be inserted here by JS -->
+            </div>
+            <div class="pod-main-content" id="pod-main-content">
+                <!-- e.g., "Focus Timer" -->
+            </div>
+        </div>
+
+        <!-- EXPANDED VIEW (Visible on Hover) -->
+        <div class="pod-expanded-view">
+            <div class="pod-expanded-main" id="pod-expanded-main">
+                <!-- e.g., Album Art & Track Info or Timer Countdown -->
+            </div>
+            <div class="pod-expanded-actions" id="pod-expanded-actions">
+                <!-- e.g., Music Controls or Timer Controls -->
+            </div>
         </div>
     </div>
+    <!-- END VIBEOS DYNAMIC ISLAND -->
+
     <div class="app-dock">
         <!-- Docked app icons will be dynamically inserted here -->
     </div>
