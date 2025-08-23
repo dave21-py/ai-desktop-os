@@ -131,47 +131,58 @@ _populateSettings() {
      });
 }
 
-    launchApp(app) {
-        if (!app) return;
-    
-        // 1. Handle special internal actions (like Trip Planner)
-        if (app.action && typeof this[app.action] === 'function') {
-            this[app.action]();
-            return; // Stop here
-        }
-    
-        // 2. Handle all windowed apps (new or existing)
-        if (app.openInWindow && app.url) {
-            // If window already exists, restore and focus it.
-            if (this.openWindows.has(app.id)) {
-                this._restoreAppWindow(app.id);
-            } 
-            // Otherwise, create a new one.
-            else {
-                this._createAppWindow(app);
-            }
-        } 
-        // 3. Default to opening in a new browser tab
-        else if (app.url) {
-            window.open(app.url, '_blank');
-            this._addMessageToChat('ai', `Opening ${app.name} in a new tab for you.`);
-        }
+launchApp(app, clickEvent = null) { // Add clickEvent parameter
+    if (!app) return;
+
+    if (app.action && typeof this[app.action] === 'function') {
+        this[app.action]();
+        return;
     }
 
-    _createAppWindow(app) {
-        this.zIndexCounter++;
-        this.openWindows.add(app.id);
-        if (this.controls.appOpened) this.controls.appOpened(app.id);
-    
-        // --- Create Window Element ---
-        const win = document.createElement('div');
-        win.className = 'app-window';
-        win.dataset.appId = app.id;
-        win.style.zIndex = this.zIndexCounter;
-        
-        // --- Create Title Bar ---
-        const titleBar = document.createElement('div');
-        titleBar.className = 'window-title-bar';
+    if (app.openInWindow && app.url) {
+        if (this.openWindows.has(app.id)) {
+            this._restoreAppWindow(app.id);
+        } else {
+            // Pass the clickEvent to the creation method
+            this._createAppWindow(app, clickEvent); 
+        }
+    } else if (app.url) {
+        window.open(app.url, '_blank');
+        this._addMessageToChat('ai', `Opening ${app.name} in a new tab for you.`);
+    }
+}
+
+_createAppWindow(app, clickEvent = null) {
+    this.zIndexCounter++;
+    this.openWindows.add(app.id);
+    if (this.controls.appOpened) this.controls.appOpened(app.id);
+
+    const win = document.createElement('div');
+    win.className = 'app-window';
+    win.dataset.appId = app.id;
+    win.style.zIndex = this.zIndexCounter;
+
+    // --- NEW: Animation Origin Logic ---
+    if (clickEvent && clickEvent.target) {
+        const sourceElement = clickEvent.target.closest('.dock-item, .app-item');
+        if (sourceElement) {
+            const sourceRect = sourceElement.getBoundingClientRect();
+            const containerRect = this.ui.appWindowContainer.getBoundingClientRect();
+            
+            // Calculate where the click happened relative to the app container
+            const originX = sourceRect.left + sourceRect.width / 2 - containerRect.left;
+            const originY = sourceRect.top + sourceRect.height / 2 - containerRect.top;
+
+            // Set the transform-origin for the zoom effect
+            win.style.transformOrigin = `${originX}px ${originY}px`;
+        }
+    }
+    // --- END: Animation Origin Logic ---
+
+    // --- (The rest of the method for creating titleBar, content, etc. remains the same) ---
+    const titleBar = document.createElement('div');
+    titleBar.className = 'window-title-bar';
+    titleBar.innerHTML = `...`; // This part is unchanged
         titleBar.innerHTML = `
         <div class="window-title">${app.name}</div>
                 <div class="window-controls">
@@ -183,76 +194,126 @@ _populateSettings() {
             </button>
         </div>
     `;
-        
-        // --- Create Content Area with iFrame ---
-        const content = document.createElement('div');
-        content.className = 'window-content';
-        const iframe = document.createElement('iframe');
-        iframe.src = app.url;
-        iframe.title = app.name;
-        content.appendChild(iframe);
-        
-        win.appendChild(titleBar);
-        win.appendChild(content);
-        
-        // --- Add to DOM ---
-        this.ui.appWindowContainer.appendChild(win);
-        
-        // Trigger open animation
-        setTimeout(() => win.classList.add('open'), 10);
-    
-        // --- Event Handlers ---
 
-        
-        const closeBtn = win.querySelector('.window-control-btn.close');
-        closeBtn.addEventListener('click', () => this._closeAppWindow(win));
-
-        const minimizeBtn = win.querySelector('.window-control-btn.minimize');
-        minimizeBtn.addEventListener('click', () => this._minimizeAppWindow(win, app));
-        
-        win.addEventListener('mousedown', () => this._focusWindow(win));
-        
-        this._focusWindow(win); // Focus on creation
-        this._tileWindows();
-    }
+    const content = document.createElement('div');
+    content.className = 'window-content';
+    const iframe = document.createElement('iframe');
+    iframe.src = app.url;
+    iframe.title = app.name;
+    content.appendChild(iframe);
     
-    // CORRECTED CODE
+    win.appendChild(titleBar);
+    win.appendChild(content);
+
+    this.ui.appWindowContainer.appendChild(win);
+    
+    // Trigger open animation
+    setTimeout(() => {
+        win.classList.add('open');
+        // After starting the animation, reset the origin so tiling works correctly
+        setTimeout(() => {
+            win.style.transformOrigin = 'center';
+        }, 400); // Must match CSS transition duration
+    }, 10);
+
+    const closeBtn = win.querySelector('.window-control-btn.close');
+    closeBtn.addEventListener('click', () => this._closeAppWindow(win));
+
+    const minimizeBtn = win.querySelector('.window-control-btn.minimize');
+    minimizeBtn.addEventListener('click', () => this._minimizeAppWindow(win, app));
+    
+    win.addEventListener('mousedown', () => this._focusWindow(win));
+    
+    this._focusWindow(win);
+    this._tileWindows();
+}
+    
+    // REPLACE the existing _closeAppWindow method with this one
 _closeAppWindow(win) {
     const appId = win.dataset.appId;
-    if (appId) {
-        this.openWindows.delete(appId);
-        if (this.controls.appClosed) this.controls.appClosed(appId);
+    
+    // Try to animate to the dock; if it fails (no icon), use the fallback animation
+    if (!this._animateWindowToDock(win)) {
+        win.classList.remove('open');
     }
-    win.classList.remove('open'); // Trigger close animation
+    
+    // Wait for the animation to finish before removing the element
     setTimeout(() => {
+        if (appId) {
+            this.openWindows.delete(appId);
+            if (this.controls.appClosed) this.controls.appClosed(appId);
+        }
         win.remove();
-        this._tileWindows(); // <-- MOVED a call here, after the window is removed
-    }, 300); // Wait for animation to finish
+        this._tileWindows();
+    }, 400); // Must match CSS transition duration
 }
 
-    // CORRECTED CODE
+// REPLACE the existing _minimizeAppWindow method with this one
 _minimizeAppWindow(win, app) {
-    win.classList.remove('open', 'active');
-    win.dataset.minimized = 'true';
-    win.classList.add('minimized');
-    if (this.controls.addMinimizedAppToDock) {
-         this.controls.addMinimizedAppToDock(app);
+    win.classList.remove('active');
+
+    // Try to animate to the dock; if it fails, use the fallback animation
+    if (!this._animateWindowToDock(win)) {
+        win.classList.remove('open');
     }
 
-    
-    this._tileWindows(); // <-- MOVED here, to run every time
+    // Wait for animation to finish before hiding and re-tiling
+    setTimeout(() => {
+        win.classList.add('minimized');
+        win.dataset.minimized = 'true';
+        
+        if (this.controls.addMinimizedAppToDock) {
+             this.controls.addMinimizedAppToDock(app);
+        }
+        this._tileWindows();
+    }, 400); // Must match CSS transition duration
 }
     
-    // TIDIED CODE
+    // --- In os-core.js, REPLACE the entire _restoreAppWindow method ---
+
 _restoreAppWindow(appId) {
     const win = document.querySelector(`.app-window[data-app-id="${appId}"]`);
-    if (win) {
-        if (win.dataset.minimized === 'true') {
-            delete win.dataset.minimized;
-            win.classList.remove('minimized');
-            win.classList.add('open');
+
+    // Case 1: The window was minimized and needs to be animated back.
+    if (win && win.dataset.minimized === 'true') {
+        // 1. Find the animation source (the dock icon) to animate FROM.
+        const dockIcon = document.querySelector(`.dock-item[data-app-id="${appId}"]`);
+        if (dockIcon) {
+            const iconRect = dockIcon.getBoundingClientRect();
+            const containerRect = this.ui.appWindowContainer.getBoundingClientRect();
+            const originX = iconRect.left + iconRect.width / 2 - containerRect.left;
+            const originY = iconRect.top + iconRect.height / 2 - containerRect.top;
+            win.style.transformOrigin = `${originX}px ${originY}px`;
         }
-        this._focusWindow(win); // This method already calls _tileWindows() for us
+
+        // 2. CRITICAL FIX: Remove the minimized state and CLEAR the inline styles
+        // that were set during the minimization animation.
+        win.classList.remove('minimized');
+        delete win.dataset.minimized;
+        win.style.transform = '';
+        win.style.opacity = '';
+        win.style.filter = '';
+
+        // 3. Force the browser to apply the cleared styles before we add the 'open' class.
+        // This is a common trick to ensure animations run correctly.
+        void win.offsetWidth; 
+
+        // 4. Trigger the 'open' animation. The window will now animate from the
+        // transform-origin (the dock icon) to its final tiled position.
+        win.classList.add('open');
+
+        // 5. Bring the window to the front and re-tile the layout.
+        this._focusWindow(win);
+
+        // 6. Reset the transform-origin after the animation completes so that
+        // future resizes or tiling operations behave as expected.
+        setTimeout(() => {
+            win.style.transformOrigin = 'center';
+        }, 400); // Must match CSS transition duration
+
+    // Case 2: The window was just in the background, not minimized. Simply focus it.
+    } else if (win) {
+        this._focusWindow(win);
     }
 }
     
@@ -267,6 +328,35 @@ _restoreAppWindow(appId) {
         win.classList.add('active');
         this._tileWindows();
     }
+
+    // --- In os-core.js, add this ENTIRE new method inside the WarmwindOS class ---
+
+_animateWindowToDock(win) {
+    const appId = win.dataset.appId;
+    if (!appId) return false;
+
+    const dockIcon = document.querySelector(`.dock-item[data-app-id="${appId}"]`);
+    
+    // If the app has a corresponding icon in the dock
+    if (dockIcon) {
+        const winRect = win.getBoundingClientRect();
+        const iconRect = dockIcon.getBoundingClientRect();
+
+        // Calculate the difference to move the window's center to the icon's center
+        const translateX = (iconRect.left + iconRect.width / 2) - (winRect.left + winRect.width / 2);
+        const translateY = (iconRect.top + iconRect.height / 2) - (winRect.top + winRect.height / 2);
+
+        // Apply the final transform to animate the window to the dock icon's position
+        // It will scale down to 10% of its size, creating the shrinking effect
+        win.style.transform = `translate(${translateX}px, ${translateY}px) scale(0.1)`;
+        win.style.opacity = '0';
+        win.style.filter = 'blur(10px)'; // Adds a nice motion blur effect
+
+        return true; // Animation was successfully triggered
+    }
+
+    return false; // No dock icon found, fallback animation will be used
+}
 
     // ADD THIS NEW METHOD
 _tileWindows() {

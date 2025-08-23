@@ -508,7 +508,7 @@ const deactivateInput = () => {
         if (appItem) {
             const appId = appItem.dataset.appId;
             const appToLaunch = appDatabase.find(app => app.id === appId);
-            if (appToLaunch) os.launchApp(appToLaunch);
+            if (appToLaunch) os.launchApp(appToLaunch, e);
         }
     });
 
@@ -525,7 +525,7 @@ const deactivateInput = () => {
         if (dockItem) {
             const appId = dockItem.dataset.appId;
             const appToLaunch = appDatabase.find(app => app.id === appId);
-            os.launchApp(appToLaunch);
+            os.launchApp(appToLaunch, e); 
         }
     });
 
