@@ -225,21 +225,151 @@ body {
 .background-image.loaded { opacity: 1; transform: scale(1); }
 
 /* ====================================================== */
-/* App Dock Styles (Now at the top)                       */
+/* Top Bar (Pod & Dock)                                   */
 /* ====================================================== */
-.app-dock-container {
+/* Replace with this */
+.top-bar-container {
     position: absolute;
-    top: 0;
+    top: 24px; /* This is the fix */
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 16px;
+    align-items: center;
     z-index: 10;
     pointer-events: none;
 }
 
+.activity-pod {
+    position: absolute; /* Allows it to sit behind the dock when inactive */
+    background-color: #1d1d1f;
+    border-radius: 50px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    color: white;
+    
+    /* Animation Properties */
+    transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* Default (Inactive) State */
+    width: 120px;
+    height: 36px;
+    opacity: 0; /* Hidden by default, shown when dock loads */
+}
+
+.activity-pod.visible {
+    opacity: 1;
+}
+
+.pod-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+}
+
+.activity-pod.active .pod-content {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* --- Specific Activity Styles --- */
+
+/* Music Pod */
+.activity-pod.active.music-active {
+    width: 280px;
+    height: 64px;
+}
+.pod-content.music {
+    justify-content: space-between;
+}
+.pod-music-details {
+    text-align: left;
+}
+.pod-music-details .title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.pod-music-details .artist {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+/* Replace with this */
+#pod-canvas-visualizer {
+    width: 48px;
+    height: 32px;
+    opacity: 0.8;
+}
+
+/* Timer Pod */
+.activity-pod.active.timer-active {
+    width: 220px;
+    height: 56px;
+}
+.pod-content.timer {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    gap: 12px;
+}
+.pod-timer-icon {
+    width: 18px; height: 18px;
+    color: #ff9f0a; /* Timer Orange */
+}
+.pod-timer-time {
+    letter-spacing: 0.5px;
+}
+
+/* --- In main.css, ADD this new block --- */
+
+/* --- NEW: Multi-Activity Pod Styles --- */
+.activity-pod.multi-activity {
+    width: 320px; /* CORRECTED: More compact width */
+    height: 56px; /* CORRECTED: Set a fixed height for consistency */
+    background-color: transparent; /* The container becomes invisible */
+    box-shadow: none;
+}
+
+.pod-content.multi-activity {
+    justify-content: space-between;
+    gap: 8px; /* This creates the "split" */
+}
+
+.pod-pill {
+    background-color: #1d1d1f;
+    border-radius: 50px;
+    height: 100%;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    pointer-events: auto;
+    cursor: pointer; /* CORRECTED: Indicate both pills are interactive */
+}
+
+.pod-pill.primary {
+    flex-grow: 1; /* Takes up most of the space */
+    padding: 0 16px;
+}
+
+.pod-pill.secondary {
+    width: 56px; /* CORRECTED: Matches height to become a perfect circle */
+    justify-content: center;
+}
+
+.pod-secondary-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* --- App Dock (Now positioned relative to the container) --- */
 .app-dock {
+    position: relative; /* It's no longer absolute */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -256,11 +386,12 @@ body {
     transform: translateY(-20px);
     transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
 }
+
 .app-dock.visible {
     opacity: 1;
     transform: translateY(0);
 }
-
+/* The .dock-item styling remains the same as before */
 .dock-item {
     position: relative;
     width: 48px;
@@ -299,8 +430,6 @@ body {
     opacity: 1;
     transform: scale(1);
 }
-
-/* At the end of the App Dock Styles section */
 .dock-item.active::after {
     content: '';
     position: absolute;
@@ -358,7 +487,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 8px;
-    width: 200px; /* START NARROWER */
+    width: 350px; /* START NARROWER */
     background-color: var(--secondary-bg);
     border-radius: 50px;
     box-shadow: 0 4px 15px var(--shadow-color);
@@ -367,7 +496,7 @@ body {
 
 /* --- ACTIVE STATE --- */
 body.input-active .ask-bar {
-    width: 290px; /* EXPAND ON ACTIVE */
+    width: 400px; /* EXPAND ON ACTIVE */
 }
 
 .ask-bar .compact-input-form {
@@ -828,77 +957,6 @@ body.dark-theme {
 
 body.dark-theme .app-item:hover {
     background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* ====================================================== */
-/* Audio Visualizer                                       */
-/* ====================================================== */
-#audio-visualizer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 150px; /* Adjust height as needed */
-    z-index: 5; /* Below the bottom bar (z-index 10) */
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.8s ease-in-out;
-}
-
-#audio-visualizer.visible {
-    opacity: 1;
-}
-
-/* ====================================================== */
-/* Focus Timer                                            */
-/* ====================================================== */
-.focus-timer-display {
-    position: absolute;
-    top: 45%; /* Position it slightly above the true center */
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.95); /* Start smaller for a pop-in effect */
-    z-index: 50;
-    
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    padding: 20px 40px;
-    border-radius: 24px;
-    background-color: var(--primary-bg);
-    backdrop-filter: blur(16px) saturate(1.2);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 30px var(--shadow-color);
-
-    font-family: var(--font-body);
-    font-size: 6rem;
-    font-weight: 600;
-    color: var(--primary-text);
-    letter-spacing: -2px;
-
-    /* Hide by default */
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
-}
-
-.focus-timer-display.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1); /* Animate to full size */
-}
-
-/* Add a subtle blink effect to the colon */
-.focus-timer-display span:nth-child(2) {
-    animation: blink-animation 1.5s infinite;
-}
-
-@keyframes blink-animation {
-  50% {
-    opacity: 0.3;
-  }
 }
 
 /* ====================================================== */

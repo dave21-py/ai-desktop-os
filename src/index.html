@@ -221,11 +221,17 @@
                 </div>
 
         <!-- MOVED & REPURPOSED: The dock now lives at the top -->
-        <div class="app-dock-container">
-            <div class="app-dock">
-                <!-- Docked app icons will be dynamically inserted here -->
-            </div>
+        <!-- In index.html, REPLACE the entire app-dock-container div -->
+<div class="top-bar-container">
+    <div class="activity-pod">
+        <div class="pod-content" id="activity-pod-content">
+            <!-- Dynamic content will be injected here -->
         </div>
+    </div>
+    <div class="app-dock">
+        <!-- Docked app icons will be dynamically inserted here -->
+    </div>
+</div>
 
         <!-- NEW, CORRECTED STRUCTURE -->
 <div class="chat-view-container">
@@ -237,14 +243,8 @@
         </div>
     </div>
 </div>
-        <!-- MUSIC PLAYER & VISUALIZER -->
-        <canvas id="audio-visualizer"></canvas>
-                <!-- FOCUS TIMER UI -->
-                <div class="focus-timer-display" id="focus-timer">
-                    <span id="timer-minutes">25</span>
-                    <span>:</span>
-                    <span id="timer-seconds">00</span>
-                </div>
+    
+                
                 <audio id="timer-notification" src="assets/sounds/notification.mp3" preload="auto"></audio>
         <audio id="music-player" crossorigin="anonymous"></audio>
 
