@@ -131,10 +131,14 @@ class WarmwindOS {
         this.zIndexCounter++;
         this.openWindows.add(app.id);
         if (this.controls.appOpened) this.controls.appOpened(app.id);
+
+        // This is the main window container. It gets the blurred background.
         const win = document.createElement('div');
         win.className = 'app-window';
         win.dataset.appId = app.id;
         win.style.zIndex = this.zIndexCounter;
+
+        // Animation origin logic (no changes here)
         if (clickEvent && clickEvent.target) {
             const sourceElement = clickEvent.target.closest('.dock-item, .app-item');
             if (sourceElement) {
@@ -145,39 +149,47 @@ class WarmwindOS {
                 win.style.transformOrigin = `${originX}px ${originY}px`;
             }
         }
-        const titleBar = document.createElement('div');
-        titleBar.className = 'window-title-bar';
-        titleBar.innerHTML = `
-    <div class="window-title">${app.name}</div>
-    <div class="window-controls">
-        <button class="window-control-btn minimize" aria-label="Minimize Window">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
-        </button>
-        <button class="window-control-btn close" aria-label="Close Window">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
-        </button>
-    </div>
-`;
-        const content = document.createElement('div');
-        content.className = 'window-content';
-        const iframe = document.createElement('iframe');
-        iframe.src = app.url;
-        iframe.title = app.name;
-        content.appendChild(iframe);
-        win.appendChild(titleBar);
-        win.appendChild(content);
+        
+        // --- MODIFIED HTML STRUCTURE ---
+        // We're creating the new detached title bar and the inset content wrapper.
+        win.innerHTML = `
+            <div class="window-title-bar">
+                <div class="window-title-details">
+                    <img src="${app.icon}" class="window-app-icon" alt="${app.name} icon">
+                    <div class="window-title">${app.name}</div>
+                </div>
+                <div class="window-controls">
+                    <button class="window-control-btn minimize" aria-label="Minimize Window">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
+                    </button>
+                    <button class="window-control-btn close" aria-label="Close Window">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="window-content">
+                <iframe src="${app.url}" title="${app.name}"></iframe>
+            </div>
+        `;
+        // --- END OF MODIFIED STRUCTURE ---
+
         this.ui.appWindowContainer.appendChild(win);
+        
+        // Animation logic (no changes here)
         setTimeout(() => {
             win.classList.add('open');
             setTimeout(() => {
                 win.style.transformOrigin = 'center';
             }, 400);
         }, 10);
+
+        // Event listener logic (no changes here)
         const closeBtn = win.querySelector('.window-control-btn.close');
         closeBtn.addEventListener('click', () => this._closeAppWindow(win));
         const minimizeBtn = win.querySelector('.window-control-btn.minimize');
         minimizeBtn.addEventListener('click', () => this._minimizeAppWindow(win, app));
         win.addEventListener('mousedown', () => this._focusWindow(win));
+        
         this._focusWindow(win);
         this._tileWindows();
     }

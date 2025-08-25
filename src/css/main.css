@@ -386,27 +386,33 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .planner-form button { background: var(--accent-color); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-text-color); transition: background-color 0.2s ease; flex-shrink: 0; }
 .planner-form button:hover { background-color: #0056b3; }
 
-/* === REPLACEMENT STYLES FOR APP WINDOWS === */
+/* === REPLACEMENT STYLES FOR APP WINDOWS (V2 - REFINED UI) === */
 .app-window-container {
     position: absolute;
     inset: 65px 20px 120px 85px; /* Added space on the left for the dock */
     pointer-events: none;
 }
 
+/* MODIFIED: The main window is now a padded container */
 .app-window {
     position: absolute;
     /* Glass Effect */
-    background-color: var(--primary-bg); 
-    backdrop-filter: blur(25px) saturate(1.5);
-    -webkit-backdrop-filter: blur(25px) saturate(1.5);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
+    background-color: rgba(255, 255, 255, 0.15); /* A bit more subtle for the background */
+    backdrop-filter: blur(40px) saturate(1.5);
+    -webkit-backdrop-filter: blur(40px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px; /* Larger radius for a softer look */
     box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    
+    /* NEW: Flex layout to separate title bar and content */
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* This is crucial for rounded iframes */
+    padding: 12px; /* This creates the inset effect */
+    gap: 10px; /* Space between title bar and content */
+
+    overflow: hidden; /* Important for containing the blur effect */
     
-    /* Animation & Positioning */
+    /* Animation & Positioning (no changes here) */
     pointer-events: none;
     opacity: 0;
     transform: scale(0.9);
@@ -420,49 +426,51 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
                 height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.app-window.open {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
-}
+.app-window.open { opacity: 1; transform: scale(1); pointer-events: auto; }
+.app-window.minimized { pointer-events: none !important; opacity: 0 !important; }
+.app-window.active { z-index: 100; }
+.app-window.minimized iframe { pointer-events: none; user-select: none; }
 
-.app-window.minimized {
-    pointer-events: none !important;
-    opacity: 0 !important;
-}
-
-.app-window.active {
-    z-index: 100;
-}
-
-.app-window.minimized iframe {
-    pointer-events: none;
-    user-select: none;
-}
-
-/* --- New Minimalist Title Bar --- */
+/* MODIFIED: The title bar is now a floating "pill" */
 .window-title-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 8px 0 16px;
-    height: 40px;
-    background-color: transparent; /* No solid background */
-    border-bottom: 1px solid var(--border-color); /* Subtle separator */
+    padding: 6px 8px 6px 12px;
+    height: 44px;
+    /* NEW: Its own blurred background */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px; /* Rounded corners for the pill effect */
+    border: 1px solid rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
     cursor: default;
     user-select: none;
 }
 
+/* NEW: Container for the icon and title text */
+.window-title-details {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden; /* Prevents long titles from breaking layout */
+}
+
+/* NEW: Style for the app icon in the title bar */
+.window-app-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
 .window-title {
     flex-grow: 1;
-    text-align: left;
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--primary-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow for readability */
 }
 
 .window-controls {
@@ -491,15 +499,15 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     color: var(--primary-text);
 }
 
-.window-control-btn svg {
-    width: 16px;
-    height: 16px;
-}
+.window-control-btn svg { width: 16px; height: 16px; }
 
-/* --- Iframe Content Area --- */
+/* MODIFIED: The iframe content area is now rounded and takes remaining space */
 .window-content {
-    flex-grow: 1;
-    background-color: transparent; /* Allows the glass effect to show */
+    flex-grow: 1; /* This makes it fill the available space */
+    border-radius: 12px; /* Rounded corners for the inset content */
+    overflow: hidden; /* CRUCIAL: Clips the iframe to the rounded corners */
+    background-color: #111; /* Dark background for embedded content like YouTube */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2); /* Optional: subtle inner shadow for depth */
 }
 
 .window-content iframe {
