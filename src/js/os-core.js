@@ -29,54 +29,57 @@ class WarmwindOS {
         this.podVisualizerCtx = null;
         this.podAnimationFrameId = null;
         // Add this right after this.podAnimationFrameId = null; in the constructor
+// --- REPLACE the old this.features array with this new one ---
+
 this.features = [
     {
         title: "Center Stage Tiling",
-        description: "Open multiple apps and see how they automatically arrange themselves.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h7v7H4V4m9 0h7v7h-7V4M4 13h7v7H4v-7m9 0h7v7h-7v-7Z"/></svg>',
-        action: 'windowTilingDemo'
+        description: "Open multiple apps to see them auto-arrange.",
+        action: 'windowTilingDemo',
+        layout: 'large-square', // Specifies a 2x2 grid block
+        imageUrl: 'assets/features/tiling.png' // You will create this image
+    },
+    {
+        title: "Dynamic Island",
+        description: "Live activities for music and timers.",
+        action: 'playMusic',
+        layout: 'medium-rect', // Specifies a 2x1 grid block
+        imageUrl: 'assets/features/dynamic-island.png'
     },
     {
         title: "Toggle Theme",
-        description: "Instantly switch between a light and dark theme to match your vibe.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21q-3.75 0-6.375-2.625T3 12q0-3.75 2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.125.7-1.825 1.888T10.8 7.5q0 1.95 1.4 3.35T15.55 12q1.05 0 2.013-.313t1.737-.887q.05.325.075.663T19.4 12q0 3.75-2.625 6.375T12 21Z"/></svg>',
-        action: 'toggleThemeDemo'
+        description: "Switch between light and dark.",
+        action: 'toggleThemeDemo',
+        layout: 'small-square', // Specifies a 1x1 grid block
+        imageUrl: 'assets/features/theme-toggle.png'
+    },
+    {
+        title: "AI Trip Planner",
+        description: "Generate custom itineraries instantly.",
+        action: 'openPlanner', // Assuming you create this action
+        layout: 'medium-rect',
+        imageUrl: 'assets/features/trip-planner.png'
     },
     {
         title: "Change Wallpaper",
-        description: "Cycle through a collection of stunning wallpapers with a single click.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2M4 16V5h16l.01 11H4m4.21-3.71L6 14.5V12l2.21 2.21l2.09-2.09l5.29 5.29H6l2.21-2.21Z"/></svg>',
-        action: 'cycleWallpaper'
-    },
-    {
-        title: "Play Music",
-        description: "Start the music player and see it come alive in the Dynamic Island.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4V7h4V3h-6Z"/></svg>',
-        action: 'playMusic'
+        description: "Cycle through stunning backgrounds.",
+        action: 'cycleWallpaper',
+        layout: 'small-square',
+        imageUrl: 'assets/features/wallpaper.png'
     },
     {
         title: "Focus Timer",
-        description: "Launch a Pomodoro timer to help you focus on your tasks.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg>',
-        action: 'startTimerDemo'
+        description: "Launch a Pomodoro session.",
+        action: 'startTimerDemo',
+        layout: 'small-square',
+        imageUrl: 'assets/features/timer.png'
     },
     {
-        title: "Take a Note",
-        description: "Quickly add thoughts to your scratchpad, which is always saved.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 19h1.4l8.625-8.625l-1.4-1.4L5 17.6V19ZM19.7 8.925l-2.625-2.6l1.2-1.2q.375-.375.9-.375t.9.375l.8.8q.375.375.375.9t-.375.9l-1.2 1.2Zm-2.2 1.85L10.375 18H8v-2.375l7.125-7.125l2.375 2.375Z"/></svg>',
-        action: 'takeNoteDemo'
-    },
-    {
-        title: "Open App Store",
-        description: "Browse all available apps and add your favorites to the dock.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 6a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1a1 1 0 0 0-1-1m-3.5 2C6.67 8 5 9.67 5 11.5c0 1.56 1.12 2.85 2.58 3.15c.18.04.35.12.5.24c.26.22.42.54.42.89V17h1.5v-1.22c0-.35.16-.67.42-.89c.15-.12.32-.2.5-.24C12.88 14.35 14 13.06 14 11.5C14 9.67 12.33 8 10.5 8M12 2a10 10 0 0 0-7.35 16.84l.85-.85A8.5 8.5 0 1 1 12 20.5a8.5 8.5 0 0 1-6.1-2.55l.85-.85A10 10 0 0 0 12 2Z"/></svg>',
-        action: 'openAppStore'
-    },
-    {
-        title: "AI Summarization",
-        description: "After a chat, ask the AI to summarize your conversation into your notes.",
-        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 10h-5V5h5v5m-1.5-4h-2v3h2V6M18 19h-5v-5h5v5m-1.5-4h-2v3h2v-4M12 19H7v-5h5v5m-1.5-4h-2v3h2v-4M12 10H7V5h5v5M9.5 6h-2v3h2V6Z"/></svg>',
-        action: 'summarizeDemo'
+        title: "App Store",
+        description: "Discover and dock new apps.",
+        action: 'openAppStore',
+        layout: 'small-square',
+        imageUrl: 'assets/features/app-store.png'
     }
 ];
     }
@@ -920,17 +923,21 @@ if (this.ui.featureGridContainer) {
     }
     _addMessageToChat(e,t,i=[]){if(!this.ui.aiMessageList)return;const a=document.createElement("div");a.className=`ai-message from-${e}`;const s=t.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>"),o=document.createElement("div");o.className="message-bubble",o.innerHTML=s,a.appendChild(o),i.length>0&&(()=>{const e=document.createElement("div");e.className="quick-actions-container",i.forEach(t=>{const i=document.createElement("button");i.className="quick-action-btn",i.textContent=t.label,i.dataset.payload=t.payload,e.appendChild(i)}),a.appendChild(e)})(),this.ui.aiMessageList.appendChild(a);const n=this.ui.aiMessageList.closest(".ai-message-list-container");n&&(n.scrollTop=n.scrollHeight)}
 
-// Add ALL of these new functions at the end of the WarmwindOS class
+// --- REPLACE the old _populateFeaturesGrid() function with this ---
 
 _populateFeaturesGrid() {
     if (!this.ui.featureGridContainer) return;
     this.ui.featureGridContainer.innerHTML = ''; // Clear existing cards
 
     this.features.forEach((feature, index) => {
+        // Use the new properties to build a more complex card
         const cardHTML = `
-            <div class="feature-card" data-action="${feature.action}" style="animation-delay: ${index * 50}ms;">
-                <div class="icon">${feature.icon}</div>
-                <div>
+            <div 
+                class="feature-card ${feature.layout}" 
+                data-action="${feature.action}" 
+                style="background-image: url('${feature.imageUrl}'); animation-delay: ${index * 50}ms;"
+            >
+                <div class="card-content">
                     <h3>${feature.title}</h3>
                     <p>${feature.description}</p>
                 </div>

@@ -567,12 +567,12 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 .settings-text-btn:hover { color: #0056b3; }
 
 /* ====================================================== */
-/* NEW: Feature Discovery Grid                            */
+/* V2: Upgraded Feature Discovery Grid                    */
 /* ====================================================== */
 .feature-grid-overlay {
     position: absolute;
     inset: 0;
-    z-index: 980; /* High z-index to be on top of everything */
+    z-index: 980;
     display: flex;
     flex-direction: column;
     background-color: rgba(0, 0, 0, 0.2);
@@ -624,25 +624,31 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     transform: scale(1.1);
 }
 
+/* --- NEW GRID CONTAINER STYLES --- */
 .feature-grid-container {
     flex-grow: 1;
     overflow-y: auto;
     padding: 0 40px 40px;
     display: grid;
-    /* Responsive grid that creates columns between 200px and 1fr */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* This creates a 4-column grid and tries to fill gaps */
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: minmax(150px, auto); /* Control row height */
+    grid-auto-flow: dense; /* Important for filling gaps */
     gap: 16px;
 }
 
+/* --- NEW BASE CARD STYLES --- */
 .feature-card {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
     cursor: pointer;
+    background-size: cover;
+    background-position: center;
+    display: flex; /* For positioning content inside */
+    flex-direction: column;
+    justify-content: flex-end; /* Push content to the bottom */
+    padding: 20px;
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
                 box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     
@@ -652,35 +658,56 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     animation: card-fade-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
-body.dark-theme .feature-card {
-    background-color: rgba(60, 60, 60, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 .feature-card:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
 }
 
-.feature-card .icon {
-    width: 32px;
-    height: 32px;
-    color: var(--primary-text);
+/* Scrim for text readability */
+.feature-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
+    pointer-events: none;
 }
 
-.feature-card h3 {
-    font-size: 1.1rem;
-    color: var(--primary-text);
-    margin: 0;
+.card-content {
+    position: relative;
+    z-index: 2;
+    color: white;
 }
 
-.feature-card p {
+.card-content h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.card-content p {
     font-size: 0.9rem;
-    color: var(--secondary-text);
-    line-height: 1.5;
+    line-height: 1.4;
+    opacity: 0.8;
     margin: 0;
-    flex-grow: 1; /* Pushes the title up */
+}
+
+
+/* --- LAYOUT VARIATIONS --- */
+.feature-card.small-square {
+    grid-column: span 1;
+    grid-row: span 1;
+    aspect-ratio: 1 / 1;
+}
+
+.feature-card.medium-rect {
+    grid-column: span 2;
+    grid-row: span 1;
+}
+
+.feature-card.large-square {
+    grid-column: span 2;
+    grid-row: span 2;
+    aspect-ratio: 1 / 1;
 }
 
 @keyframes card-fade-in {
