@@ -120,8 +120,8 @@
 body {
     font-family: var(--font-body);
     background-color: #e0e2e5;
-    display: grid; /* CORRECTED: Use grid for robust centering */
-    place-items: center; /* CORRECTED: This centers the os-container */
+    display: grid;
+    place-items: center;
     min-height: 100vh;
     overflow: hidden;
 }
@@ -386,32 +386,26 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .planner-form button { background: var(--accent-color); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--accent-text-color); transition: background-color 0.2s ease; flex-shrink: 0; }
 .planner-form button:hover { background-color: #0056b3; }
 
-/* === REPLACEMENT STYLES FOR APP WINDOWS (V2 - REFINED UI) === */
+/* === FINAL CORRECTED STYLES FOR APP WINDOWS === */
 .app-window-container {
     position: absolute;
     inset: 65px 20px 120px 85px; /* Added space on the left for the dock */
     pointer-events: none;
 }
 
-/* MODIFIED: The main window is now a padded container */
+/* This is the invisible container that holds the title bar and the content */
 .app-window {
     position: absolute;
-    /* Glass Effect */
-    background-color: rgba(255, 255, 255, 0.15); /* A bit more subtle for the background */
-    backdrop-filter: blur(40px) saturate(1.5);
-    -webkit-backdrop-filter: blur(40px) saturate(1.5);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px; /* Larger radius for a softer look */
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-    
-    /* NEW: Flex layout to separate title bar and content */
     display: flex;
     flex-direction: column;
-    padding: 12px; /* This creates the inset effect */
-    gap: 10px; /* Space between title bar and content */
-
-    overflow: hidden; /* Important for containing the blur effect */
     
+    /* Make it transparent and frameless. It only handles positioning. */
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible; /* Allows shadows from children to be seen */
+
     /* Animation & Positioning (no changes here) */
     pointer-events: none;
     opacity: 0;
@@ -419,7 +413,6 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     transform-origin: center;
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                filter 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 left 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 top 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
                 width 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
@@ -431,50 +424,57 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .app-window.active { z-index: 100; }
 .app-window.minimized iframe { pointer-events: none; user-select: none; }
 
-/* MODIFIED: The title bar is now a floating "pill" */
+
+/* This is the SEPARATE top bar */
 .window-title-bar {
+    height: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 8px 6px 12px;
-    height: 44px;
-    /* NEW: Its own blurred background */
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 12px; /* Rounded corners for the pill effect */
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0 6px 0 12px;
+    
+    /* NEW: Frosted Glass Effect */
+    background-color: rgba(255, 255, 255, 0.15); /* Adjust opacity as needed */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    /* NEW: More rounded corners for the "pill" shape */
+    border-radius: 20px; 
+    
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    margin-bottom: 12px; /* <-- This creates the gap */
     flex-shrink: 0;
     cursor: default;
     user-select: none;
 }
 
-/* NEW: Container for the icon and title text */
+/* Styles for the content INSIDE the title bar */
 .window-title-details {
     display: flex;
     align-items: center;
-    gap: 10px;
-    overflow: hidden; /* Prevents long titles from breaking layout */
+    gap: 8px;
+    overflow: hidden;
 }
 
-/* NEW: Style for the app icon in the title bar */
 .window-app-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
 }
 
 .window-title {
-    flex-grow: 1;
     font-size: 0.9rem;
     font-weight: 600;
-    color: var(--primary-text);
+    /* NEW: Changed to theme variable for better contrast */
+    color: var(--primary-text); 
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1); /* Subtle shadow for readability */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .window-controls {
-    flex-shrink: 0;
     display: flex;
     gap: 4px;
 }
@@ -488,26 +488,33 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--secondary-text);
+    /* NEW: Changed to theme variable for better contrast */
+    color: var(--secondary-text); 
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
     padding: 0;
 }
 
 .window-control-btn:hover {
-    background-color: var(--input-bg);
+    background-color: rgba(0, 0, 0, 0.1);
+    /* NEW: Changed to theme variable for better contrast */
     color: var(--primary-text);
 }
-
 .window-control-btn svg { width: 16px; height: 16px; }
 
-/* MODIFIED: The iframe content area is now rounded and takes remaining space */
+
+/* This is the MAIN APP BODY with the gradient frame */
 .window-content {
     flex-grow: 1; /* This makes it fill the available space */
-    border-radius: 12px; /* Rounded corners for the inset content */
-    overflow: hidden; /* CRUCIAL: Clips the iframe to the rounded corners */
-    background-color: #111; /* Dark background for embedded content like YouTube */
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.2); /* Optional: subtle inner shadow for depth */
+    background: #0F0F0F; /* The black background */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden; /* CRUCIAL: Clips the iframe */
+    
+    /* THE GRADIENT BORDER YOU WANTED */
+    border-width: 2px;
+    border-style: solid;
+    border-image: linear-gradient(135deg, #ff00ff, #00ffff) 1;
 }
 
 .window-content iframe {
@@ -515,6 +522,7 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     height: 100%;
     border: none;
 }
+
 
 /* --- Settings Window (Keep these styles separate) --- */
 .settings-window { position: absolute; inset: 65px 20px 120px 20px; background-color: var(--primary-bg); backdrop-filter: blur(25px) saturate(1.5); -webkit-backdrop-filter: blur(25px) saturate(1.5); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); display: flex; overflow: hidden; z-index: 900; opacity: 0; transform: scale(0.95); visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; }
