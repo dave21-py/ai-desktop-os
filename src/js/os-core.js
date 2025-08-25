@@ -148,16 +148,16 @@ class WarmwindOS {
         const titleBar = document.createElement('div');
         titleBar.className = 'window-title-bar';
         titleBar.innerHTML = `
-            <div class="window-title">${app.name}</div>
-            <div class="window-controls">
-                <button class.window-control-btn minimize" aria-label="Minimize Window">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
-                </button>
-                <button class="window-control-btn close" aria-label="Close Window">
-                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
-                </button>
-            </div>
-        `;
+    <div class="window-title">${app.name}</div>
+    <div class="window-controls">
+        <button class="window-control-btn minimize" aria-label="Minimize Window">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 14H4v-4h16"/></svg>
+        </button>
+        <button class="window-control-btn close" aria-label="Close Window">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+        </button>
+    </div>
+`;
         const content = document.createElement('div');
         content.className = 'window-content';
         const iframe = document.createElement('iframe');
