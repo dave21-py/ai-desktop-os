@@ -56,7 +56,7 @@ this.features = [
     {
         title: "AI Trip Planner",
         description: "Generate custom itineraries instantly.",
-        action: 'openPlanner', // Assuming you create this action
+        action: 'startPlannerConversation', // <-- CORRECTED ACTION
         layout: 'medium-rect',
         imageUrl: 'assets/features/trip-planner.png'
     },
@@ -594,6 +594,17 @@ if (this.ui.featureGridContainer) {
         this._updateTimerDisplay();
         if (this.timerSecondsRemaining <= 0) this._handleTimerCompletion();
     }
+
+    // in os-core.js, inside the WarmwindOS class...
+
+// --- BUG FIX STARTS HERE ---
+// The function is modified to open the planner window in addition to sending a chat message.
+startPlannerConversation() {
+    this.openPlanner(); // This line makes the planner window visible.
+    const message = "The AI Trip Planner is ready. To get started, just tell me where you'd like to go and for how long (e.g., 'a 5-day trip to Paris').";
+    this._addMessageToChat('ai', message);
+}
+// --- BUG FIX ENDS HERE ---
     
     _handleTimerCompletion() {
         clearInterval(this.timerInterval);
@@ -792,7 +803,11 @@ if (this.ui.featureGridContainer) {
     async _handleCommand(prompt) {
         const t = prompt.toLowerCase();
         if (await this._handleSearchCommand(prompt)) return true;
-        if (["plan a trip", "trip planner", "travel plan", "planner"].some(e => t.includes(e))) return this.openPlanner(), this._addMessageToChat("ai", "Opening the trip planner. What adventure is on your mind?"), true;
+        if (["plan a trip", "trip planner", "travel plan", "planner"].some(e => t.includes(e))) {
+            this.openPlanner();
+            this.generateTripPlan(prompt); // Use the user's prompt to start the plan
+            return true;
+        }
         if (["play music", "play a song", "start music", "resume music", "resume", "unpause"].some(e => t.includes(e))) return this.playMusic(), true;
         if (["pause music", "pause"].some(e => t.includes(e))) return this.pauseMusic(), true;
         if (["stop music", "stop the music"].some(e => t.includes(e))) return this.stopMusic(), true;
@@ -969,6 +984,7 @@ _handleFeatureCardClick(e) {
         'playMusic': () => this.playMusic(),
         'cycleWallpaper': () => this._addMessageToChat('ai', this.controls.cycleWallpaper()),
         'openAppStore': () => this.controls.openAppStore(),
+        'startPlannerConversation': () => this.startPlannerConversation(), // <-- ADD THIS LINE
         'toggleThemeDemo': () => {
             const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -993,6 +1009,50 @@ _handleFeatureCardClick(e) {
         this._hideFeaturesGrid();
     }
 }
+
+// in os-core.js, inside the WarmwindOS class...
+
+// --- PASTE THIS ENTIRE BLOCK OF MISSING PLANNER FUNCTIONS ---
+
+openPlanner() {
+    if (!this.ui.plannerWindow) return;
+    this.ui.plannerWindow.classList.add('visible');
+}
+
+closePlanner() {
+    if (!this.ui.plannerWindow) return;
+    this.ui.plannerWindow.classList.remove('visible');
+}
+
+async generateTripPlan(prompt) {
+    if (!this.ui.plannerLoadingView || !this.ui.plannerResultsView) return;
+
+    this.ui.plannerInitialView.classList.add('hidden');
+    this.ui.plannerResultsView.classList.add('hidden');
+    this.ui.plannerLoadingView.classList.remove('hidden');
+
+    const fullPrompt = `Generate a travel itinerary based on this request: "${prompt}". 
+    Format the response as a simple, unstyled HTML structure. 
+    Create a main container div with the class "planner-results-state".
+    Inside it, for each day, create a div with the class "day-column".
+    Inside each day-column, create a header div with the class "day-header" containing an h4 tag like "<h4>Day 1: Arrival</h4>".
+    After the header, list activities. For each activity, create a div with the class "activity-card".
+    Inside each activity-card, use an h5 for the time/title (e.g., "<h5>Morning: Explore the Old Town</h5>") and a p tag for the description.
+    Do not include any CSS, <style> tags, or any HTML elements other than the ones specified (div, h4, h5, p).`;
+
+    try {
+        const response = await this._getGeminiResponse(fullPrompt);
+        this.ui.plannerResultsView.innerHTML = response;
+        this.ui.plannerLoadingView.classList.add('hidden');
+        this.ui.plannerResultsView.classList.remove('hidden');
+    } catch (error) {
+        this.ui.plannerLoadingView.classList.add('hidden');
+        this.ui.plannerInitialView.classList.remove('hidden');
+        this._addMessageToChat('ai', "Sorry, I couldn't generate the trip plan right now.");
+    }
+}
+
+// --- END OF THE BLOCK TO PASTE ---
 
 
 }
