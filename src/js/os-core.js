@@ -619,6 +619,7 @@ class WarmwindOS {
         // Compact View (Not Hovered)
         this.ui.podCompactView.innerHTML = `
             ${this._getIconForType('timer')}
+            <span class="pod-compact-text">Focus</span>
             <span id="pod-timer-compact" class="pod-compact-text">--:--</span>
         `;
         

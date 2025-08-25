@@ -26,9 +26,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         setTimeout(() => {
             background.classList.add('loaded');
-            if (dockedApps.length > 0) {
-                setTimeout(() => appDock.classList.add('visible'), 300);
-            }
+            
+            // FIX #1: The "if" condition is removed to ensure the dock is ALWAYS told to appear on unlock.
+            
+            
             setTimeout(() => bottomBar.classList.add('loaded'), 400);
             setTimeout(() => {
                 document.body.classList.add('chat-active', 'compact-active');
@@ -303,6 +304,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderApps();
     };
 
+    // FIX #2: This function is updated to no longer hide the dock.
     const renderDock = () => {
         const appsToShow = new Map();
         dockedApps.forEach(app => appsToShow.set(app.id, app));
@@ -313,7 +315,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-        appDock.innerHTML = '';
+        appDock.innerHTML = ''; // Clear existing icons first
+
+        // Only add icons if there are any to show.
+        // The dock container itself will remain visible regardless.
         if (appsToShow.size > 0) {
             appsToShow.forEach(app => {
                 const dockItem = document.createElement('div');
@@ -332,27 +337,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
                 appDock.appendChild(dockItem);
             });
-            appDock.classList.add('visible');
-        } else {
-            appDock.classList.remove('visible');
         }
+        // The `else` block that removed the 'visible' class has been removed.
     };
 
-    const addAppToDock = (appId) => {
-        if (!dockedApps.some(app => app.id === appId)) {
-            const appToAdd = appDatabase.find(app => app.id === appId);
-            if (appToAdd) {
-                dockedApps.push(appToAdd);
-                saveDockState();
-                renderDock();
-                renderApps();
-                setTimeout(() => appDock.classList.add('visible'), 50);
-                return `${appToAdd.name} has been added to your dock.`;
-            }
+    // This is the CORRECT version of the function
+const addAppToDock = (appId) => {
+    if (!dockedApps.some(app => app.id === appId)) {
+        const appToAdd = appDatabase.find(app => app.id === appId);
+        if (appToAdd) {
+            dockedApps.push(appToAdd);
+            saveDockState();
+            renderDock(); // <-- THIS IS THE MISSING LINE TO ADD
+            renderApps();
+            return `${appToAdd.name} has been added to your dock.`;
         }
-        const app = appDatabase.find(app => app.id === appId);
-        return `${app ? app.name : 'That app'} is already in your dock.`;
-    };
+    }
+    const app = appDatabase.find(app => app.id === appId);
+    return `${app ? app.name : 'That app'} is already in your dock.`;
+};
 
     const removeAppFromDock = (appId) => {
         const appToRemove = appDatabase.find(app => app.id === appId);
