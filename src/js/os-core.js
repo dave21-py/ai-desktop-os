@@ -278,46 +278,64 @@ class WarmwindOS {
         return false;
     }
 
-    _tileWindows() {
-        const PADDING = 10;
-        const PRIMARY_PANE_WIDTH_RATIO = 0.65;
-        const container = this.ui.appWindowContainer;
-        const visibleWindows = Array.from(container.querySelectorAll('.app-window:not(.minimized)'));
-        if (visibleWindows.length === 0) return;
-        if (visibleWindows.length === 1) {
-            const win = visibleWindows[0];
-            win.style.left = `${PADDING}px`;
-            win.style.top = `${PADDING}px`;
-            win.style.width = `calc(100% - ${2 * PADDING}px)`;
-            win.style.height = `calc(100% - ${2 * PADDING}px)`;
-            win.style.transform = 'none';
-            return;
-        }
-        let primary = visibleWindows.find(win => win.classList.contains('active'));
-        if (!primary) {
-            primary = visibleWindows[visibleWindows.length - 1];
-            primary.classList.add('active');
-        }
-        const secondaries = visibleWindows.filter(win => win !== primary);
-        const containerWidth = container.offsetWidth;
-        const containerHeight = container.offsetHeight;
-        const primaryWidth = (containerWidth * PRIMARY_PANE_WIDTH_RATIO) - (1.5 * PADDING);
-        primary.style.left = `${PADDING}px`;
-        primary.style.top = `${PADDING}px`;
-        primary.style.width = `${primaryWidth}px`;
-        primary.style.height = `calc(100% - ${2 * PADDING}px)`;
-        primary.style.transform = 'none';
-        const secondaryPaneLeft = primaryWidth + (2 * PADDING);
-        const secondaryWidth = containerWidth - secondaryPaneLeft - PADDING;
-        const secondaryHeight = (containerHeight - (secondaries.length + 1) * PADDING) / secondaries.length;
-        secondaries.forEach((win, index) => {
-            win.style.left = `${secondaryPaneLeft}px`;
-            win.style.top = `${PADDING + index * (secondaryHeight + PADDING)}px`;
-            win.style.width = `${secondaryWidth}px`;
-            win.style.height = `${secondaryHeight}px`;
-            win.style.transform = 'none';
-        });
+    // This is the NEW function. Paste this in place of the old one.
+_tileWindows() {
+    const container = this.ui.appWindowContainer;
+    const visibleWindows = Array.from(container.querySelectorAll('.app-window:not(.minimized)'));
+
+    // --- You can tweak these values to change the look ---
+    const PADDING = 20; // Overall spacing from the container edges
+    const CENTER_WIDTH_RATIO = 0.65; // How wide the active window is
+    const SIDE_WIDTH_RATIO = 0.6;   // How wide the side windows are
+    const SIDE_PEEK_AMOUNT = 120;   // How much of the side windows are visible
+    const SIDE_STACK_OFFSET = 15;   // The cascade effect for multiple side windows
+
+    if (visibleWindows.length === 0) return;
+
+    // --- Case 1: Only one window is open ---
+    if (visibleWindows.length === 1) {
+        const win = visibleWindows[0];
+        win.style.left = `${PADDING}px`;
+        win.style.top = `${PADDING}px`;
+        win.style.width = `calc(100% - ${2 * PADDING}px)`;
+        win.style.height = `calc(100% - ${2 * PADDING}px)`;
+        win.style.transform = 'none';
+        return;
     }
+
+    // --- Case 2: Multiple windows are open (Center Stage layout) ---
+    let primary = visibleWindows.find(win => win.classList.contains('active'));
+    if (!primary) {
+        primary = visibleWindows[visibleWindows.length - 1];
+        primary.classList.add('active');
+    }
+
+    const inactiveWindows = visibleWindows.filter(win => win !== primary);
+    const containerWidth = container.offsetWidth;
+    const containerHeight = container.offsetHeight;
+
+    // Position the ACTIVE window in the center
+    const primaryWidth = containerWidth * CENTER_WIDTH_RATIO;
+    primary.style.width = `${primaryWidth}px`;
+    primary.style.height = `calc(100% - ${2 * PADDING}px)`;
+    primary.style.left = `${(containerWidth - primaryWidth) / 2}px`;
+    primary.style.top = `${PADDING}px`;
+    primary.style.transform = 'scale(1)'; // Ensure it's full size
+
+    // Position all INACTIVE windows stacked on the right
+    inactiveWindows.forEach((win, index) => {
+        const sideWidth = containerWidth * SIDE_WIDTH_RATIO;
+        win.style.width = `${sideWidth}px`;
+        win.style.height = `calc(100% - ${2 * PADDING}px)`;
+        win.style.top = `${PADDING}px`;
+        
+        // Push it off-screen, then pull it back by the "peek" amount
+        win.style.left = `${containerWidth - SIDE_PEEK_AMOUNT}px`;
+        
+        // Apply a scale and cascade effect
+        win.style.transform = `scale(0.95) translateX(${index * SIDE_STACK_OFFSET}px) translateY(${index * SIDE_STACK_OFFSET}px)`;
+    });
+}
 
     _initUI() {
         this.ui.aiMessageList = document.querySelector('.ai-message-list');
