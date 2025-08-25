@@ -28,6 +28,57 @@ class WarmwindOS {
         this.podVisualizerCanvas = null;
         this.podVisualizerCtx = null;
         this.podAnimationFrameId = null;
+        // Add this right after this.podAnimationFrameId = null; in the constructor
+this.features = [
+    {
+        title: "Center Stage Tiling",
+        description: "Open multiple apps and see how they automatically arrange themselves.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M4 4h7v7H4V4m9 0h7v7h-7V4M4 13h7v7H4v-7m9 0h7v7h-7v-7Z"/></svg>',
+        action: 'windowTilingDemo'
+    },
+    {
+        title: "Toggle Theme",
+        description: "Instantly switch between a light and dark theme to match your vibe.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 21q-3.75 0-6.375-2.625T3 12q0-3.75 2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.125.7-1.825 1.888T10.8 7.5q0 1.95 1.4 3.35T15.55 12q1.05 0 2.013-.313t1.737-.887q.05.325.075.663T19.4 12q0 3.75-2.625 6.375T12 21Z"/></svg>',
+        action: 'toggleThemeDemo'
+    },
+    {
+        title: "Change Wallpaper",
+        description: "Cycle through a collection of stunning wallpapers with a single click.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M20 3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2M4 16V5h16l.01 11H4m4.21-3.71L6 14.5V12l2.21 2.21l2.09-2.09l5.29 5.29H6l2.21-2.21Z"/></svg>',
+        action: 'cycleWallpaper'
+    },
+    {
+        title: "Play Music",
+        description: "Start the music player and see it come alive in the Dynamic Island.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55c-2.21 0-4 1.79-4 4s1.79 4 4 4s4-1.79 4-4V7h4V3h-6Z"/></svg>',
+        action: 'playMusic'
+    },
+    {
+        title: "Focus Timer",
+        description: "Launch a Pomodoro timer to help you focus on your tasks.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg>',
+        action: 'startTimerDemo'
+    },
+    {
+        title: "Take a Note",
+        description: "Quickly add thoughts to your scratchpad, which is always saved.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M5 19h1.4l8.625-8.625l-1.4-1.4L5 17.6V19ZM19.7 8.925l-2.625-2.6l1.2-1.2q.375-.375.9-.375t.9.375l.8.8q.375.375.375.9t-.375.9l-1.2 1.2Zm-2.2 1.85L10.375 18H8v-2.375l7.125-7.125l2.375 2.375Z"/></svg>',
+        action: 'takeNoteDemo'
+    },
+    {
+        title: "Open App Store",
+        description: "Browse all available apps and add your favorites to the dock.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 6a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1a1 1 0 0 0-1-1m-3.5 2C6.67 8 5 9.67 5 11.5c0 1.56 1.12 2.85 2.58 3.15c.18.04.35.12.5.24c.26.22.42.54.42.89V17h1.5v-1.22c0-.35.16-.67.42-.89c.15-.12.32-.2.5-.24C12.88 14.35 14 13.06 14 11.5C14 9.67 12.33 8 10.5 8M12 2a10 10 0 0 0-7.35 16.84l.85-.85A8.5 8.5 0 1 1 12 20.5a8.5 8.5 0 0 1-6.1-2.55l.85-.85A10 10 0 0 0 12 2Z"/></svg>',
+        action: 'openAppStore'
+    },
+    {
+        title: "AI Summarization",
+        description: "After a chat, ask the AI to summarize your conversation into your notes.",
+        icon: '<svg viewBox="0 0 24 24"><path fill="currentColor" d="M18 10h-5V5h5v5m-1.5-4h-2v3h2V6M18 19h-5v-5h5v5m-1.5-4h-2v3h2v-4M12 19H7v-5h5v5m-1.5-4h-2v3h2v-4M12 10H7V5h5v5M9.5 6h-2v3h2V6Z"/></svg>',
+        action: 'summarizeDemo'
+    }
+];
     }
 
     async getWeather(lat, lon) {
@@ -52,11 +103,13 @@ class WarmwindOS {
         }
     }
 
-    boot() {
-        this._initUI();
-        this._updatePodDisplay();
-        console.log("AI OS Core Booted Successfully.");
-    }
+    // Add the new line to your boot() method
+boot() {
+    this._initUI();
+    this._populateFeaturesGrid(); // <-- ADD THIS LINE
+    this._updatePodDisplay();
+    console.log("AI OS Core Booted Successfully.");
+}
 
     openSettings() {
         if (!this.ui.settingsWindow) return;
@@ -364,6 +417,18 @@ _tileWindows() {
         this.ui.podExpandedMain = this.ui.activityPod.querySelector('.pod-expanded-main');
         this.ui.podExpandedActions = this.ui.activityPod.querySelector('.pod-expanded-actions');
         this.ui.secondaryPod = document.getElementById('secondary-pod');
+        // Add these lines inside _initUI()
+this.ui.featureGridOverlay = document.getElementById('feature-grid-overlay');
+this.ui.featureGridContainer = document.getElementById('feature-grid-container');
+this.ui.closeFeatureGridBtn = document.getElementById('close-feature-grid-btn');
+
+// Add the event listeners
+if (this.ui.closeFeatureGridBtn) {
+    this.ui.closeFeatureGridBtn.addEventListener('click', () => this._hideFeaturesGrid());
+}
+if (this.ui.featureGridContainer) {
+    this.ui.featureGridContainer.addEventListener('click', (e) => this._handleFeatureCardClick(e));
+}
     }
 
     // ======================================================
@@ -676,6 +741,251 @@ _tileWindows() {
     }
 
     // MODIFIED: The _handleCommand logic has been split to handle "stop" differently from "pause"
-    async deliverGreeting(){const delay=e=>new Promise(t=>setTimeout(t,e));this.ui.aiTypingIndicator&&this.ui.aiTypingIndicator.classList.remove("hidden"),await delay(1e3);const e=new Date,t=e.getHours();let i=t<12?"Good morning!":t<18?"Good afternoon!":"Good evening!";this.ui.aiTypingIndicator&&this.ui.aiTypingIndicator.classList.add("hidden"),this._addMessageToChat("ai",i),await delay(600),this._addMessageToChat("ai","Welcome to VibeOS!"),await delay(800),this._addMessageToChat("ai","What's on your mind today?")}async _handleSearchCommand(e){const t=e.toLowerCase();if(t.includes("wikipedia for")){const i=t.split("wikipedia for").pop().trim();if(!i)return!1;this._addMessageToChat("ai",`Searching Wikipedia for a summary of "${i}"...`);try{const e=`https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&redirects=1&origin=*&titles=${encodeURIComponent(i)}`,t=await fetch(e),a=await t.json(),s=Object.values(a.query.pages)[0];if(s.extract){const e=s.extract.split(". ").slice(0,2).join(". ")+".",t=`https://en.wikipedia.org/wiki/${encodeURIComponent(s.title)}`,a=[{label:`Open full article for "${s.title}"`,payload:`open ${t}`}];this._addMessageToChat("ai",e,a)}else this._addMessageToChat("ai",`Sorry, I couldn't find a Wikipedia article for "${i}".`)}catch(e){this._addMessageToChat("ai","There was an error while searching Wikipedia.")}return!0}return!1}async _handleCommand(e){const t=e.toLowerCase();if(await this._handleSearchCommand(e))return!0;if(["plan a trip","trip planner","travel plan","planner"].some(e=>t.includes(e)))return this.openPlanner(),this._addMessageToChat("ai","Opening the trip planner. What adventure is on your mind?"),!0;if(["play music","play a song","start music","resume music","resume","unpause"].some(e=>t.includes(e)))return this.playMusic(),!0;if(["pause music","pause"].some(e=>t.includes(e)))return this.pauseMusic(),!0;if(["stop music","stop the music"].some(e=>t.includes(e)))return this.stopMusic(),!0;if(["next song","change the music","skip song","next music","another one"].some(e=>t.includes(e)))return this.changeMusic("next"),!0;if(["previous song","last song","go back","play the last one"].some(e=>t.includes(e)))return this.changeMusic("previous"),!0;if(["stop the timer","cancel timer","stop focus","cancel focus"].some(e=>t.includes(e)))return this._stopTimer(),!0;if(["timer","focus session","pomodoro","break"].some(i=>t.includes(i))){const i=e.match(/\d+/),a=i?parseInt(i[0],10):25,s=t.includes("break")?"break":"work";return this._startTimer(a,s),!0}if(["help","what can you do","show commands","commands"].some(e=>t.includes(e))){const e="I can do many things! Here are a few things to try:",i=[{label:"Change my wallpaper",payload:"change wallpaper"},{label:"Switch to dark mode",payload:"dark mode"},{label:"Browse apps",payload:"browse apps"}];return this._addMessageToChat("ai",e,i),!0}if(["summarize this","summarize our conversation","summarize that"].some(e=>t.startsWith(e))){this._addMessageToChat("ai","Sure, summarizing the last few messages for you...");const e=this.state.conversationHistory.slice(-6).map(e=>`${e.role}: ${e.content}`).join("\n"),i=`Based on the following conversation, please provide a concise summary in a bulleted list format. Focus on key decisions, ideas, and action items.\n\n---\n\n${e}`,a=await this._getGeminiResponse(i);return this.controls.updateNotes&&this.controls.updateNotes(a,!1),this._addMessageToChat("ai","I've added the summary to your scratchpad."),!0}for(const i of["take a note","remember that","add to my notes","note to self"])if(t.startsWith(i)){const a=e.substring(i.length).trim();if(a&&this.controls.updateNotes)return this.controls.updateNotes(a,!0),this._addMessageToChat("ai","Got it. I've added that to your scratchpad."),!0}if(["show my notes","open scratchpad","open notes"].some(e=>t.includes(e))){if(this.controls.openNotes)return this.controls.openNotes(),!0}if(["dark mode","dark theme","night mode"].some(e=>t.includes(e))){if(this.controls.setTheme)return this.controls.setTheme("dark"),this._addMessageToChat("ai","Switching to dark mode."),!0}if(["light mode","light theme","day mode"].some(e=>t.includes(e))){if(this.controls.setTheme)return this.controls.setTheme("light"),this._addMessageToChat("ai","Switching to light mode."),!0}if(["wallpaper","background","scene"].some(e=>t.includes(e))){if(this.controls.cycleWallpaper)return this._addMessageToChat("ai",this.controls.cycleWallpaper()),!0}if(["browse apps","show apps","open app store","find apps"].some(e=>t.includes(e))){if(this.controls.openAppStore)return this.controls.openAppStore(),this._addMessageToChat("ai","Here are the available apps."),!0}if(["open","launch","go to","navigate to"].some(e=>t.startsWith(e))){for(const i of this.apps)if(t.includes(i.name.toLowerCase()))return this.launchApp(i),!0}if(["add","pin","dock"].some(e=>t.includes(e))){for(const i of this.apps)if(t.includes(i.name.toLowerCase()))return this.controls.addAppToDock&&this._addMessageToChat("ai",this.controls.addAppToDock(i.id)),!0}if(["remove","unpin","undock"].some(e=>t.includes(e))){for(const i of this.apps)if(t.includes(i.name.toLowerCase()))return this.controls.removeAppFromDock&&this._addMessageToChat("ai",this.controls.removeAppFromDock(i.id)),!0}return!1}async askAI(e){if(!e)return;if(this._addMessageToChat("user",e),this.state.conversationHistory.push({role:"user",content:e}),await this._handleCommand(e))return;this.ui.aiTypingIndicator&&this.ui.aiTypingIndicator.classList.remove("hidden");try{const t=await this._getGeminiResponse(e);this._addMessageToChat("ai",t),this.state.conversationHistory.push({role:"ai",content:t})}catch(e){console.error("Error communicating with AI:",e)}finally{this.ui.aiTypingIndicator&&this.ui.aiTypingIndicator.classList.add("hidden")}}async _getGeminiResponse(e){if(!this.GEMINI_API_KEY)return this._addMessageToChat("ai","It seems the API key is missing. Please check the `js/config.js` file."),new Error("API key is missing.");const t=`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;let i="You are a helpful AI assistant for an operating system called VibeOS.";this.state.currentWeather&&(i+=` The user's current weather is ${this.state.currentWeather.temp}°C and ${this.state.currentWeather.description}.`);const a={contents:[{role:"user",parts:[{text:i}]},{role:"model",parts:[{text:"Understood. I am VibeOS's assistant."}]},{role:"user",parts:[{text:e}]}]},s=await fetch(t,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(a)});if(!s.ok){const e=(await s.json().catch(()=>({error:{message:`API request failed with status ${s.status}`}}))).error.message||"An unknown API error occurred.";return this._addMessageToChat("ai",`Sorry, an error occurred: ${e}`),new Error(e)}const o=await s.json();try{return o.candidates[0].content.parts[0].text}catch(e){const t="Could not parse the AI's response.";return this._addMessageToChat("ai",`Sorry, an error occurred: ${t}`),console.error("Error parsing AI response:",o),new Error(t)}}
+    async deliverGreeting() {
+        const delay = ms => new Promise(res => setTimeout(res, ms));
+        if (this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove("hidden");
+        await delay(1000);
+        const now = new Date();
+        const hours = now.getHours();
+        let greeting = hours < 12 ? "Good morning!" : hours < 18 ? "Good afternoon!" : "Good evening!";
+        if (this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.add("hidden");
+        this._addMessageToChat("ai", greeting);
+        await delay(600);
+        this._addMessageToChat("ai", "Welcome to VibeOS!");
+        await delay(800);
+        this._addMessageToChat("ai", "What's on your mind today?");
+    }
+
+    async _handleSearchCommand(prompt) {
+        const lowerCasePrompt = prompt.toLowerCase();
+        if (lowerCasePrompt.includes("wikipedia for")) {
+            const topic = lowerCasePrompt.split("wikipedia for").pop().trim();
+            if (!topic) return false;
+            this._addMessageToChat("ai", `Searching Wikipedia for a summary of "${topic}"...`);
+            try {
+                const url = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=true&redirects=1&origin=*&titles=${encodeURIComponent(topic)}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                const page = Object.values(data.query.pages)[0];
+                if (page.extract) {
+                    const summary = page.extract.split(". ").slice(0, 2).join(". ") + ".";
+                    const articleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title)}`;
+                    const actions = [{
+                        label: `Open full article for "${page.title}"`,
+                        payload: `open ${articleUrl}`
+                    }];
+                    this._addMessageToChat("ai", summary, actions);
+                } else {
+                    this._addMessageToChat("ai", `Sorry, I couldn't find a Wikipedia article for "${topic}".`);
+                }
+            } catch (error) {
+                this._addMessageToChat("ai", "There was an error while searching Wikipedia.");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    async _handleCommand(prompt) {
+        const t = prompt.toLowerCase();
+        if (await this._handleSearchCommand(prompt)) return true;
+        if (["plan a trip", "trip planner", "travel plan", "planner"].some(e => t.includes(e))) return this.openPlanner(), this._addMessageToChat("ai", "Opening the trip planner. What adventure is on your mind?"), true;
+        if (["play music", "play a song", "start music", "resume music", "resume", "unpause"].some(e => t.includes(e))) return this.playMusic(), true;
+        if (["pause music", "pause"].some(e => t.includes(e))) return this.pauseMusic(), true;
+        if (["stop music", "stop the music"].some(e => t.includes(e))) return this.stopMusic(), true;
+        if (["next song", "change the music", "skip song", "next music", "another one"].some(e => t.includes(e))) return this.changeMusic("next"), true;
+        if (["previous song", "last song", "go back", "play the last one"].some(e => t.includes(e))) return this.changeMusic("previous"), true;
+        if (["stop the timer", "cancel timer", "stop focus", "cancel focus"].some(e => t.includes(e))) return this._stopTimer(), true;
+        if (["timer", "focus session", "pomodoro", "break"].some(i => t.includes(i))) {
+            const i = prompt.match(/\d+/);
+            const a = i ? parseInt(i[0], 10) : 25;
+            const s = t.includes("break") ? "break" : "work";
+            return this._startTimer(a, s), true;
+        }
+
+        // --- THIS IS THE UPDATED BLOCK ---
+        if (["help", "what can you do", "show features", "features", "commands"].some(term => t.includes(term))) {
+            this._showFeaturesGrid();
+            return true; // Command handled!
+        }
+        // --- END OF UPDATE ---
+
+        if (["summarize this", "summarize our conversation", "summarize that"].some(e => t.startsWith(e))) {
+            this._addMessageToChat("ai", "Sure, summarizing the last few messages for you...");
+            const e = this.state.conversationHistory.slice(-6).map(e => `${e.role}: ${e.content}`).join("\n");
+            const i = `Based on the following conversation, please provide a concise summary in a bulleted list format. Focus on key decisions, ideas, and action items.\n\n---\n\n${e}`;
+            const a = await this._getGeminiResponse(i);
+            return this.controls.updateNotes && this.controls.updateNotes(a, false), this._addMessageToChat("ai", "I've added the summary to your scratchpad."), true;
+        }
+        for (const i of ["take a note", "remember that", "add to my notes", "note to self"])
+            if (t.startsWith(i)) {
+                const a = prompt.substring(i.length).trim();
+                if (a && this.controls.updateNotes) return this.controls.updateNotes(a, true), this._addMessageToChat("ai", "Got it. I've added that to your scratchpad."), true;
+            }
+        if (["show my notes", "open scratchpad", "open notes"].some(e => t.includes(e))) {
+            if (this.controls.openNotes) return this.controls.openNotes(), true;
+        }
+        if (["dark mode", "dark theme", "night mode"].some(e => t.includes(e))) {
+            if (this.controls.setTheme) return this.controls.setTheme("dark"), this._addMessageToChat("ai", "Switching to dark mode."), true;
+        }
+        if (["light mode", "light theme", "day mode"].some(e => t.includes(e))) {
+            if (this.controls.setTheme) return this.controls.setTheme("light"), this._addMessageToChat("ai", "Switching to light mode."), true;
+        }
+        if (["wallpaper", "background", "scene"].some(e => t.includes(e))) {
+            if (this.controls.cycleWallpaper) return this._addMessageToChat("ai", this.controls.cycleWallpaper()), true;
+        }
+        if (["browse apps", "show apps", "open app store", "find apps"].some(e => t.includes(e))) {
+            if (this.controls.openAppStore) return this.controls.openAppStore(), this._addMessageToChat("ai", "Here are the available apps."), true;
+        }
+        if (["open", "launch", "go to", "navigate to"].some(e => t.startsWith(e))) {
+            for (const i of this.apps)
+                if (t.includes(i.name.toLowerCase())) return this.launchApp(i), true;
+        }
+        if (["add", "pin", "dock"].some(e => t.includes(e))) {
+            for (const i of this.apps)
+                if (t.includes(i.name.toLowerCase())) return this.controls.addAppToDock && this._addMessageToChat("ai", this.controls.addAppToDock(i.id)), true;
+        }
+        if (["remove", "unpin", "undock"].some(e => t.includes(e))) {
+            for (const i of this.apps)
+                if (t.includes(i.name.toLowerCase())) return this.controls.removeAppFromDock && this._addMessageToChat("ai", this.controls.removeAppFromDock(i.id)), true;
+        }
+        return false;
+    }
+
+    async askAI(e) {
+        if (!e) return;
+        if (this._addMessageToChat("user", e), this.state.conversationHistory.push({
+                role: "user",
+                content: e
+            }), await this._handleCommand(e)) return;
+        this.ui.aiTypingIndicator && this.ui.aiTypingIndicator.classList.remove("hidden");
+        try {
+            const t = await this._getGeminiResponse(e);
+            this._addMessageToChat("ai", t), this.state.conversationHistory.push({
+                role: "ai",
+                content: t
+            });
+        } catch (e) {
+            console.error("Error communicating with AI:", e);
+        } finally {
+            this.ui.aiTypingIndicator && this.ui.aiTypingIndicator.classList.add("hidden");
+        }
+    }
+
+    async _getGeminiResponse(e) {
+        if (!this.GEMINI_API_KEY) return this._addMessageToChat("ai", "It seems the API key is missing. Please check the `js/config.js` file."), new Error("API key is missing.");
+        const t = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
+        let i = "You are a helpful AI assistant for an operating system called VibeOS.";
+        this.state.currentWeather && (i += ` The user's current weather is ${this.state.currentWeather.temp}°C and ${this.state.currentWeather.description}.`);
+        const a = {
+            contents: [{
+                role: "user",
+                parts: [{
+                    text: i
+                }]
+            }, {
+                role: "model",
+                parts: [{
+                    text: "Understood. I am VibeOS's assistant."
+                }]
+            }, {
+                role: "user",
+                parts: [{
+                    text: e
+                }]
+            }]
+        };
+        const s = await fetch(t, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(a)
+        });
+        if (!s.ok) {
+            const e = (await s.json().catch(() => ({
+                error: {
+                    message: `API request failed with status ${s.status}`
+                }
+            }))).error.message || "An unknown API error occurred.";
+            return this._addMessageToChat("ai", `Sorry, an error occurred: ${e}`), new Error(e);
+        }
+        const o = await s.json();
+        try {
+            return o.candidates[0].content.parts[0].text;
+        } catch (e) {
+            const t = "Could not parse the AI's response.";
+            return this._addMessageToChat("ai", `Sorry, an error occurred: ${t}`), console.error("Error parsing AI response:", o), new Error(t);
+        }
+    }
     _addMessageToChat(e,t,i=[]){if(!this.ui.aiMessageList)return;const a=document.createElement("div");a.className=`ai-message from-${e}`;const s=t.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>"),o=document.createElement("div");o.className="message-bubble",o.innerHTML=s,a.appendChild(o),i.length>0&&(()=>{const e=document.createElement("div");e.className="quick-actions-container",i.forEach(t=>{const i=document.createElement("button");i.className="quick-action-btn",i.textContent=t.label,i.dataset.payload=t.payload,e.appendChild(i)}),a.appendChild(e)})(),this.ui.aiMessageList.appendChild(a);const n=this.ui.aiMessageList.closest(".ai-message-list-container");n&&(n.scrollTop=n.scrollHeight)}
+
+// Add ALL of these new functions at the end of the WarmwindOS class
+
+_populateFeaturesGrid() {
+    if (!this.ui.featureGridContainer) return;
+    this.ui.featureGridContainer.innerHTML = ''; // Clear existing cards
+
+    this.features.forEach((feature, index) => {
+        const cardHTML = `
+            <div class="feature-card" data-action="${feature.action}" style="animation-delay: ${index * 50}ms;">
+                <div class="icon">${feature.icon}</div>
+                <div>
+                    <h3>${feature.title}</h3>
+                    <p>${feature.description}</p>
+                </div>
+            </div>
+        `;
+        this.ui.featureGridContainer.insertAdjacentHTML('beforeend', cardHTML);
+    });
+}
+
+_showFeaturesGrid() {
+    if (!this.ui.featureGridOverlay) return;
+    this.ui.featureGridOverlay.classList.remove('hidden'); // For safety
+    this.ui.featureGridOverlay.classList.add('visible');
+}
+
+_hideFeaturesGrid() {
+    if (!this.ui.featureGridOverlay) return;
+    this.ui.featureGridOverlay.classList.remove('visible');
+}
+
+_handleFeatureCardClick(e) {
+    const card = e.target.closest('.feature-card');
+    if (!card) return;
+
+    const action = card.dataset.action;
+
+    // A map of actions to functions, including our new demo functions
+    const actionMap = {
+        'playMusic': () => this.playMusic(),
+        'cycleWallpaper': () => this._addMessageToChat('ai', this.controls.cycleWallpaper()),
+        'openAppStore': () => this.controls.openAppStore(),
+        'toggleThemeDemo': () => {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            this.controls.setTheme(newTheme);
+        },
+        'startTimerDemo': () => this._startTimer(1, 'work'),
+        'takeNoteDemo': () => {
+            this.controls.openNotes();
+            this.controls.updateNotes('This is a sample note added from the feature grid!', true);
+        },
+        'summarizeDemo': () => this._addMessageToChat('ai', "To use this, just type or say 'summarize this conversation' after we've chatted for a bit."),
+        'windowTilingDemo': () => {
+            const spotifyApp = this.apps.find(app => app.id === 'spotify');
+            const youtubeApp = this.apps.find(app => app.id === 'mytube_clone');
+            if (spotifyApp) this.launchApp(spotifyApp);
+            if (youtubeApp) this.launchApp(youtubeApp);
+        }
+    };
+
+    if (actionMap[action]) {
+        actionMap[action]();
+        this._hideFeaturesGrid();
+    }
+}
+
+
 }

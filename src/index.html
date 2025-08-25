@@ -86,6 +86,19 @@
 
     <main class="os-container">
 
+                <!-- NEW: Feature Discovery Grid -->
+                <div id="feature-grid-overlay" class="feature-grid-overlay hidden">
+                    <div class="feature-grid-header">
+                        <h2>Discover VibeOS</h2>
+                        <button id="close-feature-grid-btn" aria-label="Close Features">
+                            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                        </button>
+                    </div>
+                    <div id="feature-grid-container" class="feature-grid-container">
+                        <!-- Feature cards will be dynamically inserted here by JavaScript -->
+                    </div>
+                </div>
+
         <!-- NEW Minimalist Lockscreen -->
     <div id="lockscreen">
         <div class="lockscreen-background"></div>
