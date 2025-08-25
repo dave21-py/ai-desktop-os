@@ -220,38 +220,34 @@
                     <!-- App windows will be dynamically added here by JavaScript -->
                 </div>
 
-        <!-- MOVED & REPURPOSED: The dock now lives at the top -->
-        <!-- In index.html, REPLACE the entire app-dock-container div -->
-<!-- REPLACE with this new structure -->
-<div class="top-bar-container">
-    <!-- VIBEOS DYNAMIC ISLAND / ACTIVITY POD -->
-    <div class="activity-pod" id="activity-pod">
-        <!-- COMPACT VIEW (Always Visible When Active) -->
-        <div class="pod-compact-view">
-            <div class="pod-icon-container" id="pod-icon-container">
-                <!-- Icon will be inserted here by JS -->
+        <!-- MODIFIED: Wrapped pods in a div for centering -->
+        <div class="top-bar-container" id="top-bar-container">
+            <div class="dynamic-island-wrapper">
+                <!-- VIBEOS DYNAMIC ISLAND / ACTIVITY POD -->
+                <div class="activity-pod" id="activity-pod">
+                    <!-- COMPACT VIEW -->
+                    <div class="pod-compact-view">
+                        <div class="pod-icon-container" id="pod-icon-container"></div>
+                        <div class="pod-main-content" id="pod-main-content"></div>
+                    </div>
+                    <!-- EXPANDED VIEW -->
+                    <div class="pod-expanded-view">
+                        <div class="pod-expanded-main" id="pod-expanded-main"></div>
+                        <div class="pod-expanded-actions" id="pod-expanded-actions"></div>
+                    </div>
+                </div>
+                <!-- NEW: SECONDARY POD FOR MULTITASKING -->
+                <div class="secondary-pod" id="secondary-pod">
+                    <!-- Secondary icon will be inserted here by JS -->
+                </div>
+                <!-- END VIBEOS DYNAMIC ISLAND -->
             </div>
-            <div class="pod-main-content" id="pod-main-content">
-                <!-- e.g., "Focus Timer" -->
+
+            <div class="app-dock">
+                <!-- Docked app icons will be dynamically inserted here -->
             </div>
         </div>
 
-        <!-- EXPANDED VIEW (Visible on Hover) -->
-        <div class="pod-expanded-view">
-            <div class="pod-expanded-main" id="pod-expanded-main">
-                <!-- e.g., Album Art & Track Info or Timer Countdown -->
-            </div>
-            <div class="pod-expanded-actions" id="pod-expanded-actions">
-                <!-- e.g., Music Controls or Timer Controls -->
-            </div>
-        </div>
-    </div>
-    <!-- END VIBEOS DYNAMIC ISLAND -->
-
-    <div class="app-dock">
-        <!-- Docked app icons will be dynamically inserted here -->
-    </div>
-</div>
 
         <!-- NEW, CORRECTED STRUCTURE -->
 <div class="chat-view-container">
