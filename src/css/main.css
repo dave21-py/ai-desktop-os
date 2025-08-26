@@ -546,18 +546,18 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 .settings-text-btn:hover { color: #0056b3; }
 
 /* ====================================================== */
-/* NEW: VisionOS-Inspired Feature Grid                    */
+/* FINAL: VisionOS-Inspired Feature Grid                  */
 /* ====================================================== */
 .feature-grid-overlay {
     position: absolute;
     inset: 0;
     z-index: 980;
-    display: grid; /* Use grid to perfectly center the container */
+    display: grid;
     place-items: center;
     padding: 40px;
     
-    /* The transparent, blurred background */
-    background-color: rgba(10, 5, 20, 0.2); /* A very dark, slightly purple, transparent base */
+    /* MODIFIED: Softer, lighter background to match the new image */
+    background-color: rgba(240, 242, 245, 0.3);
     backdrop-filter: blur(50px) saturate(1.2);
     -webkit-backdrop-filter: blur(50px) saturate(1.2);
 
@@ -582,17 +582,17 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     justify-content: space-between;
     align-items: center;
     padding: 24px 40px;
-    color: #fff; /* Text is now white for the dark background */
-    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    color: #000; /* MODIFIED: Darker text for light background */
+    text-shadow: 0 1px 3px rgba(255,255,255,0.2);
 }
 
 .feature-grid-header h2 {
     font-size: 1.8rem;
-    font-weight: 600; /* Slightly thinner for a more refined look */
+    font-weight: 600;
 }
 
 #close-feature-grid-btn {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.05);
     border: none;
     width: 36px;
     height: 36px;
@@ -600,47 +600,45 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(0, 0, 0, 0.5);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 #close-feature-grid-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: rgba(0, 0, 0, 0.1);
+    color: #000;
     transform: scale(1.1);
 }
 
 .feature-grid-container {
     display: grid;
-    /* This creates the specific spatial layout */
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
+    /* REVISED: Switched to a 5x5 grid for better centering and layout control */
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
     gap: 20px;
     width: 100%;
     max-width: 1200px;
     height: 100%;
-    max-height: 700px;
+    max-height: 750px;
 }
 
 .feature-module {
-    /* Base Glassmorphism Style */
-    background-color: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
 
-    padding: 24px;
-    color: #fff;
+    padding: 0; /* REVISED: Padding is now handled by inner elements */
+    color: #000;
     display: flex;
     flex-direction: column;
     position: relative;
     overflow: hidden;
     cursor: pointer;
 
-    /* Animation */
     opacity: 0;
     transform: scale(0.95);
     animation: module-fade-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
@@ -649,12 +647,16 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 
 .feature-module:hover {
     transform: scale(1.02);
-    background-color: rgba(255, 255, 255, 0.15);
-    border-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.7);
 }
 
 .module-content {
-    margin-top: auto; /* Pushes content to the bottom */
+    padding: 24px; /* REVISED: Content gets its own padding */
+    margin-top: auto;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 1px 3px rgba(255,255,255,0.2);
 }
 
 .module-content h3 {
@@ -665,65 +667,31 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 
 .module-content p {
     font-size: 0.9rem;
-    opacity: 0.7;
+    opacity: 0.8;
     line-height: 1.4;
 }
 
-/* --- Layout Positioning --- */
-.module-center-stage  { grid-column: 1 / 3; grid-row: 1 / 4; }
-.module-ai-planner    { grid-column: 1 / 3; grid-row: 4 / 5; }
-.module-dynamic-island{ grid-column: 3 / 5; grid-row: 1 / 2; }
-.module-app-store     { grid-column: 3 / 5; grid-row: 2 / 4; }
-.module-vibeos        { grid-column: 2 / 4; grid-row: 2 / 4; z-index: 2; }
-.module-focus-timer   { grid-column: 2 / 3; grid-row: 4 / 5; }
-.module-toggle-theme  { grid-column: 3 / 4; grid-row: 4 / 5; }
-.module-ask-ai        { grid-column: 4 / 5; grid-row: 4 / 5; }
-
+/* --- FINAL Layout Positioning on the 5x5 Grid --- */
+.module-center-stage  { grid-column: 1 / 3; grid-row: 1 / 4; } /* Takes top ~50% */
+.module-ai-planner    { grid-column: 1 / 3; grid-row: 4 / 6; } /* Takes bottom ~50% */
+.module-dynamic-island{ grid-column: 3 / 6; grid-row: 1 / 2; }
+.module-app-store     { grid-column: 3 / 6; grid-row: 2 / 5; }
+.module-vibeos        { grid-column: 3 / 4; grid-row: 4 / 5; z-index: 2; } /* Corrected position */
+.module-focus-timer   { grid-column: 3 / 4; grid-row: 5 / 6; }
+.module-toggle-theme  { grid-column: 4 / 5; grid-row: 5 / 6; }
+.module-ask-ai        { grid-column: 5 / 6; grid-row: 5 / 6; }
 /* --- Specific Module Styles --- */
-
-/* Center Stage Visual */
-.module-center-stage::before,
-.module-center-stage::after {
-    content: '';
-    position: absolute;
-    width: 60%;
-    height: 60%;
-    background-color: rgba(0,0,0,0.3);
-    border-radius: 16px;
-    top: 15%;
-}
-.module-center-stage::before {
-    left: 10%;
-    transform: rotate(-5deg);
-}
-.module-center-stage::after {
-    left: 30%;
-    top: 20%;
-    transform: rotate(5deg);
-    background-color: rgba(0,0,0,0.4);
-}
 
 /* Dynamic Island */
 .module-dynamic-island {
     background-color: #000;
     border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 24px; /* Add padding back to non-video cards */
 }
-.module-dynamic-island .module-content {
-    margin-top: 0;
-}
-.visualizer {
-    display: flex;
-    gap: 3px;
-    height: 16px;
-    align-items: flex-end;
-    margin-top: 8px;
-}
-.visualizer-bar {
-    width: 4px;
-    background: linear-gradient(to top, #00ffff, #8A2BE2);
-    border-radius: 2px;
-    animation: visualize 1.2s infinite ease-in-out alternate;
-}
+.module-dynamic-island .module-content { margin-top: 0; padding: 0; }
+.visualizer { display: flex; gap: 3px; height: 16px; align-items: flex-end; margin-top: 8px; }
+.visualizer-bar { width: 4px; background: linear-gradient(to top, #00ffff, #8A2BE2); border-radius: 2px; animation: visualize 1.2s infinite ease-in-out alternate; }
 .visualizer-bar:nth-child(2) { animation-delay: -1.0s; }
 .visualizer-bar:nth-child(3) { animation-delay: -0.8s; }
 .visualizer-bar:nth-child(4) { animation-delay: -0.6s; }
@@ -731,75 +699,71 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 .visualizer-bar:nth-child(6) { animation-delay: -0.2s; }
 .visualizer-bar:nth-child(7) { animation-delay: -0.5s; }
 .visualizer-bar:nth-child(8) { animation-delay: -0.9s; }
-@keyframes visualize {
-    from { height: 2px; }
-    to { height: 16px; }
-}
+@keyframes visualize { from { height: 2px; } to { height: 16px; } }
 
 /* App Store */
-.app-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 16px;
-}
-.mini-app {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 12px;
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-.mini-app img {
-    width: 20px;
-    height: 20px;
-}
+.module-app-store { padding: 24px; }
+.module-app-store .module-content { padding: 0; }
+.app-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 16px; }
+.mini-app { background-color: rgba(0,0,0,0.1); border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; font-weight: 500; }
+.mini-app img { width: 22px; height: 22px; }
 
 /* VibeOS Logo */
 .module-vibeos {
     justify-content: center;
     align-items: center;
-    background-color: rgba(0,0,0,0.5);
-    transform: scale(1.05); /* Make it pop a bit */
+    /* REVISED: Darker, more solid glass effect */
+    background-color: rgba(60, 60, 60, 0.7);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: scale(1.05);
+    padding: 24px;
 }
 .vibeos-logo {
-    font-size: 4rem;
-    font-weight: 700;
+    font-size: 2rem; /* REVISED: Even smaller to fit the final layout */
+    font-weight: 600;
 }
 
 /* Utility Icons */
-.module-utility {
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
+.module-utility { 
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    gap: 12px; 
+    padding: 24px;
 }
-.module-utility .module-content {
-    margin-top: 0;
-}
-.utility-icon {
-    width: 40px;
-    height: 40px;
-    display: grid;
-    place-items: center;
-    border: 1px solid rgba(255,255,255,0.3);
-    border-radius: 12px;
-}
-.utility-icon svg, .utility-icon div {
-    width: 20px;
-    height: 20px;
-}
-.theme-icon-indicator {
-    background-color: #fff;
-    border-radius: 50%;
+.module-utility .module-content { margin-top: 0; padding: 0; }
+.utility-icon { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid rgba(0,0,0,0.1); border-radius: 12px; }
+.utility-icon svg, .utility-icon div { width: 20px; height: 20px; }
+.theme-icon-indicator { background-color: #000; border-radius: 50%; }
+
+@keyframes module-fade-in { to { opacity: 1; transform: scale(1); } }
+ 
+/* --- FINAL Styles for Video Framing --- */
+.video-container {
+    flex-grow: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    /* This provides the black background for letterboxing */
+    background-color: #000; 
 }
 
-@keyframes module-fade-in {
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.module-video-bg {
+    width: 100%;
+    height: 100%;
+    /* This is the key change to "zoom out" the video */
+    object-fit: contain; 
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Sits above the video container's background */
+}
+
+.module-center-stage, .module-ai-planner {
+    background-color: transparent; /* The video will provide the background */
+    color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }

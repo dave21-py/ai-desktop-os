@@ -35,12 +35,14 @@ class WarmwindOS {
                 description: "Open multiple apps to see them auto-arrange.",
                 action: 'windowTilingDemo',
                 layout: 'module-center-stage',
+                videoSrc: 'assets/videos/tiling-bg.mov' // Add the video source
             },
             {
                 name: "AI Trip Planner",
                 description: "Generate custom itineraries instantly.",
                 action: 'startPlannerConversation',
                 layout: 'module-ai-planner',
+                videoSrc: 'assets/videos/planner-bg.mov' // Add the video source
             },
             {
                 name: "Dynamic Island",
@@ -910,10 +912,15 @@ class WarmwindOS {
             module.dataset.action = feature.action;
             module.style.animationDelay = `${index * 50}ms`;
     
-            // Don't add description to utility modules or the VibeOS logo
+            let videoHTML = '';
+            if (feature.videoSrc) {
+                videoHTML = `<video class="module-video-bg" src="${feature.videoSrc}" autoplay loop muted playsinline></video>`;
+            }
+    
             const hasContent = feature.name !== 'VibeOS' && !module.classList.contains('module-utility');
             
             module.innerHTML = `
+                ${videoHTML} 
                 ${feature.extraHTML || ''}
                 ${hasContent ? `
                 <div class="module-content">
