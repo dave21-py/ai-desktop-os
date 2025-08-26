@@ -767,3 +767,231 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     color: #fff;
     text-shadow: 0 1px 4px rgba(0,0,0,0.5);
 }
+/* ====================================================== */
+/* NEW: VibeOS Scholar (Homework Helper) Window           */
+/* ====================================================== */
+.scholar-window { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 955; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    opacity: 0; 
+    visibility: hidden; 
+    pointer-events: none; 
+    transition: opacity 0.4s ease, visibility 0.4s; 
+}
+.scholar-window.visible { 
+    opacity: 1; 
+    visibility: visible; 
+    pointer-events: auto; 
+}
+.scholar-content { 
+    width: 90%; 
+    height: 85%; 
+    max-width: 900px; 
+    max-height: 700px; 
+    background-color: var(--primary-bg); 
+    backdrop-filter: blur(25px) saturate(1.5); 
+    -webkit-backdrop-filter: blur(25px) saturate(1.5); 
+    border-radius: 24px; 
+    border: 1px solid var(--border-color); 
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2); 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
+    transform: scale(0.95); 
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
+}
+.scholar-window.visible .scholar-content { 
+    transform: scale(1); 
+}
+.scholar-header { 
+    padding: 16px 24px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid var(--border-color); 
+    flex-shrink: 0; 
+}
+.scholar-header h3 { 
+    font-size: 1.1rem; 
+    color: var(--primary-text); 
+}
+.close-scholar-btn { 
+    background: rgba(0, 0, 0, 0.1); 
+    border: none; 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: var(--secondary-text); 
+    cursor: pointer; 
+    transition: background-color 0.2s ease; 
+    flex-shrink: 0; 
+}
+.close-scholar-btn:hover { 
+    background: rgba(0, 0, 0, 0.15); 
+}
+.scholar-body { 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    position: relative; 
+}
+.scholar-body .hidden { 
+    display: none !important; 
+}
+.scholar-initial-view { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    text-align: center; 
+    height: 100%; 
+    padding: 24px;
+    color: var(--secondary-text); 
+}
+.scholar-icon { 
+    width: 64px; 
+    height: 64px; 
+    margin-bottom: 16px; 
+    opacity: 0.5; 
+}
+.scholar-initial-view h2 { 
+    font-size: 1.5rem; 
+    color: var(--primary-text); 
+    margin-bottom: 8px; 
+}
+.scholar-initial-view p { 
+    max-width: 350px; 
+    line-height: 1.6; 
+    margin-bottom: 24px;
+}
+.scholar-upload-btn {
+    padding: 12px 24px;
+    background-color: var(--accent-color);
+    color: var(--accent-text-color);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.scholar-upload-btn:hover {
+    transform: scale(1.05);
+    background-color: #0056b3;
+}
+.scholar-results-view {
+    display: flex;
+    height: 100%;
+    gap: 16px;
+    padding: 16px;
+}
+.scholar-preview-container {
+    width: 40%;
+    flex-shrink: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: var(--input-bg);
+}
+#scholar-image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.scholar-answer-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    position: relative;
+    padding: 8px;
+}
+.scholar-loading-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+.scholar-spinner { 
+    width: 40px; 
+    height: 40px; 
+    border: 4px solid var(--border-color); 
+    border-top-color: var(--accent-color); 
+    border-radius: 50%; 
+    animation: spin 1s linear infinite; 
+}
+#scholar-answer-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--primary-text);
+}
+#scholar-answer-content p, 
+#scholar-answer-content ul,
+#scholar-answer-content ol {
+    margin-bottom: 1em;
+}
+#scholar-answer-content strong {
+    font-weight: 600;
+}
+.scholar-footer { 
+    padding: 16px 24px; 
+    border-top: 1px solid var(--border-color); 
+    flex-shrink: 0; 
+    background-color: var(--secondary-bg); 
+}
+.scholar-form { 
+    display: flex; 
+    gap: 12px; 
+    align-items: center; 
+}
+#scholar-input { 
+    flex-grow: 1; 
+    padding: 10px 16px; 
+    border-radius: 12px; 
+    border: none; 
+    background-color: var(--input-bg); 
+    font-size: 1rem; 
+    font-family: var(--font-body); 
+    outline: none; 
+    transition: all 0.2s ease; 
+    color: var(--primary-text); 
+    resize: none;
+    line-height: 1.4;
+    min-height: 40px;
+    max-height: 120px;
+}
+#scholar-input:focus { 
+    background-color: rgba(0, 0, 0, 0.08); 
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.5); 
+}
+.scholar-form button { 
+    background: var(--accent-color); 
+    border: none; 
+    border-radius: 50%; 
+    width: 36px; 
+    height: 36px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    cursor: pointer; 
+    color: var(--accent-text-color); 
+    transition: background-color 0.2s ease; 
+    flex-shrink: 0; 
+}
+.scholar-form button:hover { 
+    background-color: #0056b3; 
+}
+#scholar-input:disabled, .scholar-form button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.scholar-form button:disabled:hover {
+    background-color: var(--accent-color);
+}

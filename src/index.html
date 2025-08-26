@@ -51,29 +51,66 @@
                 </div>
     
                 <div class="planner-body">
-                    <!-- Initial state: shows a prompt to the user -->
                     <div class="planner-initial-state" id="planner-initial-view">
                         <svg class="planner-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M22 13v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7v2H4v16h16v-7h2m-5-3.5a1.5 1.5 0 1 0 0-3a1.5 1.5 0 0 0 0 3m-3.56-5.4l-.1.1L17 7.82l-5.6 5.6L10 14l.58-1.42l5.6-5.6l-3.62-3.62z"/></svg>
                         <h2>Plan Your Next Adventure</h2>
                         <p>Tell me where you want to go and for how long. I'll generate a custom itinerary for you.</p>
                     </div>
-                    
-                    <!-- Loading state: shows a spinner -->
                     <div class="planner-loading-state hidden" id="planner-loading-view">
                         <div class="planner-spinner"></div>
                         <p>Crafting your perfect trip...</p>
                     </div>
-                    
-                    <!-- Results state: where the plan will be rendered -->
-                    <div class="planner-results-state hidden" id="planner-results-view">
-                        <!-- The generated plan will be inserted here by JavaScript -->
-                    </div>
+                    <div class="planner-results-state hidden" id="planner-results-view"></div>
                 </div>
     
                 <div class="planner-footer">
                     <form class="planner-form" id="planner-form">
                         <input type="text" id="planner-input" placeholder="e.g., A relaxing 5-day trip to Bali" autocomplete="off">
                         <button type="submit" aria-label="Generate Plan">
+                            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW: VIBEOS SCHOLAR (HOMEWORK HELPER) WINDOW -->
+        <div class="scholar-window">
+            <div class="scholar-content">
+                <div class="scholar-header">
+                    <h3>VibeOS Scholar</h3>
+                    <button class="close-scholar-btn" aria-label="Close Scholar">
+                        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                    </button>
+                </div>
+                <div class="scholar-body">
+                    <!-- State 1: Initial Upload Prompt -->
+                    <div class="scholar-initial-view" id="scholar-initial-view">
+                        <input type="file" id="scholar-file-input" accept="image/*" hidden>
+                        <svg class="scholar-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19.05 8.55q-1.425-3.525-4.838-5.388T8 3.1q-3.05.3-5.275 2.525T.5 10.9q.05 2.4 1.438 4.413T5.3 17.65q.3.1.55.088t.45-.188l.9-1.3q.15-.2.025-.438t-.375-.312q-1.2-.55-1.925-1.638T3.55 11.2q.3-2.2 2.063-3.6T9.4 6.25q2.35 0 4.175 1.55T15.45 11.2q-.05 1.1-.55 2.15t-1.35 1.9q-.2.15-.3.35t-.05.45l.95 1.35q.2.2.425.188t.475-.138q2.125-1.125 3.325-3.1T19 12.1q.05-1.75-.8-3.213t-2.3-2.337Z m-7.1 9.4l-2.45-3.25q-.15-.2-.025-.438t.375-.312L12 12.8l2.75 1.15q.25.1.375.338T15.1 14.7l-2.45 3.25q-.1.125-.25.188t-.3.062q-.15 0-.3-.062t-.25-.188Z"/></svg>
+                        <h2>Solve Anything</h2>
+                        <p>Upload a photo of a question and I'll help you solve it step-by-step.</p>
+                        <button class="scholar-upload-btn" id="scholar-upload-btn">Upload Image</button>
+                    </div>
+
+                    <!-- State 2: Image Preview & Results -->
+                    <div class="scholar-results-view hidden" id="scholar-results-view">
+                        <div class="scholar-preview-container">
+                            <img id="scholar-image-preview" src="#" alt="Homework preview">
+                        </div>
+                        <div class="scholar-answer-container">
+                            <div class="scholar-loading-state hidden" id="scholar-loading-view">
+                                <div class="scholar-spinner"></div>
+                                <p>Analyzing your question...</p>
+                            </div>
+                            <div id="scholar-answer-content"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="scholar-footer">
+                    <form class="scholar-form" id="scholar-form">
+                        <textarea id="scholar-input" placeholder="First, upload an image..." rows="1" disabled></textarea>
+                        <button type="submit" aria-label="Get Answer" disabled>
                             <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M3 20V4l19 8l-19 8Z"></path></svg>
                         </button>
                     </form>
@@ -88,13 +125,11 @@
         <!-- Feature Discovery Grid -->
         <div id="feature-grid-overlay" class="feature-grid-overlay hidden">
             <div class="feature-grid-header">
-                <!-- MODIFIED: Simplified header for a cleaner look -->
                 <h2>Here's what I can do</h2>
                 <button id="close-feature-grid-btn" aria-label="Close Features">
                     <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
                 </button>
             </div>
-            <!-- The new chips will be dynamically inserted here -->
             <div id="feature-grid-container" class="feature-grid-container"></div>
         </div>
 

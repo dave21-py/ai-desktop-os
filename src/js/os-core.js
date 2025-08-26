@@ -423,6 +423,29 @@ class WarmwindOS {
         if (this.ui.featureGridContainer) {
             this.ui.featureGridContainer.addEventListener('click', (e) => this._handleFeatureCardClick(e));
         }
+        // --- ADD THIS BLOCK FOR THE SCHOLAR APP ---
+this.ui.scholarWindow = document.querySelector('.scholar-window');
+this.ui.closeScholarBtn = document.querySelector('.close-scholar-btn');
+this.ui.scholarFileInput = document.getElementById('scholar-file-input');
+this.ui.scholarUploadBtn = document.getElementById('scholar-upload-btn');
+this.ui.scholarInitialView = document.getElementById('scholar-initial-view');
+this.ui.scholarResultsView = document.getElementById('scholar-results-view');
+this.ui.scholarImagePreview = document.getElementById('scholar-image-preview');
+this.ui.scholarLoadingView = document.getElementById('scholar-loading-view');
+this.ui.scholarAnswerContent = document.getElementById('scholar-answer-content');
+this.ui.scholarForm = document.getElementById('scholar-form');
+this.ui.scholarInput = document.getElementById('scholar-input');
+
+// Wire up event listeners for the Scholar app
+if (this.ui.scholarWindow) {
+    this.ui.closeScholarBtn.addEventListener('click', () => this.closeScholar());
+    this.ui.scholarUploadBtn.addEventListener('click', () => this.ui.scholarFileInput.click());
+    this.ui.scholarFileInput.addEventListener('change', (e) => this._handleScholarImageUpload(e));
+    this.ui.scholarForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        this.getScholarAnswer();
+    });
+}
     }
 
     _initAudioContext() {
@@ -1026,4 +1049,118 @@ class WarmwindOS {
             this._addMessageToChat('ai', "Sorry, I couldn't generate the trip plan right now.");
         }
     }
+    // --- PASTE THIS ENTIRE BLOCK OF NEW SCHOLAR FUNCTIONS ---
+
+launchScholar() {
+    if (!this.ui.scholarWindow) return;
+    this.ui.scholarWindow.classList.add('visible');
+    // Reset to initial state every time it's opened
+    this.ui.scholarInitialView.classList.remove('hidden');
+    this.ui.scholarResultsView.classList.add('hidden');
+    this.ui.scholarInput.value = '';
+    this.ui.scholarInput.disabled = true;
+    this.ui.scholarForm.querySelector('button').disabled = true;
+    this.ui.scholarAnswerContent.innerHTML = '';
+    this.state.scholarImageBase64 = null;
+    this.state.scholarMimeType = null;
+}
+
+closeScholar() {
+    if (!this.ui.scholarWindow) return;
+    this.ui.scholarWindow.classList.remove('visible');
+}
+
+_handleScholarImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const dataUrl = e.target.result;
+        this.ui.scholarImagePreview.src = dataUrl;
+
+        // Store the Base64 data and mime type for the API call
+        this.state.scholarImageBase64 = dataUrl.split(',')[1];
+        this.state.scholarMimeType = dataUrl.split(';')[0].split(':')[1];
+        
+        // Switch the UI to the results view
+        this.ui.scholarInitialView.classList.add('hidden');
+        this.ui.scholarResultsView.classList.remove('hidden');
+        this.ui.scholarAnswerContent.innerHTML = '';
+        this.ui.scholarInput.disabled = false;
+        this.ui.scholarForm.querySelector('button').disabled = false;
+        this.ui.scholarInput.placeholder = 'e.g., Solve question 3...';
+        this.ui.scholarInput.focus();
+    };
+    reader.readAsDataURL(file);
+}
+
+async getScholarAnswer() {
+    const prompt = this.ui.scholarInput.value.trim();
+    if (!prompt || !this.state.scholarImageBase64) return;
+    
+    this.ui.scholarLoadingView.classList.remove('hidden');
+    this.ui.scholarAnswerContent.innerHTML = '';
+    this.ui.scholarForm.querySelector('button').disabled = true;
+    
+    try {
+        const response = await this._getGeminiVisionResponse(prompt, this.state.scholarImageBase64, this.state.scholarMimeType);
+        // A simple markdown-to-html conversion
+        const formattedResponse = response
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/(\r\n|\n)/g, '<br>');
+        this.ui.scholarAnswerContent.innerHTML = formattedResponse;
+    } catch (error) {
+        this.ui.scholarAnswerContent.innerHTML = `<p style="color: #c0392b;">Sorry, I encountered an error. Please try again.</p>`;
+    } finally {
+        this.ui.scholarLoadingView.classList.add('hidden');
+        this.ui.scholarForm.querySelector('button').disabled = false;
+        this.ui.scholarInput.focus();
+    }
+}
+
+async _getGeminiVisionResponse(textPrompt, imageBase64, mimeType) {
+    if (!this.GEMINI_API_KEY) {
+        return "It seems the API key is missing. Please check the `js/config.js` file.";
+    }
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
+    
+    const requestBody = {
+        contents: [{
+            parts: [
+                { text: "You are an expert tutor. Analyze the user's question and the provided image to give a clear, step-by-step explanation. Do not just give the final answer." },
+                { text: textPrompt },
+                {
+                    inline_data: {
+                        mime_type: mimeType,
+                        data: imageBase64
+                    }
+                }
+            ]
+        }]
+    };
+
+    const response = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error("API Error:", errorData);
+        throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    try {
+        return data.candidates[0].content.parts[0].text;
+    } catch (e) {
+        console.error("Error parsing AI response:", data);
+        throw new Error("Could not parse the AI's response.");
+    }
+}
+
+// --- END OF THE BLOCK TO PASTE ---
 }

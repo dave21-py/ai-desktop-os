@@ -107,6 +107,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Gear_icon.svg', // Or your own icon
             action: 'openSettings' // This will call a new method on the OS object
         },
+        {
+            name: 'VibeOS Scholar',
+            id: 'scholar',
+            icon: 'https://upload.wikimedia.org/wikipedia/commons/6/61/Book-icon-orange.png', // You will need to create or find an icon for this
+            action: 'launchScholar'
+        },
     ];
 
     // --- Speech Recognition ---
