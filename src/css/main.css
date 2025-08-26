@@ -99,8 +99,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 :root {
-    --font-body: 'Nunito Sans', sans-serif;
-    --font-welcome: 'Lobster', cursive; 
+    --font-body: 'Google Sans', 'Roboto', sans-serif;
     --background-image-url: url('../assets/wallpapers/wallpaper1.png');
     --primary-bg: rgba(240, 240, 240, 0.5);
     --secondary-bg: rgba(224, 226, 229, 0.9);
@@ -393,20 +392,15 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     pointer-events: none;
 }
 
-/* This is the invisible container that holds the title bar and the content */
 .app-window {
     position: absolute;
     display: flex;
     flex-direction: column;
-    
-    /* Make it transparent and frameless. It only handles positioning. */
     background: transparent;
     border: none;
     box-shadow: none;
     padding: 0;
-    overflow: visible; /* Allows shadows from children to be seen */
-
-    /* Animation & Positioning (no changes here) */
+    overflow: visible; 
     pointer-events: none;
     opacity: 0;
     transform: scale(0.9);
@@ -425,31 +419,24 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .app-window.minimized iframe { pointer-events: none; user-select: none; }
 
 
-/* This is the SEPARATE top bar */
 .window-title-bar {
     height: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 6px 0 12px;
-    
-    /* NEW: Frosted Glass Effect */
-    background-color: rgba(255, 255, 255, 0.15); /* Adjust opacity as needed */
+    background-color: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.2);
-
-    /* NEW: More rounded corners for the "pill" shape */
     border-radius: 20px; 
-    
     box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    margin-bottom: 12px; /* <-- This creates the gap */
+    margin-bottom: 12px;
     flex-shrink: 0;
     cursor: default;
     user-select: none;
 }
 
-/* Styles for the content INSIDE the title bar */
 .window-title-details {
     display: flex;
     align-items: center;
@@ -466,7 +453,6 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 .window-title {
     font-size: 0.9rem;
     font-weight: 600;
-    /* NEW: Changed to theme variable for better contrast */
     color: var(--primary-text); 
     white-space: nowrap;
     overflow: hidden;
@@ -488,7 +474,6 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     display: flex;
     align-items: center;
     justify-content: center;
-    /* NEW: Changed to theme variable for better contrast */
     color: var(--secondary-text); 
     cursor: pointer;
     transition: all 0.2s ease;
@@ -497,21 +482,16 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
 
 .window-control-btn:hover {
     background-color: rgba(0, 0, 0, 0.1);
-    /* NEW: Changed to theme variable for better contrast */
     color: var(--primary-text);
 }
 .window-control-btn svg { width: 16px; height: 16px; }
 
-
-/* This is the MAIN APP BODY with the gradient frame */
 .window-content {
-    flex-grow: 1; /* This makes it fill the available space */
-    background: #0F0F0F; /* The black background */
+    flex-grow: 1;
+    background: #0F0F0F;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    overflow: hidden; /* CRUCIAL: Clips the iframe */
-    
-    /* THE GRADIENT BORDER YOU WANTED */
+    overflow: hidden;
     border-width: 2px;
     border-style: solid;
     border-image: linear-gradient(135deg, #ff00ff, #00ffff) 1;
@@ -522,7 +502,6 @@ body.dark-theme .app-item:hover { background-color: rgba(255, 255, 255, 0.1); }
     height: 100%;
     border: none;
 }
-
 
 /* --- Settings Window (Keep these styles separate) --- */
 .settings-window { position: absolute; inset: 65px 20px 120px 20px; background-color: var(--primary-bg); backdrop-filter: blur(25px) saturate(1.5); -webkit-backdrop-filter: blur(25px) saturate(1.5); border: 1px solid var(--border-color); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); display: flex; overflow: hidden; z-index: 900; opacity: 0; transform: scale(0.95); visibility: hidden; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s; }
@@ -567,17 +546,21 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 .settings-text-btn:hover { color: #0056b3; }
 
 /* ====================================================== */
-/* V2: Upgraded Feature Discovery Grid                    */
+/* NEW: VisionOS-Inspired Feature Grid                    */
 /* ====================================================== */
 .feature-grid-overlay {
     position: absolute;
     inset: 0;
     z-index: 980;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(25px) saturate(1.5);
-    -webkit-backdrop-filter: blur(25px) saturate(1.5);
+    display: grid; /* Use grid to perfectly center the container */
+    place-items: center;
+    padding: 40px;
+    
+    /* The transparent, blurred background */
+    background-color: rgba(10, 5, 20, 0.2); /* A very dark, slightly purple, transparent base */
+    backdrop-filter: blur(50px) saturate(1.2);
+    -webkit-backdrop-filter: blur(50px) saturate(1.2);
+
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -591,21 +574,25 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
 }
 
 .feature-grid-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 24px 40px;
-    flex-shrink: 0;
-    color: var(--primary-text);
+    color: #fff; /* Text is now white for the dark background */
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 .feature-grid-header h2 {
     font-size: 1.8rem;
-    font-weight: 700;
+    font-weight: 600; /* Slightly thinner for a more refined look */
 }
 
 #close-feature-grid-btn {
-    background: var(--input-bg);
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     width: 36px;
     height: 36px;
@@ -613,106 +600,206 @@ body.dark-theme .settings-nav-item.active { background-color: rgba(10, 132, 255,
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--secondary-text);
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 #close-feature-grid-btn:hover {
-    background: rgba(0,0,0,0.1);
-    color: var(--primary-text);
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
     transform: scale(1.1);
 }
 
-/* --- NEW GRID CONTAINER STYLES --- */
 .feature-grid-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0 40px 40px;
     display: grid;
-    /* This creates a 4-column grid and tries to fill gaps */
+    /* This creates the specific spatial layout */
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: minmax(150px, auto); /* Control row height */
-    grid-auto-flow: dense; /* Important for filling gaps */
-    gap: 16px;
+    grid-template-rows: repeat(4, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    height: 100%;
+    max-height: 700px;
 }
 
-/* --- NEW BASE CARD STYLES --- */
-.feature-card {
+.feature-module {
+    /* Base Glassmorphism Style */
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 24px;
-    overflow: hidden;
-    position: relative;
-    cursor: pointer;
-    background-size: cover;
-    background-position: center;
-    display: flex; /* For positioning content inside */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+
+    padding: 24px;
+    color: #fff;
+    display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* Push content to the bottom */
-    padding: 20px;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-    
-    /* Animation setup */
-    opacity: 0;
-    transform: translateY(20px);
-    animation: card-fade-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-.feature-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-}
-
-/* Scrim for text readability */
-.feature-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 50%);
-    pointer-events: none;
-}
-
-.card-content {
     position: relative;
-    z-index: 2;
-    color: white;
+    overflow: hidden;
+    cursor: pointer;
+
+    /* Animation */
+    opacity: 0;
+    transform: scale(0.95);
+    animation: module-fade-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.card-content h3 {
+.feature-module:hover {
+    transform: scale(1.02);
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.module-content {
+    margin-top: auto; /* Pushes content to the bottom */
+}
+
+.module-content h3 {
     font-size: 1.2rem;
-    font-weight: 700;
+    font-weight: 600;
     margin: 0 0 4px 0;
 }
 
-.card-content p {
+.module-content p {
     font-size: 0.9rem;
+    opacity: 0.7;
     line-height: 1.4;
-    opacity: 0.8;
-    margin: 0;
 }
 
+/* --- Layout Positioning --- */
+.module-center-stage  { grid-column: 1 / 3; grid-row: 1 / 4; }
+.module-ai-planner    { grid-column: 1 / 3; grid-row: 4 / 5; }
+.module-dynamic-island{ grid-column: 3 / 5; grid-row: 1 / 2; }
+.module-app-store     { grid-column: 3 / 5; grid-row: 2 / 4; }
+.module-vibeos        { grid-column: 2 / 4; grid-row: 2 / 4; z-index: 2; }
+.module-focus-timer   { grid-column: 2 / 3; grid-row: 4 / 5; }
+.module-toggle-theme  { grid-column: 3 / 4; grid-row: 4 / 5; }
+.module-ask-ai        { grid-column: 4 / 5; grid-row: 4 / 5; }
 
-/* --- LAYOUT VARIATIONS --- */
-.feature-card.small-square {
-    grid-column: span 1;
-    grid-row: span 1;
-    aspect-ratio: 1 / 1;
+/* --- Specific Module Styles --- */
+
+/* Center Stage Visual */
+.module-center-stage::before,
+.module-center-stage::after {
+    content: '';
+    position: absolute;
+    width: 60%;
+    height: 60%;
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 16px;
+    top: 15%;
+}
+.module-center-stage::before {
+    left: 10%;
+    transform: rotate(-5deg);
+}
+.module-center-stage::after {
+    left: 30%;
+    top: 20%;
+    transform: rotate(5deg);
+    background-color: rgba(0,0,0,0.4);
 }
 
-.feature-card.medium-rect {
-    grid-column: span 2;
-    grid-row: span 1;
+/* Dynamic Island */
+.module-dynamic-island {
+    background-color: #000;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.module-dynamic-island .module-content {
+    margin-top: 0;
+}
+.visualizer {
+    display: flex;
+    gap: 3px;
+    height: 16px;
+    align-items: flex-end;
+    margin-top: 8px;
+}
+.visualizer-bar {
+    width: 4px;
+    background: linear-gradient(to top, #00ffff, #8A2BE2);
+    border-radius: 2px;
+    animation: visualize 1.2s infinite ease-in-out alternate;
+}
+.visualizer-bar:nth-child(2) { animation-delay: -1.0s; }
+.visualizer-bar:nth-child(3) { animation-delay: -0.8s; }
+.visualizer-bar:nth-child(4) { animation-delay: -0.6s; }
+.visualizer-bar:nth-child(5) { animation-delay: -0.4s; }
+.visualizer-bar:nth-child(6) { animation-delay: -0.2s; }
+.visualizer-bar:nth-child(7) { animation-delay: -0.5s; }
+.visualizer-bar:nth-child(8) { animation-delay: -0.9s; }
+@keyframes visualize {
+    from { height: 2px; }
+    to { height: 16px; }
 }
 
-.feature-card.large-square {
-    grid-column: span 2;
-    grid-row: span 2;
-    aspect-ratio: 1 / 1;
+/* App Store */
+.app-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+.mini-app {
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.mini-app img {
+    width: 20px;
+    height: 20px;
 }
 
-@keyframes card-fade-in {
+/* VibeOS Logo */
+.module-vibeos {
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,0.5);
+    transform: scale(1.05); /* Make it pop a bit */
+}
+.vibeos-logo {
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+/* Utility Icons */
+.module-utility {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+.module-utility .module-content {
+    margin-top: 0;
+}
+.utility-icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+}
+.utility-icon svg, .utility-icon div {
+    width: 20px;
+    height: 20px;
+}
+.theme-icon-indicator {
+    background-color: #fff;
+    border-radius: 50%;
+}
+
+@keyframes module-fade-in {
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: scale(1);
     }
 }

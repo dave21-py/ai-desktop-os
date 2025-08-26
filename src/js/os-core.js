@@ -28,60 +28,70 @@ class WarmwindOS {
         this.podVisualizerCanvas = null;
         this.podVisualizerCtx = null;
         this.podAnimationFrameId = null;
-        // Add this right after this.podAnimationFrameId = null; in the constructor
-// --- REPLACE the old this.features array with this new one ---
 
-this.features = [
-    {
-        title: "Center Stage Tiling",
-        description: "Open multiple apps to see them auto-arrange.",
-        action: 'windowTilingDemo',
-        layout: 'large-square', // Specifies a 2x2 grid block
-        imageUrl: 'assets/features/tiling.png' // You will create this image
-    },
-    {
-        title: "Dynamic Island",
-        description: "Live activities for music and timers.",
-        action: 'playMusic',
-        layout: 'medium-rect', // Specifies a 2x1 grid block
-        imageUrl: 'assets/features/dynamic-island.png'
-    },
-    {
-        title: "Toggle Theme",
-        description: "Switch between light and dark.",
-        action: 'toggleThemeDemo',
-        layout: 'small-square', // Specifies a 1x1 grid block
-        imageUrl: 'assets/features/theme-toggle.png'
-    },
-    {
-        title: "AI Trip Planner",
-        description: "Generate custom itineraries instantly.",
-        action: 'startPlannerConversation', // <-- CORRECTED ACTION
-        layout: 'medium-rect',
-        imageUrl: 'assets/features/trip-planner.png'
-    },
-    {
-        title: "Change Wallpaper",
-        description: "Cycle through stunning backgrounds.",
-        action: 'cycleWallpaper',
-        layout: 'small-square',
-        imageUrl: 'assets/features/wallpaper.png'
-    },
-    {
-        title: "Focus Timer",
-        description: "Launch a Pomodoro session.",
-        action: 'startTimerDemo',
-        layout: 'small-square',
-        imageUrl: 'assets/features/timer.png'
-    },
-    {
-        title: "App Store",
-        description: "Discover and dock new apps.",
-        action: 'openAppStore',
-        layout: 'small-square',
-        imageUrl: 'assets/features/app-store.png'
-    }
-];
+        this.features = [
+            {
+                name: "Center Stage Tiling",
+                description: "Open multiple apps to see them auto-arrange.",
+                action: 'windowTilingDemo',
+                layout: 'module-center-stage',
+            },
+            {
+                name: "AI Trip Planner",
+                description: "Generate custom itineraries instantly.",
+                action: 'startPlannerConversation',
+                layout: 'module-ai-planner',
+            },
+            {
+                name: "Dynamic Island",
+                description: "Live activities for music and timers.",
+                action: 'playMusic',
+                layout: 'module-dynamic-island',
+                extraHTML: `<div class="visualizer">
+                                <div class="visualizer-bar"></div><div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div><div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div><div class="visualizer-bar"></div>
+                                <div class="visualizer-bar"></div><div class="visualizer-bar"></div>
+                            </div>`
+            },
+            {
+                name: "App Store",
+                description: "Discover and dock new apps.",
+                action: 'openAppStore',
+                layout: 'module-app-store',
+                extraHTML: `<div class="app-grid">
+                                <div class="mini-app"><img src="https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg" /> Amazon</div>
+                                <div class="mini-app"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6d/2019_InstructureLogoHorizontal_Color.svg" /> Canvas</div>
+                                <div class="mini-app"><img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" /> ChatGPT</div>
+                                <div class="mini-app"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" /> Chrome</div>
+                            </div>`
+            },
+            {
+                name: "VibeOS",
+                action: 'showInfo',
+                layout: 'module-vibeos',
+                extraHTML: `<h1 class="vibeos-logo">VibeOS</h1>`
+            },
+            {
+                name: "Focus Timer",
+                action: 'startTimerDemo',
+                layout: 'module-focus-timer module-utility',
+                extraHTML: `<div class="utility-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 20a8 8 0 1 0 0-16a8 8 0 0 0 0 16Zm0-2a6 6 0 1 1 0-12a6 6 0 0 1 0 12Z M12 7v5h4v-2h-2V7h-2Z"/></svg></div>`
+            },
+            {
+                name: "Toggle Theme",
+                action: 'toggleThemeDemo',
+                layout: 'module-toggle-theme module-utility',
+                extraHTML: `<div class="utility-icon"><div class="theme-icon-indicator"></div></div>`
+            },
+            {
+                name: "Ask AI",
+                action: 'askAIDemo', // This new action will just close the grid
+                layout: 'module-ask-ai module-utility',
+                extraHTML: `<div class="utility-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6l2.35 2.35L12 7.3l-2.35-2.35L12 2.6m5.05 5.05L19.4 5.3L17.05 3L14.7 5.35l2.35 2.3m-10.1 0L4.6 5.35L2.25 3L4.6 5.3l2.35 2.35M12 9.4l2.35 2.35L12 14.1l-2.35-2.35L12 9.4m5.05 5.05L19.4 12L17.05 9.65L14.7 12l2.35 2.35m-10.1 0L4.6 12.05L2.25 9.7L4.6 12l2.35 2.35M12 16.2l2.35 2.35L12 20.9l-2.35-2.35L12 16.2m5.05 5.05L19.4 18.9L17.05 16.6L14.7 18.95l2.35 2.3Z"/></svg></div>`
+            },
+        ];
+        
     }
 
     async getWeather(lat, lon) {
@@ -106,13 +116,12 @@ this.features = [
         }
     }
 
-    // Add the new line to your boot() method
-boot() {
-    this._initUI();
-    this._populateFeaturesGrid(); // <-- ADD THIS LINE
-    this._updatePodDisplay();
-    console.log("AI OS Core Booted Successfully.");
-}
+    boot() {
+        this._initUI();
+        this._populateFeaturesGrid();
+        this._updatePodDisplay();
+        console.log("AI OS Core Booted Successfully.");
+    }
 
     openSettings() {
         if (!this.ui.settingsWindow) return;
@@ -188,13 +197,11 @@ boot() {
         this.openWindows.add(app.id);
         if (this.controls.appOpened) this.controls.appOpened(app.id);
 
-        // This is the main window container. It gets the blurred background.
         const win = document.createElement('div');
         win.className = 'app-window';
         win.dataset.appId = app.id;
         win.style.zIndex = this.zIndexCounter;
 
-        // Animation origin logic (no changes here)
         if (clickEvent && clickEvent.target) {
             const sourceElement = clickEvent.target.closest('.dock-item, .app-item');
             if (sourceElement) {
@@ -206,8 +213,6 @@ boot() {
             }
         }
         
-        // --- MODIFIED HTML STRUCTURE ---
-        // We're creating the new detached title bar and the inset content wrapper.
         win.innerHTML = `
             <div class="window-title-bar">
                 <div class="window-title-details">
@@ -227,11 +232,9 @@ boot() {
                 <iframe src="${app.url}" title="${app.name}"></iframe>
             </div>
         `;
-        // --- END OF MODIFIED STRUCTURE ---
 
         this.ui.appWindowContainer.appendChild(win);
         
-        // Animation logic (no changes here)
         setTimeout(() => {
             win.classList.add('open');
             setTimeout(() => {
@@ -239,7 +242,6 @@ boot() {
             }, 400);
         }, 10);
 
-        // Event listener logic (no changes here)
         const closeBtn = win.querySelector('.window-control-btn.close');
         closeBtn.addEventListener('click', () => this._closeAppWindow(win));
         const minimizeBtn = win.querySelector('.window-control-btn.minimize');
@@ -334,64 +336,52 @@ boot() {
         return false;
     }
 
-    // This is the NEW function. Paste this in place of the old one.
-_tileWindows() {
-    const container = this.ui.appWindowContainer;
-    const visibleWindows = Array.from(container.querySelectorAll('.app-window:not(.minimized)'));
+    _tileWindows() {
+        const container = this.ui.appWindowContainer;
+        const visibleWindows = Array.from(container.querySelectorAll('.app-window:not(.minimized)'));
+        const PADDING = 20;
+        const CENTER_WIDTH_RATIO = 0.65;
+        const SIDE_WIDTH_RATIO = 0.6;
+        const SIDE_PEEK_AMOUNT = 120;
+        const SIDE_STACK_OFFSET = 15;
 
-    // --- You can tweak these values to change the look ---
-    const PADDING = 20; // Overall spacing from the container edges
-    const CENTER_WIDTH_RATIO = 0.65; // How wide the active window is
-    const SIDE_WIDTH_RATIO = 0.6;   // How wide the side windows are
-    const SIDE_PEEK_AMOUNT = 120;   // How much of the side windows are visible
-    const SIDE_STACK_OFFSET = 15;   // The cascade effect for multiple side windows
+        if (visibleWindows.length === 0) return;
 
-    if (visibleWindows.length === 0) return;
+        if (visibleWindows.length === 1) {
+            const win = visibleWindows[0];
+            win.style.left = `${PADDING}px`;
+            win.style.top = `${PADDING}px`;
+            win.style.width = `calc(100% - ${2 * PADDING}px)`;
+            win.style.height = `calc(100% - ${2 * PADDING}px)`;
+            win.style.transform = 'none';
+            return;
+        }
 
-    // --- Case 1: Only one window is open ---
-    if (visibleWindows.length === 1) {
-        const win = visibleWindows[0];
-        win.style.left = `${PADDING}px`;
-        win.style.top = `${PADDING}px`;
-        win.style.width = `calc(100% - ${2 * PADDING}px)`;
-        win.style.height = `calc(100% - ${2 * PADDING}px)`;
-        win.style.transform = 'none';
-        return;
+        let primary = visibleWindows.find(win => win.classList.contains('active'));
+        if (!primary) {
+            primary = visibleWindows[visibleWindows.length - 1];
+            primary.classList.add('active');
+        }
+
+        const inactiveWindows = visibleWindows.filter(win => win !== primary);
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        const primaryWidth = containerWidth * CENTER_WIDTH_RATIO;
+        primary.style.width = `${primaryWidth}px`;
+        primary.style.height = `calc(100% - ${2 * PADDING}px)`;
+        primary.style.left = `${(containerWidth - primaryWidth) / 2}px`;
+        primary.style.top = `${PADDING}px`;
+        primary.style.transform = 'scale(1)';
+
+        inactiveWindows.forEach((win, index) => {
+            const sideWidth = containerWidth * SIDE_WIDTH_RATIO;
+            win.style.width = `${sideWidth}px`;
+            win.style.height = `calc(100% - ${2 * PADDING}px)`;
+            win.style.top = `${PADDING}px`;
+            win.style.left = `${containerWidth - SIDE_PEEK_AMOUNT}px`;
+            win.style.transform = `scale(0.95) translateX(${index * SIDE_STACK_OFFSET}px) translateY(${index * SIDE_STACK_OFFSET}px)`;
+        });
     }
-
-    // --- Case 2: Multiple windows are open (Center Stage layout) ---
-    let primary = visibleWindows.find(win => win.classList.contains('active'));
-    if (!primary) {
-        primary = visibleWindows[visibleWindows.length - 1];
-        primary.classList.add('active');
-    }
-
-    const inactiveWindows = visibleWindows.filter(win => win !== primary);
-    const containerWidth = container.offsetWidth;
-    const containerHeight = container.offsetHeight;
-
-    // Position the ACTIVE window in the center
-    const primaryWidth = containerWidth * CENTER_WIDTH_RATIO;
-    primary.style.width = `${primaryWidth}px`;
-    primary.style.height = `calc(100% - ${2 * PADDING}px)`;
-    primary.style.left = `${(containerWidth - primaryWidth) / 2}px`;
-    primary.style.top = `${PADDING}px`;
-    primary.style.transform = 'scale(1)'; // Ensure it's full size
-
-    // Position all INACTIVE windows stacked on the right
-    inactiveWindows.forEach((win, index) => {
-        const sideWidth = containerWidth * SIDE_WIDTH_RATIO;
-        win.style.width = `${sideWidth}px`;
-        win.style.height = `calc(100% - ${2 * PADDING}px)`;
-        win.style.top = `${PADDING}px`;
-        
-        // Push it off-screen, then pull it back by the "peek" amount
-        win.style.left = `${containerWidth - SIDE_PEEK_AMOUNT}px`;
-        
-        // Apply a scale and cascade effect
-        win.style.transform = `scale(0.95) translateX(${index * SIDE_STACK_OFFSET}px) translateY(${index * SIDE_STACK_OFFSET}px)`;
-    });
-}
 
     _initUI() {
         this.ui.aiMessageList = document.querySelector('.ai-message-list');
@@ -420,23 +410,19 @@ _tileWindows() {
         this.ui.podExpandedMain = this.ui.activityPod.querySelector('.pod-expanded-main');
         this.ui.podExpandedActions = this.ui.activityPod.querySelector('.pod-expanded-actions');
         this.ui.secondaryPod = document.getElementById('secondary-pod');
-        // Add these lines inside _initUI()
-this.ui.featureGridOverlay = document.getElementById('feature-grid-overlay');
-this.ui.featureGridContainer = document.getElementById('feature-grid-container');
-this.ui.closeFeatureGridBtn = document.getElementById('close-feature-grid-btn');
+        
+        this.ui.featureGridOverlay = document.getElementById('feature-grid-overlay');
+        this.ui.featureGridContainer = document.getElementById('feature-grid-container');
+        this.ui.closeFeatureGridBtn = document.getElementById('close-feature-grid-btn');
 
-// Add the event listeners
-if (this.ui.closeFeatureGridBtn) {
-    this.ui.closeFeatureGridBtn.addEventListener('click', () => this._hideFeaturesGrid());
-}
-if (this.ui.featureGridContainer) {
-    this.ui.featureGridContainer.addEventListener('click', (e) => this._handleFeatureCardClick(e));
-}
+        if (this.ui.closeFeatureGridBtn) {
+            this.ui.closeFeatureGridBtn.addEventListener('click', () => this._hideFeaturesGrid());
+        }
+        if (this.ui.featureGridContainer) {
+            this.ui.featureGridContainer.addEventListener('click', (e) => this._handleFeatureCardClick(e));
+        }
     }
 
-    // ======================================================
-    // MUSIC LOGIC
-    // ======================================================
     _initAudioContext() {
         if (this.isAudioContextInitialized) return;
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -484,16 +470,14 @@ if (this.ui.featureGridContainer) {
         const currentTrack = this.musicLibrary[this.currentTrackIndex];
         this._addActivity('music', { ...currentTrack, isPlaying: false });
     }
-
-    // NEW: Method to fully stop music and remove the island
+    
     stopMusic() {
         const isPlaying = this.ui.audioPlayer && !this.ui.audioPlayer.paused;
-        // Check if music is playing or if the pod is visible (even if paused)
         if (!isPlaying && !this.activePods.has('music')) return;
 
         this.ui.audioPlayer.pause();
-        this.ui.audioPlayer.currentTime = 0; // Rewind the track
-        this._removeActivity('music'); // This is the key change to remove the island
+        this.ui.audioPlayer.currentTime = 0;
+        this._removeActivity('music');
         this._addMessageToChat('ai', 'Music stopped.');
     }
     
@@ -507,9 +491,6 @@ if (this.ui.featureGridContainer) {
         this.playMusic(true);
     }
 
-    // ======================================================
-    // VISUALIZER LOGIC
-    // ======================================================
     _setupPodVisualizerCanvas(canvasId) {
         this.podVisualizerCanvas = document.getElementById(canvasId);
         if (!this.podVisualizerCanvas) return false;
@@ -566,9 +547,6 @@ if (this.ui.featureGridContainer) {
         this.podAnimationFrameId = requestAnimationFrame(() => this._drawPodVisualizer());
     }
 
-    // ======================================================
-    // FOCUS TIMER LOGIC
-    // ======================================================
     _startTimer(minutes, sessionType) {
         if (this.activePods.has('timer')) {
             this._addMessageToChat('ai', "A focus session is already in progress.");
@@ -594,17 +572,12 @@ if (this.ui.featureGridContainer) {
         this._updateTimerDisplay();
         if (this.timerSecondsRemaining <= 0) this._handleTimerCompletion();
     }
-
-    // in os-core.js, inside the WarmwindOS class...
-
-// --- BUG FIX STARTS HERE ---
-// The function is modified to open the planner window in addition to sending a chat message.
-startPlannerConversation() {
-    this.openPlanner(); // This line makes the planner window visible.
-    const message = "The AI Trip Planner is ready. To get started, just tell me where you'd like to go and for how long (e.g., 'a 5-day trip to Paris').";
-    this._addMessageToChat('ai', message);
-}
-// --- BUG FIX ENDS HERE ---
+    
+    startPlannerConversation() {
+        this.openPlanner();
+        const message = "The AI Trip Planner is ready. To get started, just tell me where you'd like to go and for how long (e.g., 'a 5-day trip to Paris').";
+        this._addMessageToChat('ai', message);
+    }
     
     _handleTimerCompletion() {
         clearInterval(this.timerInterval);
@@ -622,13 +595,10 @@ startPlannerConversation() {
         }
     }
     
-    // ======================================================
-    // MASTER ACTIVITY POD CONTROLLER (DYNAMIC ISLAND)
-    // ======================================================
     _addActivity(type, data) {
-        if(this.activePods.has(type)) this.activePods.delete(type); // Remove to re-insert at the top
+        if(this.activePods.has(type)) this.activePods.delete(type);
         const newPods = new Map([[type, data], ...this.activePods]);
-        this.activePods = new Map(Array.from(newPods).slice(0, 2)); // Limit to 2 activities
+        this.activePods = new Map(Array.from(newPods).slice(0, 2));
         this._updatePodDisplay();
     }
 
@@ -648,9 +618,7 @@ startPlannerConversation() {
     _updatePodDisplay() {
         const pod = this.ui.activityPod;
         const secondaryPod = this.ui.secondaryPod;
-        const container = this.ui.topBarContainer;
 
-        // Reset views
         pod.className = 'activity-pod';
         this.ui.podCompactView.innerHTML = '';
         this.ui.podExpandedMain.innerHTML = '';
@@ -693,13 +661,11 @@ startPlannerConversation() {
     _renderMusicPod(data) {
         const { isPlaying } = data;
         
-        // Compact View (Not Hovered)
         this.ui.podCompactView.innerHTML = `
             <span class="pod-compact-text">Now Playing</span>
             ${isPlaying ? '<canvas id="pod-music-visualizer"></canvas>' : this._getIconForType('music')}
         `;
 
-        // Expanded View (Hovered)
         this.ui.podExpandedMain.className = 'music';
         this.ui.podExpandedMain.innerHTML = `
             <div class="pod-track-info">
@@ -725,14 +691,12 @@ startPlannerConversation() {
     }
 
     _renderTimerPod(data) {
-        // Compact View (Not Hovered)
         this.ui.podCompactView.innerHTML = `
             ${this._getIconForType('timer')}
             <span class="pod-compact-text">Focus</span>
             <span id="pod-timer-compact" class="pod-compact-text">--:--</span>
         `;
         
-        // Expanded View (Hovered)
         this.ui.podExpandedMain.className = 'timer';
         this.ui.podExpandedMain.innerHTML = `<span id="pod-timer-expanded">--:--</span>`;
         this.ui.podExpandedActions.innerHTML = `
@@ -754,7 +718,6 @@ startPlannerConversation() {
         if (expandedEl) expandedEl.textContent = timeString;
     }
 
-    // MODIFIED: The _handleCommand logic has been split to handle "stop" differently from "pause"
     async deliverGreeting() {
         const delay = ms => new Promise(res => setTimeout(res, ms));
         if (this.ui.aiTypingIndicator) this.ui.aiTypingIndicator.classList.remove("hidden");
@@ -805,7 +768,7 @@ startPlannerConversation() {
         if (await this._handleSearchCommand(prompt)) return true;
         if (["plan a trip", "trip planner", "travel plan", "planner"].some(e => t.includes(e))) {
             this.openPlanner();
-            this.generateTripPlan(prompt); // Use the user's prompt to start the plan
+            this.generateTripPlan(prompt);
             return true;
         }
         if (["play music", "play a song", "start music", "resume music", "resume", "unpause"].some(e => t.includes(e))) return this.playMusic(), true;
@@ -821,12 +784,10 @@ startPlannerConversation() {
             return this._startTimer(a, s), true;
         }
 
-        // --- THIS IS THE UPDATED BLOCK ---
         if (["help", "what can you do", "show features", "features", "commands"].some(term => t.includes(term))) {
             this._showFeaturesGrid();
-            return true; // Command handled!
+            return true;
         }
-        // --- END OF UPDATE ---
 
         if (["summarize this", "summarize our conversation", "summarize that"].some(e => t.startsWith(e))) {
             this._addMessageToChat("ai", "Sure, summarizing the last few messages for you...");
@@ -936,123 +897,126 @@ startPlannerConversation() {
             return this._addMessageToChat("ai", `Sorry, an error occurred: ${t}`), console.error("Error parsing AI response:", o), new Error(t);
         }
     }
+    
     _addMessageToChat(e,t,i=[]){if(!this.ui.aiMessageList)return;const a=document.createElement("div");a.className=`ai-message from-${e}`;const s=t.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>"),o=document.createElement("div");o.className="message-bubble",o.innerHTML=s,a.appendChild(o),i.length>0&&(()=>{const e=document.createElement("div");e.className="quick-actions-container",i.forEach(t=>{const i=document.createElement("button");i.className="quick-action-btn",i.textContent=t.label,i.dataset.payload=t.payload,e.appendChild(i)}),a.appendChild(e)})(),this.ui.aiMessageList.appendChild(a);const n=this.ui.aiMessageList.closest(".ai-message-list-container");n&&(n.scrollTop=n.scrollHeight)}
 
-// --- REPLACE the old _populateFeaturesGrid() function with this ---
-
-_populateFeaturesGrid() {
-    if (!this.ui.featureGridContainer) return;
-    this.ui.featureGridContainer.innerHTML = ''; // Clear existing cards
-
-    this.features.forEach((feature, index) => {
-        // Use the new properties to build a more complex card
-        const cardHTML = `
-            <div 
-                class="feature-card ${feature.layout}" 
-                data-action="${feature.action}" 
-                style="background-image: url('${feature.imageUrl}'); animation-delay: ${index * 50}ms;"
-            >
-                <div class="card-content">
-                    <h3>${feature.title}</h3>
+    _populateFeaturesGrid() {
+        if (!this.ui.featureGridContainer) return;
+        this.ui.featureGridContainer.innerHTML = '';
+    
+        this.features.forEach((feature, index) => {
+            const module = document.createElement('div');
+            module.className = `feature-module ${feature.layout}`;
+            module.dataset.action = feature.action;
+            module.style.animationDelay = `${index * 50}ms`;
+    
+            // Don't add description to utility modules or the VibeOS logo
+            const hasContent = feature.name !== 'VibeOS' && !module.classList.contains('module-utility');
+            
+            module.innerHTML = `
+                ${feature.extraHTML || ''}
+                ${hasContent ? `
+                <div class="module-content">
+                    <h3>${feature.name}</h3>
                     <p>${feature.description}</p>
                 </div>
-            </div>
-        `;
-        this.ui.featureGridContainer.insertAdjacentHTML('beforeend', cardHTML);
-    });
-}
+                ` : ''}
+                ${module.classList.contains('module-utility') ? `<h3>${feature.name}</h3>` : ''}
+            `;
+            
+            this.ui.featureGridContainer.appendChild(module);
+        });
+    }
 
-_showFeaturesGrid() {
-    if (!this.ui.featureGridOverlay) return;
-    this.ui.featureGridOverlay.classList.remove('hidden'); // For safety
-    this.ui.featureGridOverlay.classList.add('visible');
-}
+    _showFeaturesGrid() {
+        if (!this.ui.featureGridOverlay) return;
+        this.ui.featureGridOverlay.classList.remove('hidden');
+        this.ui.featureGridOverlay.classList.add('visible');
+    }
 
-_hideFeaturesGrid() {
-    if (!this.ui.featureGridOverlay) return;
-    this.ui.featureGridOverlay.classList.remove('visible');
-}
+    _hideFeaturesGrid() {
+        if (!this.ui.featureGridOverlay) return;
+        this.ui.featureGridOverlay.classList.remove('visible');
+    }
 
-_handleFeatureCardClick(e) {
-    const card = e.target.closest('.feature-card');
-    if (!card) return;
-
-    const action = card.dataset.action;
-
-    // A map of actions to functions, including our new demo functions
-    const actionMap = {
-        'playMusic': () => this.playMusic(),
-        'cycleWallpaper': () => this._addMessageToChat('ai', this.controls.cycleWallpaper()),
-        'openAppStore': () => this.controls.openAppStore(),
-        'startPlannerConversation': () => this.startPlannerConversation(), // <-- ADD THIS LINE
-        'toggleThemeDemo': () => {
-            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            this.controls.setTheme(newTheme);
-        },
-        'startTimerDemo': () => this._startTimer(1, 'work'),
-        'takeNoteDemo': () => {
-            this.controls.openNotes();
-            this.controls.updateNotes('This is a sample note added from the feature grid!', true);
-        },
-        'summarizeDemo': () => this._addMessageToChat('ai', "To use this, just type or say 'summarize this conversation' after we've chatted for a bit."),
-        'windowTilingDemo': () => {
-            const spotifyApp = this.apps.find(app => app.id === 'spotify');
-            const youtubeApp = this.apps.find(app => app.id === 'mytube_clone');
-            if (spotifyApp) this.launchApp(spotifyApp);
-            if (youtubeApp) this.launchApp(youtubeApp);
+    _handleFeatureCardClick(e) {
+        const card = e.target.closest('.feature-module');
+        if (!card) return;
+    
+        const action = card.dataset.action;
+        
+        if (action === 'showInfo') return; // Do nothing for VibeOS card
+    
+        const actionMap = {
+            'playMusic': () => this.playMusic(),
+            'cycleWallpaper': () => this._addMessageToChat('ai', this.controls.cycleWallpaper()),
+            'openAppStore': () => this.controls.openAppStore(),
+            'startPlannerConversation': () => this.startPlannerConversation(),
+            'toggleThemeDemo': () => {
+                const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                this.controls.setTheme(newTheme);
+            },
+            'startTimerDemo': () => this._startTimer(1, 'work'),
+            'windowTilingDemo': () => {
+                this._hideFeaturesGrid(); // Close grid first for this one
+                setTimeout(() => {
+                    const spotifyApp = this.apps.find(app => app.id === 'spotify');
+                    const youtubeApp = this.apps.find(app => app.id === 'mytube_clone');
+                    if (spotifyApp) this.launchApp(spotifyApp);
+                    if (youtubeApp) this.launchApp(youtubeApp);
+                }, 300); // Small delay for animation
+                return; // Use return to avoid double-hiding
+            },
+            'askAIDemo': () => {
+                // This just closes the grid and focuses the input
+                this._hideFeaturesGrid();
+                document.querySelector('.center-console')?.click();
+                return;
+            }
+        };
+    
+        if (actionMap[action]) {
+            actionMap[action]();
+            this._hideFeaturesGrid(); 
         }
-    };
-
-    if (actionMap[action]) {
-        actionMap[action]();
-        this._hideFeaturesGrid();
     }
-}
 
-// in os-core.js, inside the WarmwindOS class...
-
-// --- PASTE THIS ENTIRE BLOCK OF MISSING PLANNER FUNCTIONS ---
-
-openPlanner() {
-    if (!this.ui.plannerWindow) return;
-    this.ui.plannerWindow.classList.add('visible');
-}
-
-closePlanner() {
-    if (!this.ui.plannerWindow) return;
-    this.ui.plannerWindow.classList.remove('visible');
-}
-
-async generateTripPlan(prompt) {
-    if (!this.ui.plannerLoadingView || !this.ui.plannerResultsView) return;
-
-    this.ui.plannerInitialView.classList.add('hidden');
-    this.ui.plannerResultsView.classList.add('hidden');
-    this.ui.plannerLoadingView.classList.remove('hidden');
-
-    const fullPrompt = `Generate a travel itinerary based on this request: "${prompt}". 
-    Format the response as a simple, unstyled HTML structure. 
-    Create a main container div with the class "planner-results-state".
-    Inside it, for each day, create a div with the class "day-column".
-    Inside each day-column, create a header div with the class "day-header" containing an h4 tag like "<h4>Day 1: Arrival</h4>".
-    After the header, list activities. For each activity, create a div with the class "activity-card".
-    Inside each activity-card, use an h5 for the time/title (e.g., "<h5>Morning: Explore the Old Town</h5>") and a p tag for the description.
-    Do not include any CSS, <style> tags, or any HTML elements other than the ones specified (div, h4, h5, p).`;
-
-    try {
-        const response = await this._getGeminiResponse(fullPrompt);
-        this.ui.plannerResultsView.innerHTML = response;
-        this.ui.plannerLoadingView.classList.add('hidden');
-        this.ui.plannerResultsView.classList.remove('hidden');
-    } catch (error) {
-        this.ui.plannerLoadingView.classList.add('hidden');
-        this.ui.plannerInitialView.classList.remove('hidden');
-        this._addMessageToChat('ai', "Sorry, I couldn't generate the trip plan right now.");
+    openPlanner() {
+        if (!this.ui.plannerWindow) return;
+        this.ui.plannerWindow.classList.add('visible');
     }
-}
 
-// --- END OF THE BLOCK TO PASTE ---
+    closePlanner() {
+        if (!this.ui.plannerWindow) return;
+        this.ui.plannerWindow.classList.remove('visible');
+    }
 
+    async generateTripPlan(prompt) {
+        if (!this.ui.plannerLoadingView || !this.ui.plannerResultsView) return;
 
+        this.ui.plannerInitialView.classList.add('hidden');
+        this.ui.plannerResultsView.classList.add('hidden');
+        this.ui.plannerLoadingView.classList.remove('hidden');
+
+        const fullPrompt = `Generate a travel itinerary based on this request: "${prompt}". 
+        Format the response as a simple, unstyled HTML structure. 
+        Create a main container div with the class "planner-results-state".
+        Inside it, for each day, create a div with the class "day-column".
+        Inside each day-column, create a header div with the class "day-header" containing an h4 tag like "<h4>Day 1: Arrival</h4>".
+        After the header, list activities. For each activity, create a div with the class "activity-card".
+        Inside each activity-card, use an h5 for the time/title (e.g., "<h5>Morning: Explore the Old Town</h5>") and a p tag for the description.
+        Do not include any CSS, <style> tags, or any HTML elements other than the ones specified (div, h4, h5, p).`;
+
+        try {
+            const response = await this._getGeminiResponse(fullPrompt);
+            this.ui.plannerResultsView.innerHTML = response;
+            this.ui.plannerLoadingView.classList.add('hidden');
+            this.ui.plannerResultsView.classList.remove('hidden');
+        } catch (error) {
+            this.ui.plannerLoadingView.classList.add('hidden');
+            this.ui.plannerInitialView.classList.remove('hidden');
+            this._addMessageToChat('ai', "Sorry, I couldn't generate the trip plan right now.");
+        }
+    }
 }

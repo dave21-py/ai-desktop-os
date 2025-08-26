@@ -7,7 +7,8 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Nunito+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <!-- MODIFIED: Swapped Lobster/Nunito for Google Sans, which is key to the new look -->
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/main.css">
 </head>
@@ -82,44 +83,37 @@
 
     <div class="chat-overlay hidden"></div>
 
-
-
     <main class="os-container">
 
-                <!-- NEW: Feature Discovery Grid -->
-                <div id="feature-grid-overlay" class="feature-grid-overlay hidden">
-                    <div class="feature-grid-header">
-                        <h2>Discover VibeOS</h2>
-                        <button id="close-feature-grid-btn" aria-label="Close Features">
-                            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
-                        </button>
-                    </div>
-                    <div id="feature-grid-container" class="feature-grid-container">
-                        <!-- Feature cards will be dynamically inserted here by JavaScript -->
-                    </div>
-                </div>
-
-        <!-- NEW Minimalist Lockscreen -->
-    <div id="lockscreen">
-        <div class="lockscreen-background"></div>
-
-        <!-- Main content in the center -->
-        <div class="lockscreen-main-center">
-            <div id="lockscreen-center-date">Fri, Aug 22</div>
-            <div id="lockscreen-center-time">00:45</div>
-        </div>
-
-        <!-- User info at the bottom -->
-        <div class="lockscreen-user">
-            <div class="user-avatar-container">
-                <img src="assets/icons/memo.png" alt="User Avatar">
+        <!-- Feature Discovery Grid -->
+        <div id="feature-grid-overlay" class="feature-grid-overlay hidden">
+            <div class="feature-grid-header">
+                <!-- MODIFIED: Simplified header for a cleaner look -->
+                <h2>Here's what I can do</h2>
+                <button id="close-feature-grid-btn" aria-label="Close Features">
+                    <svg viewBox="0 0 24 24"><path fill="currentColor" d="M6.4 19L5 17.6l5.6-5.6L5 6.4L6.4 5l5.6 5.6L17.6 5L19 6.4L13.4 12l5.6 5.6l-1.4 1.4l-5.6-5.6L6.4 19Z"/></svg>
+                </button>
             </div>
-            <span class="user-name">Welcome to VibeOS!</span>
-            <p class="user-prompt">Click anywhere to Enter</p>
+            <!-- The new chips will be dynamically inserted here -->
+            <div id="feature-grid-container" class="feature-grid-container"></div>
         </div>
-    </div>
 
-    <!-- ADD THIS WIDGET -->
+        <!-- Minimalist Lockscreen -->
+        <div id="lockscreen">
+            <div class="lockscreen-background"></div>
+            <div class="lockscreen-main-center">
+                <div id="lockscreen-center-date">Fri, Aug 22</div>
+                <div id="lockscreen-center-time">00:45</div>
+            </div>
+            <div class="lockscreen-user">
+                <div class="user-avatar-container">
+                    <img src="assets/icons/memo.png" alt="User Avatar">
+                </div>
+                <span class="user-name">Welcome to VibeOS!</span>
+                <p class="user-prompt">Click anywhere to Enter</p>
+            </div>
+        </div>
+
     <div class="system-widget">
         <div id="clock-display" class="clock">10:10 PM</div>
         <div id="date-display" class="date">Monday, 20 May</div>
@@ -129,8 +123,8 @@
         </div>
     </div>
 
-     <!-- NEW: Settings App Window -->
-<div id="settings-window" class="settings-window hidden">
+     <!-- Settings App Window -->
+    <div id="settings-window" class="settings-window hidden">
     <div class="settings-sidebar">
         <div class="settings-header">
             <h2>Settings</h2>
@@ -160,7 +154,6 @@
                     <option value="UTC">UTC</option>
                     <option value="EST">Eastern Time (ET)</option>
                     <option value="PST">Pacific Time (PT)</option>
-                    <!-- Add more timezones as needed -->
                 </select>
             </div>
         </div>
@@ -179,18 +172,14 @@
             </div>
             <div class="settings-group">
                 <label>Wallpaper</label>
-                <div class="settings-options-grid" id="wallpaper-options">
-                    <!-- Wallpapers will be populated by JS -->
-                </div>
+                <div class="settings-options-grid" id="wallpaper-options"></div>
             </div>
         </div>
         <div class="settings-pane" data-category="apps">
             <h3>App Management</h3>
             <div class="settings-group">
                 <label>Your Docked Apps</label>
-                <ul id="settings-docked-apps-list" class="settings-app-list">
-                    <!-- Docked apps will be listed here -->
-                </ul>
+                <ul id="settings-docked-apps-list" class="settings-app-list"></ul>
             </div>
         </div>
         <div class="settings-pane" data-category="ai">
@@ -227,58 +216,36 @@
 </div>
         
         <div class="background-image"></div>
-
-                <!-- APP WINDOW CONTAINER -->
-                <div class="app-window-container" id="app-window-container">
-                    <!-- App windows will be dynamically added here by JavaScript -->
-                </div>
-
-        <!-- MODIFIED: Wrapped pods in a div for centering -->
+        <div class="app-window-container" id="app-window-container"></div>
         <div class="top-bar-container" id="top-bar-container">
             <div class="dynamic-island-wrapper">
-                <!-- VIBEOS DYNAMIC ISLAND / ACTIVITY POD -->
                 <div class="activity-pod" id="activity-pod">
-                    <!-- COMPACT VIEW -->
                     <div class="pod-compact-view">
                         <div class="pod-icon-container" id="pod-icon-container"></div>
                         <div class="pod-main-content" id="pod-main-content"></div>
                     </div>
-                    <!-- EXPANDED VIEW -->
                     <div class="pod-expanded-view">
                         <div class="pod-expanded-main" id="pod-expanded-main"></div>
                         <div class="pod-expanded-actions" id="pod-expanded-actions"></div>
                     </div>
                 </div>
-                <!-- NEW: SECONDARY POD FOR MULTITASKING -->
-                <div class="secondary-pod" id="secondary-pod">
-                    <!-- Secondary icon will be inserted here by JS -->
+                <div class="secondary-pod" id="secondary-pod"></div>
+            </div>
+        </div>
+
+        <div class="app-dock"></div>
+        <div class="chat-view-container">
+            <div class="ai-message-list-container">
+                <div class="ai-message-list">
+                    <div class="ai-typing-indicator hidden">
+                        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                    </div>
                 </div>
-                <!-- END VIBEOS DYNAMIC ISLAND -->
-            </div>
-
-            
-        </div>
-
-        <div class="app-dock">
-            <!-- Docked app icons will be dynamically inserted here -->
-        </div>
-
-
-        <!-- NEW, CORRECTED STRUCTURE -->
-<div class="chat-view-container">
-    <div class="ai-message-list-container">
-        <div class="ai-message-list">
-            <div class="ai-typing-indicator hidden">
-                <div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
         </div>
-    </div>
-</div>
     
-                
-                <audio id="timer-notification" src="assets/sounds/notification.mp3" preload="auto"></audio>
+        <audio id="timer-notification" src="assets/sounds/notification.mp3" preload="auto"></audio>
         <audio id="music-player" crossorigin="anonymous"></audio>
-
 
         <footer class="bottom-bar">
             <div class="user-group">
@@ -287,7 +254,6 @@
                 <img src="https://i.pravatar.cc/150?img=3" alt="User 3" class="avatar">
             </div>
 
-            <!-- V2: Modified Center Console -->
             <div class="center-console">
                 <div class="main-user-avatar">
                     <img src="assets/icons/memo.png" alt="Main User Avatar">
@@ -309,14 +275,12 @@
                         </button>
                     </form>
                 </div>
-                <!-- The compact-input-overlay div has been completely removed. -->
             </div>
 
             <div class="right-user">
                 <img src="https://i.pravatar.cc/150?img=5" alt="User 4" class="avatar">
             </div>
         </footer>
-
     </main>
 
     <script src="js/config.js" defer></script>
