@@ -29,20 +29,21 @@ class WarmwindOS {
         this.podVisualizerCtx = null;
         this.podAnimationFrameId = null;
 
+        // --- FINALIZED Feature Definitions ---
         this.features = [
             {
                 name: "Center Stage Tiling",
                 description: "Open multiple apps to see them auto-arrange.",
                 action: 'windowTilingDemo',
                 layout: 'module-center-stage',
-                videoSrc: 'assets/videos/tiling-bg.mov' // Add the video source
+                videoSrc: 'assets/videos/tiling-bg.mov' 
             },
             {
                 name: "AI Trip Planner",
                 description: "Generate custom itineraries instantly.",
                 action: 'startPlannerConversation',
                 layout: 'module-ai-planner',
-                videoSrc: 'assets/videos/planner-bg.mov' // Add the video source
+                videoSrc: 'assets/videos/plannet-bg.mov'
             },
             {
                 name: "Dynamic Island",
@@ -75,6 +76,12 @@ class WarmwindOS {
                 extraHTML: `<h1 class="vibeos-logo">VibeOS</h1>`
             },
             {
+                name: 'VibeOS Scholar',
+                action: 'launchScholar',
+                layout: 'module-scholar module-utility',
+                extraHTML: `<div class="utility-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72L5.18 9L12 5.28L18.82 9zM17 15.99l-5 2.73l-5-2.73v-3.72L12 15l5-2.73v3.72z"/></svg></div>`
+            },
+            {
                 name: "Focus Timer",
                 action: 'startTimerDemo',
                 layout: 'module-focus-timer module-utility',
@@ -88,12 +95,11 @@ class WarmwindOS {
             },
             {
                 name: "Ask AI",
-                action: 'askAIDemo', // This new action will just close the grid
+                action: 'askAIDemo',
                 layout: 'module-ask-ai module-utility',
-                extraHTML: `<div class="utility-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.6l2.35 2.35L12 7.3l-2.35-2.35L12 2.6m5.05 5.05L19.4 5.3L17.05 3L14.7 5.35l2.35 2.3m-10.1 0L4.6 5.35L2.25 3L4.6 5.3l2.35 2.35M12 9.4l2.35 2.35L12 14.1l-2.35-2.35L12 9.4m5.05 5.05L19.4 12L17.05 9.65L14.7 12l2.35 2.35m-10.1 0L4.6 12.05L2.25 9.7L4.6 12l2.35 2.35M12 16.2l2.35 2.35L12 20.9l-2.35-2.35L12 16.2m5.05 5.05L19.4 18.9L17.05 16.6L14.7 18.95l2.35 2.3Z"/></svg></div>`
+                extraHTML: `<div class="utility-icon"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 6a2 2 0 1 1-2-2a2 2 0 0 1 2 2Zm0 6a2 2 0 1 1-2-2a2 2 0 0 1 2 2Zm0 6a2 2 0 1 1-2-2a2 2 0 0 1 2 2Z"/></svg></div>`
             },
         ];
-        
     }
 
     async getWeather(lat, lon) {
@@ -417,35 +423,37 @@ class WarmwindOS {
         this.ui.featureGridContainer = document.getElementById('feature-grid-container');
         this.ui.closeFeatureGridBtn = document.getElementById('close-feature-grid-btn');
 
+        // --- ADD THIS BLOCK FOR THE SCHOLAR APP ---
+        this.ui.scholarWindow = document.querySelector('.scholar-window');
+        this.ui.closeScholarBtn = document.querySelector('.close-scholar-btn');
+        this.ui.scholarFileInput = document.getElementById('scholar-file-input');
+        this.ui.scholarUploadBtn = document.getElementById('scholar-upload-btn');
+        this.ui.scholarInitialView = document.getElementById('scholar-initial-view');
+        this.ui.scholarResultsView = document.getElementById('scholar-results-view');
+        this.ui.scholarImagePreview = document.getElementById('scholar-image-preview');
+        this.ui.scholarLoadingView = document.getElementById('scholar-loading-view');
+        this.ui.scholarAnswerContent = document.getElementById('scholar-answer-content');
+        this.ui.scholarForm = document.getElementById('scholar-form');
+        this.ui.scholarInput = document.getElementById('scholar-input');
+
+        // Wire up event listeners for the Scholar app
+        if (this.ui.scholarWindow) {
+            this.ui.closeScholarBtn.addEventListener('click', () => this.closeScholar());
+            this.ui.scholarUploadBtn.addEventListener('click', () => this.ui.scholarFileInput.click());
+            this.ui.scholarFileInput.addEventListener('change', (e) => this._handleScholarImageUpload(e));
+            this.ui.scholarForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.getScholarAnswer();
+            });
+        }
+        // --- END OF BLOCK TO ADD ---
+
         if (this.ui.closeFeatureGridBtn) {
             this.ui.closeFeatureGridBtn.addEventListener('click', () => this._hideFeaturesGrid());
         }
         if (this.ui.featureGridContainer) {
             this.ui.featureGridContainer.addEventListener('click', (e) => this._handleFeatureCardClick(e));
         }
-        // --- ADD THIS BLOCK FOR THE SCHOLAR APP ---
-this.ui.scholarWindow = document.querySelector('.scholar-window');
-this.ui.closeScholarBtn = document.querySelector('.close-scholar-btn');
-this.ui.scholarFileInput = document.getElementById('scholar-file-input');
-this.ui.scholarUploadBtn = document.getElementById('scholar-upload-btn');
-this.ui.scholarInitialView = document.getElementById('scholar-initial-view');
-this.ui.scholarResultsView = document.getElementById('scholar-results-view');
-this.ui.scholarImagePreview = document.getElementById('scholar-image-preview');
-this.ui.scholarLoadingView = document.getElementById('scholar-loading-view');
-this.ui.scholarAnswerContent = document.getElementById('scholar-answer-content');
-this.ui.scholarForm = document.getElementById('scholar-form');
-this.ui.scholarInput = document.getElementById('scholar-input');
-
-// Wire up event listeners for the Scholar app
-if (this.ui.scholarWindow) {
-    this.ui.closeScholarBtn.addEventListener('click', () => this.closeScholar());
-    this.ui.scholarUploadBtn.addEventListener('click', () => this.ui.scholarFileInput.click());
-    this.ui.scholarFileInput.addEventListener('change', (e) => this._handleScholarImageUpload(e));
-    this.ui.scholarForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.getScholarAnswer();
-    });
-}
     }
 
     _initAudioContext() {
@@ -937,7 +945,8 @@ if (this.ui.scholarWindow) {
     
             let videoHTML = '';
             if (feature.videoSrc) {
-                videoHTML = `<video class="module-video-bg" src="${feature.videoSrc}" autoplay loop muted playsinline></video>`;
+                // MODIFIED: This is the new structure for video cards
+                videoHTML = `<div class="video-container"><video class="module-video-bg" src="${feature.videoSrc}" autoplay loop muted playsinline></video></div>`;
             }
     
             const hasContent = feature.name !== 'VibeOS' && !module.classList.contains('module-utility');
@@ -951,7 +960,7 @@ if (this.ui.scholarWindow) {
                     <p>${feature.description}</p>
                 </div>
                 ` : ''}
-                ${module.classList.contains('module-utility') ? `<h3>${feature.name}</h3>` : ''}
+                ${module.classList.contains('module-utility') ? `<div class="module-content"><h3>${feature.name}</h3></div>` : ''}
             `;
             
             this.ui.featureGridContainer.appendChild(module);
@@ -975,13 +984,14 @@ if (this.ui.scholarWindow) {
     
         const action = card.dataset.action;
         
-        if (action === 'showInfo') return; // Do nothing for VibeOS card
+        if (action === 'showInfo') return; 
     
         const actionMap = {
             'playMusic': () => this.playMusic(),
             'cycleWallpaper': () => this._addMessageToChat('ai', this.controls.cycleWallpaper()),
             'openAppStore': () => this.controls.openAppStore(),
             'startPlannerConversation': () => this.startPlannerConversation(),
+            'launchScholar': () => this.launchScholar(),
             'toggleThemeDemo': () => {
                 const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
                 const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -989,17 +999,16 @@ if (this.ui.scholarWindow) {
             },
             'startTimerDemo': () => this._startTimer(1, 'work'),
             'windowTilingDemo': () => {
-                this._hideFeaturesGrid(); // Close grid first for this one
+                this._hideFeaturesGrid(); 
                 setTimeout(() => {
                     const spotifyApp = this.apps.find(app => app.id === 'spotify');
                     const youtubeApp = this.apps.find(app => app.id === 'mytube_clone');
                     if (spotifyApp) this.launchApp(spotifyApp);
                     if (youtubeApp) this.launchApp(youtubeApp);
-                }, 300); // Small delay for animation
-                return; // Use return to avoid double-hiding
+                }, 300); 
+                return;
             },
             'askAIDemo': () => {
-                // This just closes the grid and focuses the input
                 this._hideFeaturesGrid();
                 document.querySelector('.center-console')?.click();
                 return;
@@ -1049,118 +1058,109 @@ if (this.ui.scholarWindow) {
             this._addMessageToChat('ai', "Sorry, I couldn't generate the trip plan right now.");
         }
     }
-    // --- PASTE THIS ENTIRE BLOCK OF NEW SCHOLAR FUNCTIONS ---
 
-launchScholar() {
-    if (!this.ui.scholarWindow) return;
-    this.ui.scholarWindow.classList.add('visible');
-    // Reset to initial state every time it's opened
-    this.ui.scholarInitialView.classList.remove('hidden');
-    this.ui.scholarResultsView.classList.add('hidden');
-    this.ui.scholarInput.value = '';
-    this.ui.scholarInput.disabled = true;
-    this.ui.scholarForm.querySelector('button').disabled = true;
-    this.ui.scholarAnswerContent.innerHTML = '';
-    this.state.scholarImageBase64 = null;
-    this.state.scholarMimeType = null;
-}
-
-closeScholar() {
-    if (!this.ui.scholarWindow) return;
-    this.ui.scholarWindow.classList.remove('visible');
-}
-
-_handleScholarImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        this.ui.scholarImagePreview.src = dataUrl;
-
-        // Store the Base64 data and mime type for the API call
-        this.state.scholarImageBase64 = dataUrl.split(',')[1];
-        this.state.scholarMimeType = dataUrl.split(';')[0].split(':')[1];
-        
-        // Switch the UI to the results view
-        this.ui.scholarInitialView.classList.add('hidden');
-        this.ui.scholarResultsView.classList.remove('hidden');
+    launchScholar() {
+        if (!this.ui.scholarWindow) return;
+        this.ui.scholarWindow.classList.add('visible');
+        this.ui.scholarInitialView.classList.remove('hidden');
+        this.ui.scholarResultsView.classList.add('hidden');
+        this.ui.scholarInput.value = '';
+        this.ui.scholarInput.disabled = true;
+        this.ui.scholarForm.querySelector('button').disabled = true;
         this.ui.scholarAnswerContent.innerHTML = '';
-        this.ui.scholarInput.disabled = false;
-        this.ui.scholarForm.querySelector('button').disabled = false;
-        this.ui.scholarInput.placeholder = 'e.g., Solve question 3...';
-        this.ui.scholarInput.focus();
-    };
-    reader.readAsDataURL(file);
-}
-
-async getScholarAnswer() {
-    const prompt = this.ui.scholarInput.value.trim();
-    if (!prompt || !this.state.scholarImageBase64) return;
-    
-    this.ui.scholarLoadingView.classList.remove('hidden');
-    this.ui.scholarAnswerContent.innerHTML = '';
-    this.ui.scholarForm.querySelector('button').disabled = true;
-    
-    try {
-        const response = await this._getGeminiVisionResponse(prompt, this.state.scholarImageBase64, this.state.scholarMimeType);
-        // A simple markdown-to-html conversion
-        const formattedResponse = response
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')
-            .replace(/(\r\n|\n)/g, '<br>');
-        this.ui.scholarAnswerContent.innerHTML = formattedResponse;
-    } catch (error) {
-        this.ui.scholarAnswerContent.innerHTML = `<p style="color: #c0392b;">Sorry, I encountered an error. Please try again.</p>`;
-    } finally {
-        this.ui.scholarLoadingView.classList.add('hidden');
-        this.ui.scholarForm.querySelector('button').disabled = false;
-        this.ui.scholarInput.focus();
+        this.state.scholarImageBase64 = null;
+        this.state.scholarMimeType = null;
     }
-}
 
-async _getGeminiVisionResponse(textPrompt, imageBase64, mimeType) {
-    if (!this.GEMINI_API_KEY) {
-        return "It seems the API key is missing. Please check the `js/config.js` file.";
+    closeScholar() {
+        if (!this.ui.scholarWindow) return;
+        this.ui.scholarWindow.classList.remove('visible');
     }
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
-    
-    const requestBody = {
-        contents: [{
-            parts: [
-                { text: "You are an expert tutor. Analyze the user's question and the provided image to give a clear, step-by-step explanation. Do not just give the final answer." },
-                { text: textPrompt },
-                {
-                    inline_data: {
-                        mime_type: mimeType,
-                        data: imageBase64
+
+    _handleScholarImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            this.ui.scholarImagePreview.src = dataUrl;
+            this.state.scholarImageBase64 = dataUrl.split(',')[1];
+            this.state.scholarMimeType = dataUrl.split(';')[0].split(':')[1];
+            this.ui.scholarInitialView.classList.add('hidden');
+            this.ui.scholarResultsView.classList.remove('hidden');
+            this.ui.scholarAnswerContent.innerHTML = '';
+            this.ui.scholarInput.disabled = false;
+            this.ui.scholarForm.querySelector('button').disabled = false;
+            this.ui.scholarInput.placeholder = 'e.g., Solve question 3...';
+            this.ui.scholarInput.focus();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async getScholarAnswer() {
+        const prompt = this.ui.scholarInput.value.trim();
+        if (!prompt || !this.state.scholarImageBase64) return;
+        
+        this.ui.scholarLoadingView.classList.remove('hidden');
+        this.ui.scholarAnswerContent.innerHTML = '';
+        this.ui.scholarForm.querySelector('button').disabled = true;
+        
+        try {
+            const response = await this._getGeminiVisionResponse(prompt, this.state.scholarImageBase64, this.state.scholarMimeType);
+            const formattedResponse = response
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/(\r\n|\n)/g, '<br>');
+            this.ui.scholarAnswerContent.innerHTML = formattedResponse;
+        } catch (error) {
+            this.ui.scholarAnswerContent.innerHTML = `<p style="color: #c0392b;">Sorry, I encountered an error. Please try again.</p>`;
+        } finally {
+            this.ui.scholarLoadingView.classList.add('hidden');
+            this.ui.scholarForm.querySelector('button').disabled = false;
+            this.ui.scholarInput.focus();
+        }
+    }
+
+    async _getGeminiVisionResponse(textPrompt, imageBase64, mimeType) {
+        if (!this.GEMINI_API_KEY) {
+            return "It seems the API key is missing. Please check the `js/config.js` file.";
+        }
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.GEMINI_API_KEY}`;
+        
+        const requestBody = {
+            contents: [{
+                parts: [
+                    { text: "You are an expert tutor. Analyze the user's question and the provided image to give a clear, step-by-step explanation. Do not just give the final answer." },
+                    { text: textPrompt },
+                    {
+                        inline_data: {
+                            mime_type: mimeType,
+                            data: imageBase64
+                        }
                     }
-                }
-            ]
-        }]
-    };
+                ]
+            }]
+        };
 
-    const response = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-    });
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestBody)
+        });
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        console.error("API Error:", errorData);
-        throw new Error(`API request failed with status ${response.status}`);
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("API Error:", errorData);
+            throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json();
+        try {
+            return data.candidates[0].content.parts[0].text;
+        } catch (e) {
+            console.error("Error parsing AI response:", data);
+            throw new Error("Could not parse the AI's response.");
+        }
     }
-
-    const data = await response.json();
-    try {
-        return data.candidates[0].content.parts[0].text;
-    } catch (e) {
-        console.error("Error parsing AI response:", data);
-        throw new Error("Could not parse the AI's response.");
-    }
-}
-
-// --- END OF THE BLOCK TO PASTE ---
 }
