@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="400px" src="assets/icons/memo.png" alt="VibeOS logo" />
+  <img width="400px" src="wallpaper2.png" alt="VibeOS logo" />
   <h2 align="center">VibeOS - A Conversational AI Desktop</h2>
   <p align="center">An experimental, AI-powered operating system built entirely in the browser, featuring a conversational interface, window management, and integrated AI tools.</p>
 </p>
@@ -50,11 +50,11 @@ To get a local copy up and running, follow these simple steps.
 
 1.  **Clone the repo**
     ```bash
-    git clone https://github.com/your-username/vibe-os.git
+    git clone https://github.com/dave21-py/ai-desktop-os.git
     ```
 2.  **Navigate to the project directory**
     ```bash
-    cd vibe-os
+    cd ai-desktop-os
     ```
 3.  **Set up API Keys**
     The project requires API keys for Google Gemini and OpenWeather.
