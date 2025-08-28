@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="400px" src="wallpaper2.png" alt="VibeOS logo" />
+  <img width="400px" src="wallpaper3.png" alt="VibeOS logo" />
   <h2 align="center">VibeOS - A Conversational AI Desktop</h2>
   <p align="center">An experimental, AI-powered operating system built entirely in the browser, featuring a conversational interface, window management, and integrated AI tools.</p>
 </p>
