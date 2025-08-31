@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { name: 'Google Sheets', id: 'sheets', icon: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', url: 'https://docs.google.com/spreadsheets/' },
         { name: 'Google Slides', id: 'slides', icon: 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Google_Slides_logo_%282014-2020%29.svg', url: 'https://docs.google.com/presentation/' },
         { name: 'Outlook', id: 'outlook', icon: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Microsoft_Office_Outlook_%282018%E2%80%93present%29.svg', url: 'https://outlook.live.com' },
-        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://spotify-astro-transitions.vercel.app/playlist/2_side', openInWindow: true },
+        { name: 'Spotify', id: 'spotify', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Spotify_logo_with_text.svg', url: 'https://audio-adventures-pro.lovable.app/', openInWindow: true },
         { name: 'AI Trip Planner', id: 'ai_planner', icon: 'https://upload.wikimedia.org/wikipedia/commons/c/cb/Globe_rotating.gif', action: 'startPlannerConversation' },
         { name: 'YouTube', id: 'mytube_clone', icon: 'https://upload.wikimedia.org/wikipedia/commons/5/54/YouTube_dark_logo_2017.svg', url: 'https://youtube-clone-orcin.vercel.app', openInWindow: true },
         { name: 'Wikipedia', id: 'wikipedia', icon: 'https://upload.wikimedia.org/wikipedia/commons/8/80/Wikipedia-logo-v2.svg', url: 'https://www.wikipedia.org/', openInWindow: true },
