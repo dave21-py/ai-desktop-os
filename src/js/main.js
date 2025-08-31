@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         { name: 'Amazon', id: 'amazon', icon: 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Amazon_icon.svg', url: 'https://www.amazon.com' },
         { name: 'Canvas', id: 'canvas', icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6d/2019_InstructureLogoHorizontal_Color.svg', url: 'https://bju.instructure.com' },
         { name: 'ChatGPT', id: 'chatgpt', icon: 'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg', url: 'https://chat.openai.com' },
+        { name: 'Google', id: 'google', icon: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg', url: 'https://www.google.com/webhp?igu=1', openInWindow: true},
         { name: 'Google Chrome', id: 'chrome', icon: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg', url: 'https://www.google.com/chrome/' },
         { name: 'DuckDuckGo', id: 'duckduckgo', icon: 'https://upload.wikimedia.org/wikipedia/en/9/90/DuckDuckGo_logo.svg', url: 'https://duckduckgo.com' },
         { name: 'Gmail', id: 'gmail', icon: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg', url: 'https://mail.google.com' },
